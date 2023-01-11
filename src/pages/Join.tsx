@@ -6,11 +6,17 @@ const Bg = styled.div`
   ${flexCenterAlign}
   width: 100vw;
   height: 100vh;
+  @media all and (min-width: 768px) and (max-width: 1023px) {
+    background-color: #eef2ff;
+  }
+  @media all and (max-width: 767px) {
+    background-color: #eef2ff;
+  }
 `;
 
 const JoinContainer = styled.div`
   ${flexCenterAlign}
-  width: 45vw;
+  width: 55vw;
   height: 100vh;
   background-color: #eef2ff;
 `;
@@ -33,31 +39,43 @@ const WelcomeMessage = styled.p`
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  @media all and (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media all and (max-width: 1023px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
   gap: 1em;
 `;
 
-const Button = styled.button<{ red?: boolean }>`
-  padding: 0.4em;
+const Button = styled.button<{ red?: boolean; small?: boolean }>`
+  padding: ${props => (props.small ? '0.3em' : '0.6em')};
   background-color: ${props => (props.red ? '#FF5959' : '#E0E0E0')};
   border: none;
   border-radius: 0.3em;
+  cursor: pointer;
 `;
 
 const SmallSizeMessage = styled.p`
   margin-top: 3em;
+  margin-bottom: 1em;
   font-size: 0.8em;
 `;
 
 const InputName = styled.span`
+  justify-self: end;
   &::before {
     content: '*';
     color: #ff5959;
   }
+  @media all and (max-width: 1023px) {
+    justify-self: start;
+  }
 `;
 const Input = styled.input`
-  width: 20em;
-  padding: 0.5em;
+  width: 25em;
+  padding: 0.6em;
   border: 1px solid #e0e0e0;
   border-radius: 0.3em;
   &:focus {
@@ -88,20 +106,26 @@ const Join = () => {
             <div />
             <InputName>비밀번호</InputName>
             <div>
-              <Input type="text" placeholder="예시)example@email.com" />
+              <Input
+                type="text"
+                placeholder="영문, 숫자, 특수문자 포함 8자리 이상"
+              />
             </div>
             <div />
             <InputName>비밀번호 확인</InputName>
             <div>
-              <Input type="text" placeholder="예시)example@email.com" />
+              <Input
+                type="text"
+                placeholder="비밀번호를 한 번 더 입력해주세요."
+              />
             </div>
             <div />
             <InputName>닉네임</InputName>
             <div>
-              <Input type="text" placeholder="예시)example@email.com" />
+              <Input type="text" placeholder="닉네임을 입력해주세요." />
             </div>
             <div>
-              <Button>중복확인</Button>
+              <Button small>중복확인</Button>
             </div>
           </GridContainer>
           <SmallSizeMessage>

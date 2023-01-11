@@ -11,6 +11,24 @@ ${reset}
   *{
     box-sizing:border-box;
   }
+
+  @media all and (min-width:1024px) {
+    body {
+      font-size: 16px;
+    }
+  } 
+
+  @media all and (min-width:768px) and (max-width:1023px) {
+    body {
+      font-size: 15px;
+    }
+  } 
+  
+  @media all and (max-width:767px) {
+    body {
+      font-size: 14px;
+    }
+  }
 `;
 
 export default GlobalStyles;
