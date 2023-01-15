@@ -8,7 +8,7 @@ const Router = () => {
     <BrowserRouter>
       <GlobalStyles />
       <Routes>
-        <Route path="/" element={<Join />} />
+        <Route path="/join" element={<Join />} />
       </Routes>
     </BrowserRouter>
   );
