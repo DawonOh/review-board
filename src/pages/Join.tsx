@@ -156,42 +156,26 @@ const Join = () => {
     setNickNameValue(e.target.value);
   };
   const checkNickName = () => {
-    // fetch('http://localhost:8000/nickCheck', {
-    //   method: 'POST',
-    //   headers: requestHeaders,
-    //   body: JSON.stringify({
-    //     nickname: nickName,
-    //   }),
-    // })
-    //   .then(res => res.json())
-    //   .then(json => {
-    //     if (json.result) {
-    //       alert('사용 가능한 닉네임입니다.');
-    //       setIsTryNickCheck('pass');
-    //       setIsNickPass(true);
-    //     } else if (nickName === '') {
-    //       setIsTryNickCheck('notYet');
-    //       setIsNickPass(false);
-    //       return;
-    //     } else {
-    //       alert('사용중인 닉네임입니다.');
-    //       setIsTryNickCheck('nonPass');
-    //       setIsNickPass(false);
-    //     }
-    //   });
-    if (nickName && isNickPass) {
-      alert('사용 가능한 닉네임입니다.');
-      setIsTryNickCheck('pass');
-      setIsNickPass(true);
-    } else if (nickName === '') {
-      setIsTryNickCheck('notYet');
-      setIsNickPass(false);
-      return;
-    } else {
-      alert('사용중인 닉네임입니다.');
-      setIsTryNickCheck('nonPass');
-      setIsNickPass(false);
-    }
+    fetch(`http://localhost:8000/users/signup?nickname=${nickName}`, {
+      headers: requestHeaders,
+    })
+      .then(res => res.json())
+      .then(json => {
+        let result = String(json.message);
+        if (result.includes('available')) {
+          alert('사용 가능한 닉네임입니다.');
+          setIsTryNickCheck('pass');
+          setIsNickPass(true);
+        } else if (nickName === '') {
+          setIsTryNickCheck('notYet');
+          setIsNickPass(false);
+          return;
+        } else {
+          alert('사용중인 닉네임입니다.');
+          setIsTryNickCheck('nonPass');
+          setIsNickPass(false);
+        }
+      });
   };
 
   //회원가입
