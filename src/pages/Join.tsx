@@ -220,28 +220,25 @@ const Join = () => {
     ) {
       alert('입력한 정보를 다시 확인해주세요.');
     } else {
-      // fetch('http://localhost:8000/join', {
-      //   method: 'POST',
-      //   headers: requestHeaders,
-      //   body: JSON.stringify({
-      //     email: email,
-      //     passWord: passWord,
-      //     nickName: nickName,
-      //   }),
-      // })
-      //   .then(res => res.json())
-      //   .then(json => {
-      //     if (json.result) {
-      //       alert('회원가입되었습니다. 3초 후에 메인화면으로 이동합니다.');
-      //       setTimeout(function () {
-      //         window.location.href = '/';
-      //       }, 3000);
-      //     } else {
-      //       alert('잠시후 다시 시도해주세요.');
-      //     }
-      //   });
-      alert('회원가입되었습니다.');
-      window.location.href = '/';
+      fetch('http://localhost:8000/users/signup', {
+        method: 'POST',
+        headers: requestHeaders,
+        body: JSON.stringify({
+          nickname: nickName,
+          password: passWord,
+          email: email,
+        }),
+      })
+        .then(res => res.json())
+        .then(json => {
+          let result = String(json.message);
+          if (result.includes('success')) {
+            alert('회원가입되었습니다.');
+            window.location.href = '/';
+          } else {
+            alert('잠시후 다시 시도해주세요.');
+          }
+        });
     }
   };
   return (
