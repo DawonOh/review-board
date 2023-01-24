@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { flexCenterAlign } from 'Styles/CommonStyle';
+import { Button } from 'Components';
 
 const Bg = styled.div`
   ${flexCenterAlign}
@@ -45,15 +46,6 @@ const GridContainer = styled.div`
     grid-template-columns: repeat(1, 1fr);
   }
   gap: 1em;
-`;
-
-const Button = styled.button<{ red?: boolean; small?: boolean }>`
-  padding: ${props => (props.small ? '0.3em' : '0.6em')};
-  background-color: ${props => (props.red ? '#FF5959' : '#E0E0E0')};
-  color: ${props => (props.red ? '#fff' : '#000')};
-  border: none;
-  border-radius: 0.3em;
-  cursor: pointer;
 `;
 
 const SmallSizeMessage = styled.p`
@@ -100,7 +92,7 @@ const WarnMessage = styled.p<{
   font-size: 0.8em;
 `;
 
-const Join = () => {
+export const Join = () => {
   const [email, setEmail] = useState('');
   const [isEmailPass, setIsEmailPass] = useState(true);
 
@@ -155,7 +147,7 @@ const Join = () => {
   const getNickNameValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickNameValue(e.target.value);
   };
-  const checkNickName = () => {
+  const checkNickName = () =>
     fetch(`http://localhost:8000/users/signup?nickname=${nickName}`, {
       headers: requestHeaders,
     })
@@ -176,7 +168,6 @@ const Join = () => {
           setIsNickPass(false);
         }
       });
-  };
 
   //회원가입
   const join = () => {
@@ -277,9 +268,7 @@ const Join = () => {
               />
             </div>
             <div>
-              <Button small onClick={checkNickName}>
-                중복확인
-              </Button>
+              <Button size="small" onClick={checkNickName} content="중복확인" />
             </div>
           </GridContainer>
           <SmallSizeMessage>
@@ -287,11 +276,14 @@ const Join = () => {
           </SmallSizeMessage>
           <Buttons>
             <Link to="/">
-              <Button>취소</Button>
+              <Button content="취소" />
             </Link>
-            <Button red onClick={join}>
-              가입하기
-            </Button>
+            <Button
+              backgroundColor="red"
+              onClick={join}
+              content="가입하기"
+              color="white"
+            />
           </Buttons>
         </JoinContents>
       </JoinContainer>
@@ -299,4 +291,4 @@ const Join = () => {
   );
 };
 
-export default Join;
+// export default Join;

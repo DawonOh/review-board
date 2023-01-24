@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Join from 'pages/Join';
+import { Join } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
 const Router = () => {
