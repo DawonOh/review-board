@@ -23,9 +23,9 @@ test('Button component has backgroundColor,color and size props', () => {
   render(
     <Button
       content="Button Test"
-      backgroundColor="red"
-      color="white"
-      size="small"
+      backgroundColor="#FF5959"
+      color="#fff"
+      size="0.3em"
     />
   );
   const container = screen.getByTestId('container-element');

@@ -13,16 +13,15 @@ const Container = styled.button<{
   backgroundColor?: string;
   size?: string;
 }>`
-  padding: ${props => (props.size === 'small' ? '0.3em' : '0.6em')};
-  background-color: ${props =>
-    props.backgroundColor === 'red' ? '#FF5959' : '#E0E0E0'};
+  padding: ${props => props.size};
+  background-color: ${props => props.backgroundColor};
   border: none;
   border-radius: 0.3em;
   cursor: pointer;
 `;
 
 const Content = styled.span<{ color?: string }>`
-  color: ${props => (props.color === 'white' ? '#fff' : '#000')};
+  color: ${props => props.color};
 `;
 
 export const Button = ({
