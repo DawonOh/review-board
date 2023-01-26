@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import Modal from 'react-modal';
 
-import { Button } from 'Components';
+import { Button, AlertModal } from 'Components';
 import closeButtonImg from '../../assets/images/close.png';
 import { flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
@@ -55,57 +55,135 @@ interface Props {
   isModalOpen: boolean;
   setIsModalOpen: (isModalOpen: boolean) => void;
 }
+
+interface MessageType {
+  id: number;
+  text: string;
+}
 export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [isDisabled, setIsDisabeld] = useState(true);
+
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
   Modal.setAppElement('#root');
+
+  const getEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
+
+  useEffect(() => {
+    if (email && password) {
+      setIsDisabeld(false);
+    } else {
+      setIsDisabeld(true);
+    }
+  }, [email, password]);
+  const login = () => {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/signin`, {
+      method: 'POST',
+      headers: requestHeaders,
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    })
+      .then(res => res.json())
+      .then(json => {
+        let message = String(json.message);
+        if (message.includes('success')) {
+          localStorage.setItem('token', json.result.token);
+          setIsModalOpen(false);
+        } else {
+          setIsAlertModalOpen(true);
+          setMessages([
+            { id: 1, text: '이메일/비밀번호가 일치하지 않습니다.' },
+          ]);
+          setEmail('');
+          setPassword('');
+        }
+      });
+  };
+
   return (
-    <Modal
-      isOpen={isModalOpen}
-      onRequestClose={() => setIsModalOpen(false)}
-      style={{
-        overlay: {
-          width: '100%',
-          height: '100%',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0, 0.4)',
-        },
-        content: {
-          position: 'absolute',
-          width: '40rem',
-          height: '23rem',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          border: '1px solid #ccc',
-          background: '#fff',
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          borderRadius: '6px',
-          outline: 'none',
-          padding: '20px',
-        },
-      }}
-    >
-      <LoginModalContainer>
-        <CloseButton onClick={() => setIsModalOpen(false)} />
-        <Title>Title</Title>
-        <Input type="text" placeholder="이메일을 입력해주세요." />
-        <Input type="text" placeholder="비밀번호를 입력해주세요." />
-        <Buttons>
-          <Button
-            content="로그인"
-            backgroundColor="#FF5959"
-            size="0.4rem 7rem"
-            color="#fff"
+    <Fragment>
+      <AlertModal
+        isAlertModalOpen={isAlertModalOpen}
+        setIsAlertModalOpen={setIsAlertModalOpen}
+        contents={messages}
+      />
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        style={{
+          overlay: {
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0, 0.4)',
+          },
+          content: {
+            position: 'absolute',
+            width: '38rem',
+            height: '25rem',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            border: '1px solid #ccc',
+            background: '#fff',
+            overflow: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            borderRadius: '6px',
+            outline: 'none',
+            padding: '20px',
+          },
+        }}
+      >
+        <LoginModalContainer>
+          <CloseButton onClick={() => setIsModalOpen(false)} />
+          <Title>Title</Title>
+          <Input
+            type="text"
+            placeholder="이메일을 입력해주세요."
+            onChange={getEmail}
+            value={email}
           />
-        </Buttons>
-        <Link to="/join">
-          <GoToJoin>회원가입</GoToJoin>
-        </Link>
-      </LoginModalContainer>
-    </Modal>
+          <Input
+            type="text"
+            placeholder="비밀번호를 입력해주세요."
+            onChange={getPw}
+            value={password}
+          />
+          <Buttons>
+            <Button
+              content="로그인"
+              backgroundColor={email && password ? '#FF5959' : '#E0E0E0'}
+              size="0.4rem 7rem"
+              color="#fff"
+              onClick={login}
+              disabled={isDisabled}
+            />
+          </Buttons>
+          <Link to="/join">
+            <GoToJoin>회원가입</GoToJoin>
+          </Link>
+        </LoginModalContainer>
+      </Modal>
+    </Fragment>
   );
 };
