@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
 
-import { Button, AlertModal } from 'Components';
+import { Button } from 'Components';
 import closeButtonImg from '../../assets/images/close.png';
 import { flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
@@ -55,13 +55,18 @@ const GoToJoin = Styled.span`
 `;
 
 const StyledModal = Modal.styled`
-width: 32em;
-height: 20em;
-display: flex;
-align-items: center;
-justify-content: center;
-background-color: white;
-border-radius: 4px;
+  width: 32em;
+  height: 20em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 4px;
+`;
+
+const ErrorMessage = Styled.p`
+  color: #FF5959;
+  font-size: 0.9em;
 `;
 
 interface Props {
@@ -69,18 +74,11 @@ interface Props {
   setIsModalOpen: (isModalOpen: boolean) => void;
 }
 
-interface MessageType {
-  id: number;
-  text: string;
-}
-
 export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
   const [isDisabled, setIsDisabeld] = useState(true);
-
+  const [isLoginPass, setIsLoginPass] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -102,88 +100,76 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
       setIsDisabeld(true);
     }
   }, [email, password]);
-  const login = () => {
-    // fetch(`${BACK_URL}:${BACK_PORT}/users/signin`, {
-    //   method: 'POST',
-    //   headers: requestHeaders,
-    //   body: JSON.stringify({
-    //     email: email,
-    //     password: password,
-    //   }),
-    // })
-    //   .then(res => res.json())
-    //   .then(json => {
-    //     let message = String(json.message);
-    //     if (message.includes('success')) {
-    //       localStorage.setItem('token', json.result.token);
-    //       setIsModalOpen(false);
-    //     } else {
-    //       setIsAlertModalOpen(true);
-    //       setMessages([
-    //         { id: 1, text: '이메일/비밀번호가 일치하지 않습니다.' },
-    //       ]);
-    //       setEmail('');
-    //       setPassword('');
-    //     }
-    //   });
-    setIsAlertModalOpen(true);
-    setMessages([{ id: 1, text: '이메일/비밀번호가 일치하지 않습니다.' }]);
-    setEmail('');
-    setPassword('');
-  };
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-        />
-      );
-    }
+  const emailInput = useRef<HTMLInputElement>(null);
+
+  const login = () => {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/signin`, {
+      method: 'POST',
+      headers: requestHeaders,
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    })
+      .then(res => res.json())
+      .then(json => {
+        let message = String(json.message);
+        if (message.includes('success')) {
+          localStorage.setItem('token', json.result.token);
+          setIsModalOpen(false);
+          setIsLoginPass(false);
+        } else {
+          setIsLoginPass(false);
+          setEmail('');
+          setPassword('');
+          emailInput.current?.focus();
+        }
+      });
   };
 
   return (
-    <Fragment>
-      <ModalProvider>
-        <StyledModal
-          isOpen={isModalOpen}
-          onBackgroundClick={() => setIsModalOpen(false)}
-          onEscapeKeydown={() => setIsModalOpen(false)}
-        >
-          <LoginModalContainer>
-            <CloseButton onClick={() => setIsModalOpen(false)} />
-            <Title>Title</Title>
-            <Input
-              type="text"
-              placeholder="이메일을 입력해주세요."
-              onChange={getEmail}
-              value={email}
+    <ModalProvider>
+      <StyledModal
+        isOpen={isModalOpen}
+        onBackgroundClick={() => setIsModalOpen(false)}
+        onEscapeKeydown={() => setIsModalOpen(false)}
+      >
+        <LoginModalContainer>
+          <CloseButton onClick={() => setIsModalOpen(false)} />
+          <Title>Title</Title>
+          <Input
+            type="text"
+            placeholder="이메일을 입력해주세요."
+            onChange={getEmail}
+            value={email}
+            ref={emailInput}
+          />
+          <Input
+            type="password"
+            placeholder="비밀번호를 입력해주세요."
+            onChange={getPw}
+            value={password}
+          />
+          {isLoginPass && (
+            <ErrorMessage>이메일/비밀번호가 일치하지 않습니다.</ErrorMessage>
+          )}
+
+          <Buttons>
+            <Button
+              content="로그인"
+              backgroundColor={email && password ? '#FF5959' : '#E0E0E0'}
+              size="0.6em 1em"
+              color="#fff"
+              onClick={login}
+              disabled={isDisabled}
             />
-            <Input
-              type="password"
-              placeholder="비밀번호를 입력해주세요."
-              onChange={getPw}
-              value={password}
-            />
-            <Buttons>
-              <Button
-                content="로그인"
-                backgroundColor={email && password ? '#FF5959' : '#E0E0E0'}
-                size="0.6em 1em"
-                color="#fff"
-                onClick={login}
-                disabled={isDisabled}
-              />
-            </Buttons>
-            <Link to="/join">
-              <GoToJoin>회원가입</GoToJoin>
-            </Link>
-          </LoginModalContainer>
-        </StyledModal>
-      </ModalProvider>
-      {openAlertModal()}
-    </Fragment>
+          </Buttons>
+          <Link to="/join">
+            <GoToJoin>회원가입</GoToJoin>
+          </Link>
+        </LoginModalContainer>
+      </StyledModal>
+    </ModalProvider>
   );
 };

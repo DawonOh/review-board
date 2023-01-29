@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Styled from 'styled-components';
-import Modal, { BaseModalBackground, ModalProvider } from 'styled-react-modal';
+import Modal, { ModalProvider } from 'styled-react-modal';
 
 import { Button } from 'Components';
 import { flexCenterAlign } from 'Styles/CommonStyle';
