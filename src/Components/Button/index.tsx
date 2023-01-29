@@ -17,6 +17,7 @@ const Container = styled.button<{
 }>`
   padding: ${props => props.size};
   background-color: ${props => props.backgroundColor};
+  font-size: 1em;
   border: none;
   border-radius: 0.3em;
   cursor: ${props => (props.disabled ? 'default' : 'pointer')};

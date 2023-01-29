@@ -21,8 +21,8 @@ const AlertMessage = Styled.div`
 `;
 
 const StyledModal = Modal.styled`
-  width: 20rem;
-  height: 12rem;
+  width: 20em;
+  height: 12em;
   display: flex;
   align-items: center;
   justify-content: center;

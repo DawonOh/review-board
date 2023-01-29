@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
-import { useMediaQuery } from 'react-responsive';
 
 import { Button, AlertModal } from 'Components';
 import closeButtonImg from '../../assets/images/close.png';
@@ -30,7 +29,7 @@ const CloseButton = Styled.div`
 `;
 
 const Title = Styled.h1`
-  font-size: 2rem;
+  font-size: 2em;
   font-weight: 700;
   color: #676FA3;
 `;
@@ -38,6 +37,7 @@ const Title = Styled.h1`
 const Input = Styled.input`
 width: 20em;
 padding: 0.6em;
+font-size: 1em;
 border: 1px solid #e0e0e0;
 border-radius: 0.3em;
 &:focus {
@@ -51,17 +51,17 @@ const Buttons = Styled.div`
 `;
 
 const GoToJoin = Styled.span`
-  font-size: 0.9rem;
+  font-size: 0.9em;
 `;
 
 const StyledModal = Modal.styled`
-  width: 32rem;
-  height: 20rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  border-radius: 4px;
+width: 32em;
+height: 20em;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: white;
+border-radius: 4px;
 `;
 
 interface Props {
@@ -83,9 +83,6 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-
-  const isDesktop = useMediaQuery({ minDeviceWidth: 1024 });
-  const isTabletOrMobile = useMediaQuery({ maxDeviceWidth: 1023 });
 
   const getEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -174,7 +171,7 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
               <Button
                 content="로그인"
                 backgroundColor={email && password ? '#FF5959' : '#E0E0E0'}
-                size="0.4rem 7rem"
+                size="0.6em 1em"
                 color="#fff"
                 onClick={login}
                 disabled={isDisabled}
