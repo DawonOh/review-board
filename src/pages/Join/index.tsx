@@ -268,7 +268,7 @@ export const Join = () => {
               />
             </div>
             <div>
-              <Button size="small" onClick={checkNickName} content="중복확인" />
+              <Button size="0.3em" onClick={checkNickName} content="중복확인" />
             </div>
           </GridContainer>
           <SmallSizeMessage>
@@ -276,13 +276,14 @@ export const Join = () => {
           </SmallSizeMessage>
           <Buttons>
             <Link to="/">
-              <Button content="취소" />
+              <Button content="취소" size="0.6em" />
             </Link>
             <Button
-              backgroundColor="red"
+              backgroundColor="#FF5959"
               onClick={join}
               content="가입하기"
-              color="white"
+              color="#fff"
+              size="0.6em"
             />
           </Buttons>
         </JoinContents>
