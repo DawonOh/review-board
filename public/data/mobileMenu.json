@@ -1,0 +1,25 @@
+{
+  "menuList": [
+    {
+      "id": 1,
+      "title": "검색",
+      "icon": "images/search.png",
+      "link": "/search"
+    },
+    {
+      "id": 2,
+      "title": "리뷰쓰기",
+      "icon": "images/write.png",
+      "link": "/upload"
+    },
+    {
+      "id": 3,
+      "title": "마이페이지",
+      "icon": "images/person.png",
+      "link": "/mypage"
+    }
+  ],
+  "logoutMenuList": [
+    { "id": 1, "title": "검색", "icon": "images/search.png", "link": "/search" }
+  ]
+}
