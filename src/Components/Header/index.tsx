@@ -51,7 +51,7 @@ const Input = Styled.input`
 const SearchButton = Styled.div`
   width: 1.3em;
   height: 1.3em;
-  margin: 0 2em 0 0.4em;
+  margin: 0 1.3em 0 0.4em;
   background: url(${SearchIcon});
   background-repeat: no-repeat;
 	background-size: cover;
@@ -76,6 +76,7 @@ const Icons = Styled.div`
 `;
 const Icon = Styled.img`
   width: 1.3em;
+  cursor: pointer;
 `;
 
 interface Props {
@@ -100,6 +101,11 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
       setIsLogin(false);
     }
   }, [token, isLogin]);
+
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = '/';
+  };
   return (
     <HeaderContainer>
       <Link to="/">
@@ -116,7 +122,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
             <Link to="/mypage">
               <Icon src={PersonIcon} alt="마이페이지" />
             </Link>
-            <Icon src={LogoutIcon} alt="로그아웃" />
+            <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
           </Icons>
         ) : (
           <Button

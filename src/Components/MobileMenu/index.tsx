@@ -85,6 +85,11 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
   const handleModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = '/';
+    setIsMenuOn(false);
+  };
   return (
     <MenuContainer isMenuOn={isMenuOn}>
       <MenuTitle>메뉴</MenuTitle>
@@ -102,7 +107,7 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
           );
         })}
         {isLogin ? (
-          <Button content="로그아웃" />
+          <Button content="로그아웃" onClick={logout} />
         ) : (
           <Button
             content="로그인"
