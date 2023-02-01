@@ -15,6 +15,7 @@ export const MainPage = () => {
     <MainContainer>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      MainPage
     </MainContainer>
   );
 };
