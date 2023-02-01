@@ -1,22 +1,20 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Button, Login } from 'Components';
+import { Header, MobileMenu } from 'Components';
+import Styled from 'styled-components';
 
+const MainContainer = Styled.div`
+  width: 100%;
+  height: 100%;
+  position: relate;
+`;
 export const MainPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleModalOpen = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  const [isMenuOn, setIsMenuOn] = useState(false);
+
   return (
-    <Fragment>
-      <Button
-        content="로그인"
-        backgroundColor="#676FA3"
-        color="#fff"
-        size="0.8rem 1.5rem"
-        onClick={handleModalOpen}
-      />
-      <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-    </Fragment>
+    <MainContainer>
+      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+    </MainContainer>
   );
 };
