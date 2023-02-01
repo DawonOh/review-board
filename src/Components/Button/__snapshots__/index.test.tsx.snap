@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Button component correctly 1`] = `
+.c0 {
+  background-color: #E0E0E0;
+  border: none;
+  border-radius: 0.3em;
+  cursor: pointer;
+}
+
+.c1 {
+  color: #000;
+}
+
+<div>
+  <button
+    class="c0"
+    color="#000"
+    data-testid="container-element"
+  >
+    <span
+      class="c1"
+      color="#000"
+    >
+      Button Test
+    </span>
+  </button>
+</div>
+`;
