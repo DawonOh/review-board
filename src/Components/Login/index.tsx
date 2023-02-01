@@ -131,12 +131,16 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   return (
     <ModalProvider>
       <StyledModal
+        data-testid="Login Test"
         isOpen={isModalOpen}
         onBackgroundClick={() => setIsModalOpen(false)}
         onEscapeKeydown={() => setIsModalOpen(false)}
       >
         <LoginModalContainer>
-          <CloseButton onClick={() => setIsModalOpen(false)} />
+          <CloseButton
+            onClick={() => setIsModalOpen(false)}
+            data-testid="close button"
+          />
           <Title>Title</Title>
           <Input
             type="text"
