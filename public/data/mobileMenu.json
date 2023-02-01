@@ -17,8 +17,7 @@
       "title": "마이페이지",
       "icon": "images/person.png",
       "link": "/mypage"
-    },
-    { "id": 4, "title": "로그아웃", "icon": "images/logout.png", "link": "/" }
+    }
   ],
   "logoutMenuList": [
     { "id": 1, "title": "검색", "icon": "images/search.png", "link": "/search" }

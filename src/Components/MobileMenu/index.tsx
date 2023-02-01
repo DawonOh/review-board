@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 
 import { Button, Login } from 'Components';
+import { Link } from 'react-router-dom';
 
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
   width: 100vw;
@@ -53,6 +54,7 @@ interface MenuProps {
   id: number;
   title: string;
   icon?: string;
+  link: string;
 }
 
 export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
@@ -90,22 +92,26 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
         {menuList.map((menuItem: MenuProps) => {
           return (
             <Fragment key={menuItem.id}>
-              <MenuItem>
-                <MenuIcon src={menuItem.icon} alt={menuItem.title} />
-                {menuItem.title}
-              </MenuItem>
-              {!isLogin && (
-                <Button
-                  content="로그인"
-                  backgroundColor="#676FA3"
-                  color="#fff"
-                  size="0.8rem 1.5rem"
-                  onClick={handleModalOpen}
-                />
-              )}
+              <Link to={menuItem.link}>
+                <MenuItem>
+                  <MenuIcon src={menuItem.icon} alt={menuItem.title} />
+                  {menuItem.title}
+                </MenuItem>
+              </Link>
             </Fragment>
           );
         })}
+        {isLogin ? (
+          <Button content="로그아웃" />
+        ) : (
+          <Button
+            content="로그인"
+            backgroundColor="#676FA3"
+            color="#fff"
+            size="0.8rem 1.5rem"
+            onClick={handleModalOpen}
+          />
+        )}
       </MenuList>
       <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </MenuContainer>
