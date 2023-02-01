@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Join } from 'pages';
+import { Join, MainPage } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
 const Router = () => {
@@ -9,6 +9,7 @@ const Router = () => {
       <GlobalStyles />
       <Routes>
         <Route path="/join" element={<Join />} />
+        <Route path="/" element={<MainPage />} />
       </Routes>
     </BrowserRouter>
   );

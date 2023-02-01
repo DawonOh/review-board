@@ -7,17 +7,20 @@ interface ButtonProps {
   readonly onClick?: () => void;
   readonly size?: string;
   readonly content: string;
+  readonly disabled?: boolean;
 }
 
 const Container = styled.button<{
   backgroundColor?: string;
   size?: string;
+  disabled?: boolean;
 }>`
   padding: ${props => props.size};
   background-color: ${props => props.backgroundColor};
+  font-size: 1em;
   border: none;
   border-radius: 0.3em;
-  cursor: pointer;
+  cursor: ${props => (props.disabled ? 'default' : 'pointer')};
 `;
 
 const Content = styled.span<{ color?: string }>`
@@ -30,6 +33,7 @@ export const Button = ({
   onClick,
   size,
   content,
+  disabled,
 }: ButtonProps) => {
   return (
     <Container
@@ -37,6 +41,7 @@ export const Button = ({
       color={color}
       onClick={onClick}
       size={size}
+      disabled={disabled}
       data-testid="container-element"
     >
       <Content color={color}>{content}</Content>
