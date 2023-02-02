@@ -4,6 +4,7 @@ import Styled from 'styled-components';
 import HeartIconImg from '../../assets/images/heart.png';
 import LikeIconImg from '../../assets/images/like.png';
 import CommentIconImg from '../../assets/images/comment.png';
+import Clip from '../../assets/images/clip.png';
 
 const CardContainer = Styled.div`
   border: 1px solid #EBEBEB;
@@ -38,6 +39,13 @@ const Category = Styled.div`
   font-size: 0.85em;
   color: #fff;
   border-radius: 10px;
+`;
+
+const TitleAndCategory = Styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.8em;
 `;
 
 const Content = Styled.div<{ isHaveThumbnail: boolean }>`
@@ -75,6 +83,7 @@ const Counts = Styled.span`
 interface Props {
   title: string;
   category: string;
+  file?: string;
   img?: string;
   content: string;
   isLike: boolean;
@@ -85,6 +94,7 @@ interface Props {
 export const Card = ({
   title,
   category,
+  file,
   img,
   content,
   isLike,
@@ -98,12 +108,15 @@ export const Card = ({
     } else {
       setIsHaveThumbnail(false);
     }
-  }, []);
+  }, [img]);
   return (
     <CardContainer>
       <Title>
-        <TitleText>{title}</TitleText>
-        <Category>{category}</Category>
+        <TitleAndCategory>
+          <TitleText>{title}</TitleText>
+          <Category>{category}</Category>
+        </TitleAndCategory>
+        {file && <Icon src={Clip} alt="첨부파일" />}
       </Title>
       {img && <Thumbnail src={img} alt={title} />}
       <Content isHaveThumbnail={isHaveThumbnail}>{content}</Content>

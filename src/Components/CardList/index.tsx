@@ -6,6 +6,7 @@ import { Card } from 'Components/Card';
 const CardListContainer = Styled.main`
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(300px, 1fr));
+  justify-content: space-around;
   align-items: center;
   width: 80%;
   height: 100%;
@@ -26,6 +27,7 @@ export const CardList = () => {
         content="통신·방송의 시설기준과 신문의 기능을 보장하기 위하여 필요한 사항은 법률로 정한다. 대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다. 국회는 상호원조 또는 안전보장에 관한 조약, 중요한 국제조직에 관한 조약, 우호통상항해조약, 주권의 제약에 관한 조약, 강화조약, 국가나 국민에게 중대한 재정적 부담을 지우는 조약 또는 입법사항에 관한 조약의 체결·비준에 대한 동의권을 가진다."
         img="https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1176&q=80"
         isLike={true}
+        file="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/5373075d-7aa0-4cff-b314-0bd607392396/front-%EC%83%81%EC%84%B8%EA%B8%B0%EB%8A%A54%EC%B0%A8.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230202%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230202T001847Z&X-Amz-Expires=86400&X-Amz-Signature=c8c301740267a5754d9524f595a1a0fc3ee3c69a1ebadac51027f9bdd9bf4903&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22front-%25EC%2583%2581%25EC%2584%25B8%25EA%25B8%25B0%25EB%258A%25A54%25EC%25B0%25A8.pdf%22&x-id=GetObject"
         likeCount={1}
         commentCount={1}
       />
