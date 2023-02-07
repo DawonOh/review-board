@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { flexCenterAlign } from 'Styles/CommonStyle';
-import { Button } from 'Components';
+import Styled from 'styled-components';
+import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 
-const Bg = styled.div`
+const Bg = Styled.div`
   ${flexCenterAlign}
   width: 100vw;
   height: 100vh;
@@ -13,30 +12,30 @@ const Bg = styled.div`
   }
 `;
 
-const JoinContainer = styled.div`
+const JoinContainer = Styled.div`
   ${flexCenterAlign}
   width: 55vw;
   height: 100vh;
   background-color: #eef2ff;
 `;
 
-const JoinContents = styled.div`
+const JoinContents = Styled.div`
   ${flexCenterAlign}
   flex-direction: column;
 `;
 
-const Title = styled.h1`
+const Title = Styled.h1`
   margin: 0.3em;
   color: #676fa3;
   font-size: 2.5em;
   font-weight: 700;
 `;
 
-const WelcomeMessage = styled.p`
+const WelcomeMessage = Styled.p`
   margin-bottom: 3em;
 `;
 
-const GridContainer = styled.div`
+const GridContainer = Styled.div`
   display: grid;
   align-items: center;
   @media all and (min-width: 1024px) {
@@ -48,13 +47,13 @@ const GridContainer = styled.div`
   gap: 1em;
 `;
 
-const SmallSizeMessage = styled.p`
+const SmallSizeMessage = Styled.p`
   margin-top: 3em;
   margin-bottom: 1em;
   font-size: 0.8em;
 `;
 
-const InputName = styled.span`
+const InputName = Styled.span`
   justify-self: end;
   &::before {
     content: '*';
@@ -64,7 +63,7 @@ const InputName = styled.span`
     justify-self: start;
   }
 `;
-const Input = styled.input`
+const Input = Styled.input`
   width: 25em;
   padding: 0.6em;
   border: 1px solid #e0e0e0;
@@ -73,12 +72,12 @@ const Input = styled.input`
     outline: none;
   }
 `;
-const Buttons = styled.div`
+const Buttons = Styled.div`
   display: flex;
   gap: 1em;
 `;
 
-const WarnMessage = styled.p<{
+const WarnMessage = Styled.p<{
   isEmailPass?: boolean;
   isPassWordPass?: boolean;
   isPwChkPass?: boolean;
@@ -90,6 +89,22 @@ const WarnMessage = styled.p<{
   margin-top: 0.3em;
   color: #ff5959;
   font-size: 0.8em;
+`;
+
+const JoinButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.6em;
+  background-color: #FF5959;
+  color: #fff;
+  cursor: pointer;
+`;
+
+const Button = Styled.button`
+  ${ButtonLayout}
+  padding: 0.6em;
+  background-color: #E0E0E0;
+  color: #000;
+  cursor: pointer;
 `;
 
 export const Join = () => {
@@ -268,7 +283,7 @@ export const Join = () => {
               />
             </div>
             <div>
-              <Button size="0.3em" onClick={checkNickName} content="중복확인" />
+              <Button onClick={checkNickName}>중복확인</Button>
             </div>
           </GridContainer>
           <SmallSizeMessage>
@@ -276,15 +291,9 @@ export const Join = () => {
           </SmallSizeMessage>
           <Buttons>
             <Link to="/">
-              <Button content="취소" size="0.6em" />
+              <Button>취소</Button>
             </Link>
-            <Button
-              backgroundColor="#FF5959"
-              onClick={join}
-              content="가입하기"
-              color="#fff"
-              size="0.6em"
-            />
+            <JoinButton onClick={join}>가입하기</JoinButton>
           </Buttons>
         </JoinContents>
       </JoinContainer>

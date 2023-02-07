@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 
-import { Button, Login } from 'Components';
+import { Login } from 'Components/Login';
+import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
@@ -42,6 +43,22 @@ const MenuIcon = Styled.img`
 
 const MenuItem = Styled.li`
   font-size: 1.3em;
+  cursor: pointer;
+`;
+
+const LoginButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.8em 1.5em;
+  background-color: #676FA3;
+  color: #fff;
+  cursor: pointer;
+`;
+
+const LogoutButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.3em;
+  background-color: #EBEBEB;
+  color: #000;
   cursor: pointer;
 `;
 
@@ -107,15 +124,9 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
           );
         })}
         {isLogin ? (
-          <Button content="로그아웃" onClick={logout} />
+          <LogoutButton onClick={logout}>로그아웃</LogoutButton>
         ) : (
-          <Button
-            content="로그인"
-            backgroundColor="#676FA3"
-            color="#fff"
-            size="0.8rem 1.5rem"
-            onClick={handleModalOpen}
-          />
+          <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
         )}
       </MenuList>
       <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />

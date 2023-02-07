@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
 
-import { Button } from 'Components';
 import closeButtonImg from '../../assets/images/close.png';
-import { flexCenterAlign } from 'Styles/CommonStyle';
+import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 
 const LoginModalContainer = Styled.div`
@@ -69,6 +68,16 @@ const ErrorMessage = Styled.p`
   font-size: 0.9em;
 `;
 
+const LoginButton = Styled.button<{
+  disabled?: boolean;
+}>`
+  ${ButtonLayout}
+  padding: 0.6em;
+  background-color: ${props => (props.disabled ? '#E0E0E0' : '#FF5959')};
+  color: #fff;
+  cursor: ${props => (props.disabled ? 'dafault' : 'pointer')};
+`;
+
 interface Props {
   isModalOpen: boolean;
   setIsModalOpen: (isModalOpen: boolean) => void;
@@ -99,7 +108,12 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
     } else {
       setIsDisabeld(true);
     }
-  }, [email, password]);
+
+    if (isModalOpen === false) {
+      setEmail('');
+      setPassword('');
+    }
+  }, [email, password, isModalOpen]);
 
   const emailInput = useRef<HTMLInputElement>(null);
 
@@ -160,14 +174,9 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
           )}
 
           <Buttons>
-            <Button
-              content="로그인"
-              backgroundColor={email && password ? '#FF5959' : '#E0E0E0'}
-              size="0.6em 1em"
-              color="#fff"
-              onClick={login}
-              disabled={isDisabled}
-            />
+            <LoginButton onClick={login} disabled={isDisabled}>
+              로그인
+            </LoginButton>
           </Buttons>
           <Link to="/join">
             <GoToJoin>회원가입</GoToJoin>

@@ -2,8 +2,7 @@ import React from 'react';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
 
-import { Button } from 'Components';
-import { flexCenterAlign } from 'Styles/CommonStyle';
+import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 
 const AlertModalContainer = Styled.div`
   width: 100%;
@@ -31,6 +30,14 @@ const StyledModal = Modal.styled`
   border-radius: 4px;
 `;
 
+const CloseButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.4em 0.6em;
+  background-color: #676FA3;
+  color: #fff;
+  cursor: pointer;
+`;
+
 interface Props {
   isAlertModalOpen: boolean;
   setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
@@ -55,15 +62,13 @@ export const AlertModal = ({
               return <p key={content.id}>{content.text}</p>;
             })}
           </AlertMessage>
-          <Button
-            content="확인"
-            backgroundColor="#676FA3"
-            color="#fff"
-            size="0.4rem 0.6rem"
+          <CloseButton
             onClick={() => {
               setIsAlertModalOpen(false);
             }}
-          />
+          >
+            확인
+          </CloseButton>
         </AlertModalContainer>
       </StyledModal>
     </ModalProvider>
