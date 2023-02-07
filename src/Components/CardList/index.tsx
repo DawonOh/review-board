@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import Styled from 'styled-components';
 
 import { Card } from 'Components/Card';
@@ -41,14 +41,14 @@ export const CardList = () => {
       />
       <Card
         title="제목입니다3"
-        category="장난감"
+        category="전자기기"
         content="원장은 국회의 동의를 얻어 대통령이 임명하고, 그 임기는 4년으로 하며, 1차에 한하여 중임할 수 있다."
         isLike={false}
         likeCount={3}
         commentCount={3}
       />
       <Card
-        title="제목입니다4"
+        title="제목입니다4제목입니다4제목입니다4"
         category="생활"
         content="대통령의 국법상 행위는 문서로써 하며, 이 문서에는 국무총리와 관계 국무위원이 부서한다. 군사에 관한 것도 또한 같다."
         isLike={false}

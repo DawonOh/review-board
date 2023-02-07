@@ -21,6 +21,7 @@ const Thumbnail = Styled.img`
 
 const Title = Styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   margin: 0 auto;
@@ -29,23 +30,17 @@ const Title = Styled.div`
 `;
 
 const TitleText = Styled.h1`
+  display: block;
   font-size: 1.3em;
   font-weight: 700;
+  overflow: hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
 `;
 
 const Category = Styled.div`
-  background-color: #CDDEFF;
-  padding: 0.3em;
+  padding: 1em;
   font-size: 0.85em;
-  color: #fff;
-  border-radius: 10px;
-`;
-
-const TitleAndCategory = Styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 0.8em;
 `;
 
 const Content = Styled.div<{ isHaveThumbnail: boolean }>`
@@ -55,9 +50,9 @@ const Content = Styled.div<{ isHaveThumbnail: boolean }>`
   margin: 0 auto;
   padding: 1em;
   line-height: 1.55em;
-  word-wrap: break-word; 
+  word-wrap: break-word;
   -webkit-line-clamp: ${props => (props.isHaveThumbnail ? '4' : '9')};
-  -webkit-box-orient:vertical; 
+  -webkit-box-orient:vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
@@ -111,11 +106,9 @@ export const Card = ({
   }, [img]);
   return (
     <CardContainer>
+      <Category>{category}</Category>
       <Title>
-        <TitleAndCategory>
-          <TitleText>{title}</TitleText>
-          <Category>{category}</Category>
-        </TitleAndCategory>
+        <TitleText>{title}</TitleText>
         {file && <Icon src={Clip} alt="첨부파일" />}
       </Title>
       {img && <Thumbnail src={img} alt={title} />}
