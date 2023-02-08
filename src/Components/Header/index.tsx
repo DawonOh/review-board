@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 
-import { Button, Login, MobileMenu } from 'Components';
+import { Login, MobileMenu } from 'Components';
+import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 import SearchIcon from '../../assets/images/search.png';
 import MenuIcon from '../../assets/images/menu.png';
@@ -79,6 +80,13 @@ const Icon = Styled.img`
   cursor: pointer;
 `;
 
+const LoginButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.8em 1.5em;
+  background-color: #676FA3;
+  color: #fff;
+  cursor: pointer;
+`;
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -125,13 +133,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
             <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
           </Icons>
         ) : (
-          <Button
-            content="로그인"
-            backgroundColor="#676FA3"
-            color="#fff"
-            size="0.8rem 1.5rem"
-            onClick={handleModalOpen}
-          />
+          <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
         )}
 
         <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
