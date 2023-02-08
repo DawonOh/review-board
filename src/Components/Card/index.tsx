@@ -66,9 +66,7 @@ const Content = Styled.div<{ isHaveThumbnail: boolean }>`
 const Icons = Styled.div`
   display: flex;
   align-items: center;
-  width: 100%;
   height: 2.5em;
-  margin: 0 auto;
   margin-top: 0.5em;
   padding: 1em;
 `;
@@ -80,17 +78,35 @@ const Icon = Styled.img`
 const Counts = Styled.span`
   margin: 0 1em 0 0.3em;
 `;
+const UnderBar = Styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
+const NickName = Styled.span`
+  font-size: 0.9em;
+  font-weight: 700;
+`;
+
+const Date = Styled.span`
+  font-size: 0.8em;
+  color: #D3D3D3;
+  margin-top: 0.2em;
+  margin-right: 0.3em;
+`;
 interface Props {
   id: number;
   title: string;
   category: string;
-  file?: string;
+  file: string;
   img?: string;
   content: string;
   isLike: boolean;
   likeCount: string;
   commentCount: string;
+  nickName?: string;
+  createdAt: string;
 }
 
 export const Card = ({
@@ -103,6 +119,8 @@ export const Card = ({
   isLike,
   likeCount,
   commentCount,
+  nickName,
+  createdAt,
 }: Props) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
   useEffect(() => {
@@ -112,22 +130,30 @@ export const Card = ({
       setIsHaveThumbnail(false);
     }
   }, [img]);
+
+  const createAtDate = createdAt.slice(0, -6);
   return (
     <Link to={'/feed/' + id}>
       <CardContainer>
         <Category>{category}</Category>
         <Title>
           <TitleText>{title}</TitleText>
-          {file && <Icon src={Clip} alt="첨부파일" />}
+          {file !== '0' && <Icon src={Clip} alt="첨부파일" />}
         </Title>
         {img && <Thumbnail src={img} alt={title} />}
         <Content isHaveThumbnail={isHaveThumbnail}>{content}</Content>
-        <Icons>
-          <Icon src={isLike ? LikeIconImg : HeartIconImg} alt="좋아요" />
-          <Counts>{likeCount}</Counts>
-          <Icon src={CommentIconImg} alt="댓글" />
-          <Counts>{commentCount}</Counts>
-        </Icons>
+        <UnderBar>
+          <Icons>
+            <Icon src={isLike ? LikeIconImg : HeartIconImg} alt="좋아요" />
+            <Counts>{likeCount}</Counts>
+            <Icon src={CommentIconImg} alt="댓글" />
+            <Counts>{commentCount}</Counts>
+          </Icons>
+          <Icons>
+            <Date>{createAtDate}</Date>
+            {nickName && <NickName>{nickName}</NickName>}
+          </Icons>
+        </UnderBar>
       </CardContainer>
     </Link>
   );

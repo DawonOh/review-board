@@ -39,6 +39,15 @@ export const CardList = () => {
       .then(json => {
         setCardList(json);
       });
+
+    //통신을 위한 fetch
+    // fetch('http://localhost:3000/feeds?page=1', {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // })
+    //   .then(res => res.json())
+    //   .then(json => setCardList(json));
   }, []);
   return (
     <CardListContainer>
@@ -52,9 +61,11 @@ export const CardList = () => {
             file={card.filesCnt}
             img={card.imgUrl}
             content={card.content}
-            isLike={false}
+            isLike={true}
             likeCount={card.likeCnt}
             commentCount="0"
+            nickName="Tester"
+            createdAt={card.createdAt}
           />
         );
       })}
