@@ -5,11 +5,13 @@ import HeartIconImg from '../../assets/images/heart.png';
 import LikeIconImg from '../../assets/images/like.png';
 import CommentIconImg from '../../assets/images/comment.png';
 import Clip from '../../assets/images/clip.png';
+import { Link } from 'react-router-dom';
 
 const CardContainer = Styled.div`
   border: 1px solid #EBEBEB;
   border-radius: 4px;
   padding: 1em;
+  cursor: pointer;
 `;
 
 const Thumbnail = Styled.img`
@@ -39,8 +41,12 @@ const TitleText = Styled.h1`
 `;
 
 const Category = Styled.div`
-  padding: 1em;
+  display: inline-block;
+  padding: 0.3em 1em;
+  background-color: #CDDEFF;
+  color: #fff;
   font-size: 0.85em;
+  border-radius: 5px;
 `;
 
 const Content = Styled.div<{ isHaveThumbnail: boolean }>`
@@ -76,6 +82,7 @@ const Counts = Styled.span`
 `;
 
 interface Props {
+  id: string;
   title: string;
   category: string;
   file?: string;
@@ -87,6 +94,7 @@ interface Props {
 }
 
 export const Card = ({
+  id,
   title,
   category,
   file,
@@ -105,20 +113,22 @@ export const Card = ({
     }
   }, [img]);
   return (
-    <CardContainer>
-      <Category>{category}</Category>
-      <Title>
-        <TitleText>{title}</TitleText>
-        {file && <Icon src={Clip} alt="첨부파일" />}
-      </Title>
-      {img && <Thumbnail src={img} alt={title} />}
-      <Content isHaveThumbnail={isHaveThumbnail}>{content}</Content>
-      <Icons>
-        <Icon src={isLike ? LikeIconImg : HeartIconImg} alt="좋아요" />
-        <Counts>{likeCount}</Counts>
-        <Icon src={CommentIconImg} alt="댓글" />
-        <Counts>{commentCount}</Counts>
-      </Icons>
-    </CardContainer>
+    <Link to={'/feed/' + id}>
+      <CardContainer>
+        <Category>{category}</Category>
+        <Title>
+          <TitleText>{title}</TitleText>
+          {file && <Icon src={Clip} alt="첨부파일" />}
+        </Title>
+        {img && <Thumbnail src={img} alt={title} />}
+        <Content isHaveThumbnail={isHaveThumbnail}>{content}</Content>
+        <Icons>
+          <Icon src={isLike ? LikeIconImg : HeartIconImg} alt="좋아요" />
+          <Counts>{likeCount}</Counts>
+          <Icon src={CommentIconImg} alt="댓글" />
+          <Counts>{commentCount}</Counts>
+        </Icons>
+      </CardContainer>
+    </Link>
   );
 };
