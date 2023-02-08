@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Header, MobileMenu } from 'Components';
+import { Header, MobileMenu, CardList } from 'Components';
 import Styled from 'styled-components';
 
 const MainContainer = Styled.div`
@@ -15,7 +15,7 @@ export const MainPage = () => {
     <MainContainer>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      MainPage
+      <CardList />
     </MainContainer>
   );
 };
