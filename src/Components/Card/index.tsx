@@ -82,15 +82,15 @@ const Counts = Styled.span`
 `;
 
 interface Props {
-  id: string;
+  id: number;
   title: string;
   category: string;
   file?: string;
   img?: string;
   content: string;
   isLike: boolean;
-  likeCount: number;
-  commentCount: number;
+  likeCount: string;
+  commentCount: string;
 }
 
 export const Card = ({
