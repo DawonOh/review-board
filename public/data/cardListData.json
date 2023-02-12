@@ -1,110 +1,142 @@
 [
   {
+    "id": 103,
+    "categoryId": 1,
+    "category": "1 Category",
+    "userId": 16,
+    "userNickname": "test nickname6",
+    "title": "test title",
+    "content": "test content asdfasdfasdfasfd",
+    "imgUrl": null,
+    "commentCnt": "0",
+    "likeCnt": "0",
+    "filesCnt": "0",
+    "createdAt": "2023-02-07 15:04"
+  },
+  {
+    "id": 102,
+    "categoryId": 1,
+    "category": "1 Category",
+    "userId": 16,
+    "userNickname": "test nickname6",
+    "title": "test title",
+    "content": "test content asdfasdfasdfasfd",
+    "imgUrl": null,
+    "commentCnt": "0",
+    "likeCnt": "0",
+    "filesCnt": "0",
+    "createdAt": "2023-02-07 14:52"
+  },
+  {
+    "id": 101,
+    "categoryId": 1,
+    "category": "1 Category",
+    "userId": 1,
+    "userNickname": "101",
+    "title": "test title",
+    "content": "test content asdfasdfasdfasfd",
+    "imgUrl": null,
+    "commentCnt": "0",
+    "likeCnt": "0",
+    "filesCnt": "0",
+    "createdAt": "2023-02-06 18:42"
+  },
+  {
     "id": 100,
     "categoryId": 1,
     "category": "1 Category",
+    "userId": 7,
+    "userNickname": "107",
     "title": "sodales scelerisque mauris sit amet",
     "content": "non velit nec nisi vulputate nonummy maecenas tincidunt lacus at",
     "imgUrl": "http://dummyimage.com/1920x1080.png/dddddd/000000",
+    "commentCnt": "2",
     "likeCnt": "0",
     "filesCnt": "1",
-    "createdAt": "2023-02-08 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 99,
     "categoryId": 1,
     "category": "1 Category",
+    "userId": 4,
+    "userNickname": "104",
     "title": "cras pellentesque",
     "content": "consequat morbi a ipsum integer a nibh in quis justo maecenas rhoncus aliquam lacus morbi quis tortor id nulla ultrices aliquet maecenas",
     "imgUrl": "http://dummyimage.com/1920x1080.png/ff4444/ffffff",
+    "commentCnt": "3",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-02-06 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 98,
     "categoryId": 2,
     "category": "2 Category",
+    "userId": 8,
+    "userNickname": "108",
     "title": "et ultrices posuere cubilia curae",
     "content": "at vulputate vitae nisl aenean lectus pellentesque eget nunc donec quis orci eget",
+    "imgUrl": "http://dummyimage.com/1920x1080.png/cc0000/ffffff",
+    "commentCnt": "3",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-02-05 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 97,
     "categoryId": 2,
     "category": "2 Category",
+    "userId": 7,
+    "userNickname": "107",
     "title": "sapien iaculis congue",
     "content": "molestie sed justo pellentesque viverra pede ac diam cras pellentesque volutpat dui maecenas tristique est",
     "imgUrl": "http://dummyimage.com/1920x1080.png/5fa2dd/ffffff",
+    "commentCnt": "3",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-02-01 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 96,
     "categoryId": 2,
     "category": "2 Category",
+    "userId": 10,
+    "userNickname": "110",
     "title": "vulputate luctus cum sociis",
     "content": "bibendum morbi non quam nec dui luctus rutrum nulla tellus in sagittis dui vel nisl duis ac nibh fusce lacus",
+    "imgUrl": "http://dummyimage.com/1920x1080.png/dddddd/000000",
+    "commentCnt": "4",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-01-31 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 95,
     "categoryId": 2,
     "category": "2 Category",
+    "userId": 9,
+    "userNickname": "109",
     "title": "donec diam neque",
     "content": "dis parturient montes nascetur ridiculus mus vivamus vestibulum sagittis sapien cum",
     "imgUrl": "http://dummyimage.com/1920x1080.png/5fa2dd/ffffff",
+    "commentCnt": "4",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-01-30 18:11"
+    "createdAt": "2023-02-04 15:07"
   },
   {
     "id": 94,
     "categoryId": 4,
     "category": "4 Category",
+    "userId": 5,
+    "userNickname": "105",
     "title": "viverra diam vitae quam suspendisse",
     "content": "elementum eu interdum eu tincidunt in leo maecenas pulvinar lobortis est phasellus sit amet erat nulla tempus vivamus",
     "imgUrl": "http://dummyimage.com/1920x1080.png/ff4444/ffffff",
+    "commentCnt": "3",
     "likeCnt": "0",
     "filesCnt": "0",
-    "createdAt": "2023-01-28 18:11"
-  },
-  {
-    "id": 93,
-    "categoryId": 1,
-    "category": "1 Category",
-    "title": "leo odio",
-    "content": "eros suspendisse accumsan tortor quis turpis sed ante vivamus tortor duis mattis egestas metus aenean fermentum donec ut mauris eget massa tempor convallis nulla neque libero convallis eget eleifend luctus",
-    "imgUrl": "http://dummyimage.com/1920x1080.png/cc0000/ffffff",
-    "likeCnt": "0",
-    "filesCnt": "0",
-    "createdAt": "2023-01-27 18:11"
-  },
-  {
-    "id": 92,
-    "categoryId": 1,
-    "category": "1 Category",
-    "title": "morbi non lectus aliquam",
-    "content": "lectus suspendisse potenti in eleifend quam a odio in hac habitasse platea dictumst maecenas ut massa quis augue luctus tincidunt nulla mollis molestie lorem quisque ut erat curabitur gravida",
-    "imgUrl": "http://dummyimage.com/1920x1080.png/ff4444/ffffff",
-    "likeCnt": "0",
-    "filesCnt": "0",
-    "createdAt": "2023-01-25 18:11"
-  },
-  {
-    "id": 91,
-    "categoryId": 4,
-    "category": "4 Category",
-    "title": "quiz",
-    "content": "magna vestibulum aliquet ultrices erat tortor sollicitudin mi sit amet lobortis sapien sapien non mi",
-    "imgUrl": "http://dummyimage.com/1920x1080.png/dddddd/000000",
-    "likeCnt": "0",
-    "filesCnt": "0",
-    "createdAt": "2023-01-23 18:11"
+    "createdAt": "2023-02-04 15:07"
   }
 ]

@@ -27,6 +27,7 @@ interface cardListType {
   imgUrl: string;
   likeCnt: string;
   filesCnt: string;
+  commentCnt: string;
   createdAt: string;
 }
 
@@ -63,7 +64,7 @@ export const CardList = () => {
             content={card.content}
             isLike={true}
             likeCount={card.likeCnt}
-            commentCount="0"
+            commentCount={card.commentCnt}
             nickName="Tester"
             createdAt={card.createdAt}
           />
