@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
 
-import { Card } from 'Components/Card';
+import Card from '../Card';
+import { useCardList } from '../../hooks/useCardList';
 
 const CardListContainer = Styled.main`
   display: grid;
@@ -18,57 +19,116 @@ const CardListContainer = Styled.main`
   }
 `;
 
+const Loader = Styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2em;
+  height: 2em;
+  border: 5px solid #cddeff;
+  border-radius: 50%;
+  border-top: 5px solid #fff;
+  animation: spin 2s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 interface cardListType {
-  id: number;
-  categoryId: number;
   category: string;
-  title: string;
+  categoryId: number;
+  commentCnt: string;
   content: string;
-  imgUrl: string;
-  likeCnt: string;
-  filesCnt: string;
   createdAt: string;
+  filesCnt: string;
+  id: number;
+  imgUrl: string | undefined;
+  likeCnt: string;
+  title: string;
+  userId: number;
+  userNickname: string;
 }
 
-export const CardList = () => {
-  const [cardList, setCardList] = useState([]);
+export const CardList = (categoryId: any) => {
+  const [pageNum, setPageNum] = useState(1);
+  const { cardList, hasMore, loading, error } = useCardList(
+    pageNum,
+    categoryId
+  );
+  useEffect(() => {
+    setPageNum(1);
+  }, [categoryId.categoryId]);
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastCardElementRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPageNum((prevPageNumber: number) => prevPageNumber + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
 
   useEffect(() => {
-    fetch('/data/cardListData.json')
-      .then(res => res.json())
-      .then(json => {
-        setCardList(json);
-      });
+    if (error) {
+      alert('잠시 후 다시 시도해주세요.');
+    }
+  }, [error]);
 
-    //통신을 위한 fetch
-    // fetch('http://localhost:3000/feeds?page=1', {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // })
-    //   .then(res => res.json())
-    //   .then(json => setCardList(json));
-  }, []);
   return (
     <CardListContainer>
-      {cardList.map((card: cardListType) => {
-        return (
-          <Card
-            key={card.id}
-            id={card.id}
-            title={card.title}
-            category={card.category}
-            file={card.filesCnt}
-            img={card.imgUrl}
-            content={card.content}
-            isLike={true}
-            likeCount={card.likeCnt}
-            commentCount="0"
-            nickName="Tester"
-            createdAt={card.createdAt}
-          />
-        );
+      {cardList.map((card: cardListType, index) => {
+        if (cardList.length === index + 1) {
+          return (
+            <Card
+              ref={lastCardElementRef}
+              key={card.id}
+              id={card.id}
+              title={card.title}
+              category={card.category}
+              file={card.filesCnt}
+              img={card.imgUrl}
+              content={card.content}
+              isLike={true}
+              likeCount={card.likeCnt}
+              commentCount={card.commentCnt}
+              nickName="Tester"
+              createdAt={card.createdAt}
+            />
+          );
+        } else {
+          return (
+            <Card
+              key={card.id}
+              id={card.id}
+              title={card.title}
+              category={card.category}
+              file={card.filesCnt}
+              img={card.imgUrl}
+              content={card.content}
+              isLike={true}
+              likeCount={card.likeCnt}
+              commentCount={card.commentCnt}
+              nickName="Tester"
+              createdAt={card.createdAt}
+            />
+          );
+        }
       })}
+      {loading && <Loader />}
     </CardListContainer>
   );
 };
