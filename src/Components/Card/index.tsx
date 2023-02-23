@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, forwardRef, ForwardedRef } from 'react';
 import Styled from 'styled-components';
 
 import HeartIconImg from '../../assets/images/heart.png';
@@ -7,7 +7,7 @@ import CommentIconImg from '../../assets/images/comment.png';
 import Clip from '../../assets/images/clip.png';
 import { Link } from 'react-router-dom';
 
-const CardContainer = Styled.div`
+const CardContainer = Styled.div<{ ref?: ForwardedRef<HTMLDivElement> | null }>`
   border: 1px solid #EBEBEB;
   border-radius: 4px;
   padding: 1em;
@@ -109,19 +109,22 @@ interface Props {
   createdAt: string;
 }
 
-export const Card = ({
-  id,
-  title,
-  category,
-  file,
-  img,
-  content,
-  isLike,
-  likeCount,
-  commentCount,
-  nickName,
-  createdAt,
-}: Props) => {
+const Card = (
+  {
+    id,
+    title,
+    category,
+    file,
+    img,
+    content,
+    isLike,
+    likeCount,
+    commentCount,
+    nickName,
+    createdAt,
+  }: Props,
+  ref: ForwardedRef<HTMLDivElement> | null
+) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
   useEffect(() => {
     if (img) {
@@ -134,7 +137,7 @@ export const Card = ({
   const createAtDate = createdAt.slice(0, -6);
   return (
     <Link to={'/feed/' + id}>
-      <CardContainer>
+      <CardContainer ref={ref}>
         <Category>{category}</Category>
         <Title>
           <TitleText>{title}</TitleText>
@@ -158,3 +161,5 @@ export const Card = ({
     </Link>
   );
 };
+
+export default forwardRef(Card);

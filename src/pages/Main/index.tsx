@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Header, MobileMenu, CardList } from 'Components';
 import Styled from 'styled-components';
@@ -114,17 +114,20 @@ export const MainPage = () => {
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
   useEffect(() => {
-    fetch('/data/category.json')
+    fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
+      headers: requestHeaders,
+    })
       .then(res => res.json())
       .then(json => {
         setCategoryList([{ id: 0, category: '전체보기' }, ...json]);
       });
   }, []);
-  const ref = useRef(null);
-  const testClick = (e: React.MouseEvent) => {
-    console.log(e.target);
-  };
 
   const toggleDown = () => {
     if (isToggleOpen === 'close' || isToggleOpen === 'none') {
@@ -136,12 +139,11 @@ export const MainPage = () => {
   const handleClickIndex = (e: React.MouseEvent, idx: number) => {
     setCountIdx(idx);
   };
-
   return (
     <MainContainer>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <CategoryContainer ref={ref} onClick={testClick}>
+      <CategoryContainer>
         <CategoryButton onClick={toggleDown}>
           {categoryName}
           <ToggleButton
@@ -182,7 +184,7 @@ export const MainPage = () => {
           })}
         </CategorySelectBox>
       </CategoryContainer>
-      <CardList />
+      <CardList categoryId={categoryId} />
     </MainContainer>
   );
 };
