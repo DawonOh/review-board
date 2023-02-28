@@ -8,6 +8,7 @@ const MainContainer = Styled.div`
   width: 100%;
   height: 100%;
   position: relate;
+  padding: 2em;
 `;
 const CategoryContainer = Styled.div`
   display: flex;
