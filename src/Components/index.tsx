@@ -4,3 +4,4 @@ export * from './Header';
 export * from './MobileMenu';
 export * from './CardList';
 export * from './Card';
+export * from './FeedDetail';
