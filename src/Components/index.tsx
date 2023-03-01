@@ -5,3 +5,4 @@ export * from './MobileMenu';
 export * from './CardList';
 export * from './Card';
 export * from './FeedDetail';
+export * from './Reply';

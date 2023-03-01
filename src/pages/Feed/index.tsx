@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import Styled from 'styled-components';
-import { Header, MobileMenu } from 'Components';
+import { Header, MobileMenu, Reply } from 'Components';
 import { FeedDetail } from 'Components';
 
 const MainContainer = Styled.div`
@@ -19,6 +19,7 @@ export const Feed = () => {
       <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MainContainer>
         <FeedDetail />
+        <Reply />
       </MainContainer>
     </Fragment>
   );
