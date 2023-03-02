@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
+import { MainComment } from 'Components/MainComment';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../assets/images/lock.png';
 import UnlockImg from '../../assets/images/unlock.png';
 
 const ReplyContainer = Styled.div`
-  width: 85%;
+  width: 70%;
   margin: 1em auto;
   border-top: 2px solid #f1f1f1;
 `;
@@ -33,7 +34,7 @@ const WriteReplyContainer = Styled.div`
 `;
 
 const TextArea = Styled.textarea`
-  width: 75%;
+  width: 70%;
   border: none;
   resize: none;
   outline: none;
@@ -62,7 +63,7 @@ const LockDiv = Styled.div`
 const LockIcon = Styled.div<{ isPrivate: boolean }>`
   width: 1em;
   height: 1em;
-  background: url(${props => (props.isPrivate ? UnlockImg : LockImg)});
+  background: url(${props => (props.isPrivate ? LockImg : UnlockImg)});
   background-repeat: no-repeat;
   background-size: cover;
   cursor: pointer;
@@ -77,10 +78,43 @@ const SmallFont = Styled.span`
   font-size: 0.8em;
 `;
 
-export const Reply = () => {
+interface CommentJsonType {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  user: {
+    id: number;
+    nickname: string;
+    email: string;
+  };
+  feed: {
+    id: number;
+    title: string;
+  };
+  comment: string;
+  is_private: boolean;
+  children: [
+    {
+      id: number;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string | null;
+      user: {
+        id: number;
+        nickname: string;
+        email: string;
+      };
+      comment: string;
+      is_private: boolean;
+    }
+  ];
+}
+export const CommentContainer = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [mainCommentText, setMainCommentText] = useState('');
   const [replyMainTextLength, setReplyMainTextLength] = useState(0);
+  const [mainCommentList, setMainCommentList] = useState([]);
 
   const handleClickPrivate = () => {
     setIsPrivate(!isPrivate);
@@ -95,19 +129,25 @@ export const Reply = () => {
     //글자수 count
     const currentTextareaText = e.target.value;
     setMainCommentText(currentTextareaText);
-    if (currentTextareaText) {
-      setReplyMainTextLength(currentTextareaText.length);
-    } else if (!currentTextareaText) {
-      setReplyMainTextLength(0);
-    }
+    currentTextareaText
+      ? setReplyMainTextLength(currentTextareaText.length)
+      : setReplyMainTextLength(0);
   };
+
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
+  useEffect(() => {
+    fetch('/data/commentData.json')
+      .then(res => res.json())
+      .then(result => setMainCommentList(result));
+  }, []);
 
   return (
     <ReplyContainer>
       <Title>댓글</Title>
       <WriteReplyContainer>
         <TextArea
-          placeholder="댓글을 입력해주세요"
+          placeholder="댓글 입력하기"
           onInput={handleMainResizeHeight}
           maxLength={1000}
         />
@@ -122,6 +162,18 @@ export const Reply = () => {
           <ApplyButton>등록</ApplyButton>
         </Buttons>
       </WriteReplyContainer>
+      {mainCommentList.map((mainComment: CommentJsonType) => {
+        return (
+          <MainComment
+            key={mainComment.id}
+            nickname={mainComment.user.nickname}
+            createdAt={mainComment.created_at}
+            comment={mainComment.comment}
+            isPrivate={mainComment.is_private}
+            deletedAt={mainComment.deleted_at}
+          />
+        );
+      })}
     </ReplyContainer>
   );
 };
