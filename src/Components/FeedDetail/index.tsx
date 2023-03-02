@@ -4,11 +4,12 @@ import DoubleLikeImg from '../../assets/images/double-like.png';
 import HeartIconImg from '../../assets/images/heart.png';
 import LikeIconImg from '../../assets/images/like.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
+import { useParams } from 'react-router-dom';
 
 const TitleContainer = Styled.div`
   display: flex;
   align-items: center;
-  width: 85%;
+  width: 70%;
   margin: 0 auto;
   padding: 0.3em;
   gap: 1em;
@@ -39,7 +40,7 @@ const ContentContainer = Styled.div`
 
 const BothSideContainer = Styled.div`
   display: flex;
-  width: 85%;
+  width: 70%;
   justify-content: space-between;
   align-items: center;
   margin-top: 2em;
@@ -52,11 +53,12 @@ const BothSideContainer = Styled.div`
 `;
 
 const MainImg = Styled.img`
-  width: 85%;
+  width: 70%;
 `;
 const Content = Styled.div`
-  width: 85%;
+  width: 70%;
   white-space: pre-wrap;
+  line-height: 1.1em;
 `;
 
 const LikeContainer = Styled.div`
@@ -95,6 +97,9 @@ const ModifyDeleteButton = Styled.button<{ text: string }>`
 
 export const FeedDetail = () => {
   const [isLike, setIsLike] = useState(false);
+
+  const params = useParams();
+  let feedId = params.id;
 
   const handleClickLike = () => {
     setIsLike(!isLike);
