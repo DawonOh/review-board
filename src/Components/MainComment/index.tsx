@@ -3,8 +3,8 @@ import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../assets/images/lock.png';
 
-const MainCommentContainer = Styled.div`
-  width: 90%;
+const MainCommentContainer = Styled.div<{ isChildren: boolean }>`
+  width: ${props => (props.isChildren ? '80%' : '90%')};
   margin: 1em auto;
   padding: 1em;
   border-left: 2px solid #f1f1f1;
@@ -59,6 +59,7 @@ interface MainCommentProps {
   comment: string;
   isPrivate: boolean;
   deletedAt: string | null;
+  isChildren: boolean;
 }
 export const MainComment = ({
   nickname,
@@ -66,6 +67,7 @@ export const MainComment = ({
   comment,
   isPrivate,
   deletedAt,
+  isChildren,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
 
@@ -85,7 +87,7 @@ export const MainComment = ({
   }, [comment, isPrivate, deletedAt]);
 
   return (
-    <MainCommentContainer>
+    <MainCommentContainer isChildren={isChildren}>
       <InfoDiv>
         <Writer>{isPrivate || deletedAt ? '-' : nickname}</Writer>
         <WriteDate>{createAtDate}</WriteDate>

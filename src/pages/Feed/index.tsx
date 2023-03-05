@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import Styled from 'styled-components';
-import { Header, MobileMenu, CommentContainer } from 'Components';
-import { FeedDetail } from 'Components';
+import { Header, MobileMenu, FeedDetail, CommentContainer } from 'Components';
 
 const MainContainer = Styled.div`
   width: 80%;

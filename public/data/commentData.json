@@ -130,6 +130,46 @@
     },
     "comment": "## DELETED_COMMENT ##",
     "is_private": true,
-    "children": []
+    "children": [
+      {
+        "id": 212,
+        "created_at": "2023-02-14 21:36:43",
+        "updated_at": "2023-02-14 21:36:43",
+        "deleted_at": null,
+        "user": {
+          "id": 16,
+          "nickname": "test nickname6",
+          "email": "test6@test.com"
+        },
+        "comment": "nulla tellus in sagittis",
+        "is_private": false
+      },
+      {
+        "id": 213,
+        "created_at": "2023-02-14 21:36:43",
+        "updated_at": "2023-02-14 21:36:43",
+        "deleted_at": null,
+        "user": {
+          "id": 16,
+          "nickname": "test nickname6",
+          "email": "test6@test.com"
+        },
+        "comment": "nulla tellus in sagittis",
+        "is_private": false
+      },
+      {
+        "id": 214,
+        "created_at": "2023-02-14 21:36:43",
+        "updated_at": "2023-02-14 21:36:43",
+        "deleted_at": null,
+        "user": {
+          "id": 15,
+          "nickname": "test nickname5",
+          "email": "test5@test.com"
+        },
+        "comment": "## PRIVATE_COMMENT ##",
+        "is_private": true
+      }
+    ]
   }
 ]

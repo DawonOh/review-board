@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { MainComment } from 'Components/MainComment';
+import { CommentList } from 'Components/CommentList';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../assets/images/lock.png';
 import UnlockImg from '../../assets/images/unlock.png';
@@ -77,8 +77,7 @@ const Count = Styled.span<{ replyMainTextLength: number }>`
 const SmallFont = Styled.span`
   font-size: 0.8em;
 `;
-
-interface CommentJsonType {
+export interface CommentJsonType {
   id: number;
   created_at: string;
   updated_at: string;
@@ -110,11 +109,24 @@ interface CommentJsonType {
     }
   ];
 }
+export interface ChildrenArr {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  user: {
+    id: number;
+    nickname: string;
+    email: string;
+  };
+  comment: string;
+  is_private: boolean;
+}
 export const CommentContainer = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [mainCommentText, setMainCommentText] = useState('');
   const [replyMainTextLength, setReplyMainTextLength] = useState(0);
-  const [mainCommentList, setMainCommentList] = useState([]);
+  const [mainCommentList, setMainCommentList] = useState<CommentJsonType[]>([]);
 
   const handleClickPrivate = () => {
     setIsPrivate(!isPrivate);
@@ -139,9 +151,10 @@ export const CommentContainer = () => {
   useEffect(() => {
     fetch('/data/commentData.json')
       .then(res => res.json())
-      .then(result => setMainCommentList(result));
+      .then(result => {
+        setMainCommentList(result);
+      });
   }, []);
-
   return (
     <ReplyContainer>
       <Title>댓글</Title>
@@ -164,13 +177,10 @@ export const CommentContainer = () => {
       </WriteReplyContainer>
       {mainCommentList.map((mainComment: CommentJsonType) => {
         return (
-          <MainComment
+          <CommentList
             key={mainComment.id}
-            nickname={mainComment.user.nickname}
-            createdAt={mainComment.created_at}
-            comment={mainComment.comment}
-            isPrivate={mainComment.is_private}
-            deletedAt={mainComment.deleted_at}
+            mainComment={mainComment}
+            childrenComments={mainComment.children}
           />
         );
       })}
