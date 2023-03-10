@@ -1,8 +1,49 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { MainComment } from 'Components/MainComment';
 import { ChildrenArr } from 'Components/CommentContainer';
+import { CommentTextarea } from 'Components/CommentTextarea';
 
-export const CommentList = ({ mainComment, childrenComments }: any) => {
+interface PropsType {
+  mainComment: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: {
+      id: number;
+      nickname: string;
+      email: string;
+    };
+    feed: {
+      id: number;
+      title: string;
+    };
+    comment: string;
+    is_private: boolean;
+    children: [
+      {
+        id: number;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+        user: {
+          id: number;
+          nickname: string;
+          email: string;
+        };
+        comment: string;
+        is_private: boolean;
+      }
+    ];
+  };
+}
+
+export const CommentList = ({ mainComment }: PropsType) => {
+  const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
+  const [isTextareaOpen, setIsTextareaOpen] = useState(false);
+  useEffect(() => {
+    setChildrenComments(mainComment.children);
+  }, [mainComment]);
   return (
     <Fragment>
       <MainComment
@@ -12,6 +53,8 @@ export const CommentList = ({ mainComment, childrenComments }: any) => {
         isPrivate={mainComment.is_private}
         deletedAt={mainComment.deleted_at}
         isChildren={false}
+        setIsTextareaOpen={setIsTextareaOpen}
+        isTextareaOpen={isTextareaOpen}
       />
 
       {childrenComments.map((childrenComment: ChildrenArr) => {
@@ -24,9 +67,12 @@ export const CommentList = ({ mainComment, childrenComments }: any) => {
             isPrivate={childrenComment.is_private}
             deletedAt={childrenComment.deleted_at}
             isChildren={true}
+            setIsTextareaOpen={setIsTextareaOpen}
+            isTextareaOpen={isTextareaOpen}
           />
         );
       })}
+      {isTextareaOpen && <CommentTextarea isNestedComment={true} />}
     </Fragment>
   );
 };

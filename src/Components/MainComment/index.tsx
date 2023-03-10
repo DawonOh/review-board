@@ -53,6 +53,11 @@ const ModifyDeleteButton = Styled.button<{ isDelete?: boolean }>`
   cursor: pointer;
 `;
 
+const WriteCommentButton = Styled.button<{ writeNestedComment?: boolean }>`
+  background: none;
+  border: none;
+`;
+
 interface MainCommentProps {
   nickname: string;
   createdAt: string;
@@ -60,6 +65,8 @@ interface MainCommentProps {
   isPrivate: boolean;
   deletedAt: string | null;
   isChildren: boolean;
+  setIsTextareaOpen: Function;
+  isTextareaOpen: boolean;
 }
 export const MainComment = ({
   nickname,
@@ -68,11 +75,11 @@ export const MainComment = ({
   isPrivate,
   deletedAt,
   isChildren,
+  setIsTextareaOpen,
+  isTextareaOpen,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
-
   const createAtDate = createdAt.slice(0, -8);
-
   useEffect(() => {
     if (deletedAt) {
       setSpecificComment('삭제된 댓글입니다.');
@@ -85,7 +92,9 @@ export const MainComment = ({
     setSpecificComment(comment);
     return;
   }, [comment, isPrivate, deletedAt]);
-
+  const writeNewNestedReply = () => {
+    setIsTextareaOpen(!isTextareaOpen);
+  };
   return (
     <MainCommentContainer isChildren={isChildren}>
       <InfoDiv>
@@ -98,6 +107,13 @@ export const MainComment = ({
         </Buttons>
       </InfoDiv>
       <Content>{specificComment}</Content>
+      {!isChildren && (
+        <Buttons>
+          <WriteCommentButton onClick={writeNewNestedReply}>
+            답글 달기
+          </WriteCommentButton>
+        </Buttons>
+      )}
     </MainCommentContainer>
   );
 };
