@@ -42,12 +42,14 @@ interface Props {
   isAlertModalOpen: boolean;
   setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
   contents: { id: number; text: string }[];
+  question?: boolean;
 }
 
 export const AlertModal = ({
   isAlertModalOpen,
   setIsAlertModalOpen,
   contents,
+  question,
 }: Props) => {
   return (
     <ModalProvider>

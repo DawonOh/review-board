@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../assets/images/lock.png';
+import { CommentTextarea } from 'Components/CommentTextarea';
 
 const MainCommentContainer = Styled.div<{ isChildren: boolean }>`
   width: ${props => (props.isChildren ? '80%' : '90%')};
@@ -54,10 +55,13 @@ const ModifyDeleteButton = Styled.button<{ isDelete?: boolean }>`
 `;
 
 const WriteCommentButton = Styled.button<{ writeNestedComment?: boolean }>`
-  background: none;
+  ${ButtonLayout}
+  font-size: 0.8em;
+  color: #fff;
+  background-color: #FF5959;
   border: none;
+  cursor: pointer;
 `;
-
 interface MainCommentProps {
   nickname: string;
   createdAt: string;
@@ -79,6 +83,9 @@ export const MainComment = ({
   isTextareaOpen,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
+  const [isModify, setIsModify] = useState(false);
+  const [mainCommentText, setMainCommentText] = useState('');
+  const [replyMainTextLength, setReplyMainTextLength] = useState(0);
   const createAtDate = createdAt.slice(0, -8);
   useEffect(() => {
     if (deletedAt) {
@@ -95,24 +102,48 @@ export const MainComment = ({
   const writeNewNestedReply = () => {
     setIsTextareaOpen(!isTextareaOpen);
   };
+  const modifyNestedReply = () => {
+    setIsModify(!isModify);
+  };
+  const handleMainResizeHeight = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    e.target.style.height = '1px';
+    e.target.style.height = e.target.scrollHeight + 'px';
+    const currentTextareaText = e.target.value;
+    setMainCommentText(currentTextareaText);
+    currentTextareaText
+      ? setReplyMainTextLength(currentTextareaText.length)
+      : setReplyMainTextLength(0);
+  };
   return (
     <MainCommentContainer isChildren={isChildren}>
       <InfoDiv>
         <Writer>{isPrivate || deletedAt ? '-' : nickname}</Writer>
         <WriteDate>{createAtDate}</WriteDate>
         {isPrivate && deletedAt === null && <LockIcon />}
-        <Buttons>
-          <ModifyDeleteButton>수정</ModifyDeleteButton>
-          <ModifyDeleteButton isDelete>삭제</ModifyDeleteButton>
-        </Buttons>
+        {!deletedAt && (
+          <Buttons>
+            <ModifyDeleteButton onClick={modifyNestedReply}>
+              {isModify ? '취소' : '수정'}
+            </ModifyDeleteButton>
+            <ModifyDeleteButton isDelete>삭제</ModifyDeleteButton>
+            {!isChildren && (
+              <WriteCommentButton onClick={writeNewNestedReply}>
+                {isTextareaOpen ? '취소' : '답글 달기'}
+              </WriteCommentButton>
+            )}
+          </Buttons>
+        )}
       </InfoDiv>
-      <Content>{specificComment}</Content>
-      {!isChildren && (
-        <Buttons>
-          <WriteCommentButton onClick={writeNewNestedReply}>
-            답글 달기
-          </WriteCommentButton>
-        </Buttons>
+      {isModify && !deletedAt ? (
+        <CommentTextarea
+          isNestedComment={false}
+          isModify={true}
+          content={specificComment}
+        />
+      ) : (
+        <Content>{specificComment}</Content>
       )}
     </MainCommentContainer>
   );
