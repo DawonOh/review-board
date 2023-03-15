@@ -55,6 +55,7 @@ export const CommentList = ({ mainComment }: PropsType) => {
         isChildren={false}
         setIsTextareaOpen={setIsTextareaOpen}
         isTextareaOpen={isTextareaOpen}
+        commentId={mainComment.id}
       />
 
       {childrenComments.map((childrenComment: ChildrenArr) => {
@@ -69,10 +70,13 @@ export const CommentList = ({ mainComment }: PropsType) => {
             isChildren={true}
             setIsTextareaOpen={setIsTextareaOpen}
             isTextareaOpen={isTextareaOpen}
+            commentId={childrenComment.id}
           />
         );
       })}
-      {isTextareaOpen && <CommentTextarea isNestedComment={true} />}
+      {isTextareaOpen && (
+        <CommentTextarea isNestedComment={true} parentId={mainComment.id} />
+      )}
     </Fragment>
   );
 };

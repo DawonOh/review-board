@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../assets/images/lock.png';
 import { CommentTextarea } from 'Components/CommentTextarea';
+import { AlertModal } from 'Components/AlertModal';
 
 const MainCommentContainer = Styled.div<{ isChildren: boolean }>`
   width: ${props => (props.isChildren ? '80%' : '90%')};
@@ -71,6 +72,12 @@ interface MainCommentProps {
   isChildren: boolean;
   setIsTextareaOpen: Function;
   isTextareaOpen: boolean;
+  commentId: number;
+}
+
+interface MessageType {
+  id: number;
+  text: string;
 }
 export const MainComment = ({
   nickname,
@@ -81,11 +88,20 @@ export const MainComment = ({
   isChildren,
   setIsTextareaOpen,
   isTextareaOpen,
+  commentId,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
   const [isModify, setIsModify] = useState(false);
-  const [mainCommentText, setMainCommentText] = useState('');
-  const [replyMainTextLength, setReplyMainTextLength] = useState(0);
+  //AlertModal open 여부
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
+  const [isQuestion, setIsQuestion] = useState(false);
+  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
+  const [result, setResult] = useState(false);
+  //AlertModal 메세지 내용
+  const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const createAtDate = createdAt.slice(0, -8);
   useEffect(() => {
     if (deletedAt) {
@@ -105,46 +121,101 @@ export const MainComment = ({
   const modifyNestedReply = () => {
     setIsModify(!isModify);
   };
-  const handleMainResizeHeight = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    e.target.style.height = '1px';
-    e.target.style.height = e.target.scrollHeight + 'px';
-    const currentTextareaText = e.target.value;
-    setMainCommentText(currentTextareaText);
-    currentTextareaText
-      ? setReplyMainTextLength(currentTextareaText.length)
-      : setReplyMainTextLength(0);
-  };
-  return (
-    <MainCommentContainer isChildren={isChildren}>
-      <InfoDiv>
-        <Writer>{isPrivate || deletedAt ? '-' : nickname}</Writer>
-        <WriteDate>{createAtDate}</WriteDate>
-        {isPrivate && deletedAt === null && <LockIcon />}
-        {!deletedAt && (
-          <Buttons>
-            <ModifyDeleteButton onClick={modifyNestedReply}>
-              {isModify ? '취소' : '수정'}
-            </ModifyDeleteButton>
-            <ModifyDeleteButton isDelete>삭제</ModifyDeleteButton>
-            {!isChildren && (
-              <WriteCommentButton onClick={writeNewNestedReply}>
-                {isTextareaOpen ? '취소' : '답글 달기'}
-              </WriteCommentButton>
-            )}
-          </Buttons>
-        )}
-      </InfoDiv>
-      {isModify && !deletedAt ? (
-        <CommentTextarea
-          isNestedComment={false}
-          isModify={true}
-          content={specificComment}
+
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={alertMessage}
+          isQuestion={isQuestion}
+          setResult={setResult}
         />
-      ) : (
-        <Content>{specificComment}</Content>
-      )}
-    </MainCommentContainer>
+      );
+    }
+  };
+
+  const token = localStorage.getItem('token');
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
+  token && requestHeaders.set('token', token);
+
+  const deleteComment = () => {
+    setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
+    setIsQuestion(true);
+    setIsAlertModalOpen(true);
+  };
+  useEffect(() => {
+    if (result) {
+      // fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
+      //   method: 'DELETE',
+      //   headers: requestHeaders,
+      // })
+      //   .then(res => res.json())
+      //   .then(json => {
+      //     if (json.message.includes('SUCCESSFULLY')) {
+      //       setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
+      //       setIsQuestion(false);
+      //       setIsAlertModalOpen(true);
+      //       return;
+      //     }
+      //     if (json.message.includes('INVALID_TOKEN')) {
+      //       setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
+      //       setIsQuestion(false);
+      //       setIsAlertModalOpen(true);
+      //       return;
+      //     }
+      //     if (json.message.includes('EXIST')) {
+      //       setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
+      //       setIsQuestion(false);
+      //       setIsAlertModalOpen(true);
+      //       return;
+      //     }
+      //   });
+      // return;
+      // setIsAlertModalOpen(false);
+      setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
+      setIsQuestion(false);
+      setIsAlertModalOpen(true);
+      return;
+    }
+  }, [result]);
+  return (
+    <Fragment>
+      <MainCommentContainer isChildren={isChildren}>
+        <InfoDiv>
+          <Writer>{isPrivate || deletedAt ? '-' : nickname}</Writer>
+          <WriteDate>{createAtDate}</WriteDate>
+          {isPrivate && deletedAt === null && <LockIcon />}
+          {!deletedAt && (
+            <Buttons>
+              <ModifyDeleteButton onClick={modifyNestedReply}>
+                {isModify ? '취소' : '수정'}
+              </ModifyDeleteButton>
+              <ModifyDeleteButton isDelete onClick={deleteComment}>
+                삭제
+              </ModifyDeleteButton>
+              {!isChildren && (
+                <WriteCommentButton onClick={writeNewNestedReply}>
+                  {isTextareaOpen ? '취소' : '답글 달기'}
+                </WriteCommentButton>
+              )}
+            </Buttons>
+          )}
+        </InfoDiv>
+        {isModify && !deletedAt ? (
+          <CommentTextarea
+            isNestedComment={false}
+            isModify={true}
+            commentId={commentId}
+            content={specificComment}
+          />
+        ) : (
+          <Content>{specificComment}</Content>
+        )}
+      </MainCommentContainer>
+      {openAlertModal()}
+    </Fragment>
   );
 };

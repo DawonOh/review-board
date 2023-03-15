@@ -69,7 +69,7 @@ export const CommentContainer = () => {
       .then(result => {
         setMainCommentList(result);
       });
-  }, []);
+  }, [mainCommentList]);
   return (
     <ReplyContainer>
       <Title>댓글</Title>
