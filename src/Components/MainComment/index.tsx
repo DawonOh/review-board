@@ -64,6 +64,7 @@ const WriteCommentButton = Styled.button<{ writeNestedComment?: boolean }>`
   cursor: pointer;
 `;
 interface MainCommentProps {
+  userId: number;
   nickname: string;
   createdAt: string;
   comment: string;
@@ -80,6 +81,7 @@ interface MessageType {
   text: string;
 }
 export const MainComment = ({
+  userId,
   nickname,
   createdAt,
   comment,
@@ -100,9 +102,26 @@ export const MainComment = ({
   const [result, setResult] = useState(false);
   //AlertModal 메세지 내용
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
+  //로그인 한 유저 Id
+  const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const createAtDate = createdAt.slice(0, -8);
+
+  const token = localStorage.getItem('token');
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
+  token && requestHeaders.set('token', token);
+
+  useEffect(() => {
+    // fetch(`${BACK_URL}:${BACK_PORT}/users/getme`, {
+    //   headers: requestHeaders,
+    // })
+    //   .then(res => res.json())
+    //   .then(json => {
+    //     setLoginUserId(json.myInfo.id);
+    //   });
+  }, []);
   useEffect(() => {
     if (deletedAt) {
       setSpecificComment('삭제된 댓글입니다.');
@@ -135,11 +154,6 @@ export const MainComment = ({
       );
     }
   };
-
-  const token = localStorage.getItem('token');
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('Content-Type', 'application/json');
-  token && requestHeaders.set('token', token);
 
   const deleteComment = () => {
     setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
@@ -190,12 +204,16 @@ export const MainComment = ({
           {isPrivate && deletedAt === null && <LockIcon />}
           {!deletedAt && (
             <Buttons>
-              <ModifyDeleteButton onClick={modifyNestedReply}>
-                {isModify ? '취소' : '수정'}
-              </ModifyDeleteButton>
-              <ModifyDeleteButton isDelete onClick={deleteComment}>
-                삭제
-              </ModifyDeleteButton>
+              {userId === loginUserId && (
+                <Fragment>
+                  <ModifyDeleteButton onClick={modifyNestedReply}>
+                    {isModify ? '취소' : '수정'}
+                  </ModifyDeleteButton>
+                  <ModifyDeleteButton isDelete onClick={deleteComment}>
+                    삭제
+                  </ModifyDeleteButton>
+                </Fragment>
+              )}
               {!isChildren && (
                 <WriteCommentButton onClick={writeNewNestedReply}>
                   {isTextareaOpen ? '취소' : '답글 달기'}

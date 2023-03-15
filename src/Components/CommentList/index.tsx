@@ -47,6 +47,7 @@ export const CommentList = ({ mainComment }: PropsType) => {
   return (
     <Fragment>
       <MainComment
+        userId={mainComment.user.id}
         nickname={mainComment.user.nickname}
         createdAt={mainComment.created_at}
         comment={mainComment.comment}
@@ -62,6 +63,7 @@ export const CommentList = ({ mainComment }: PropsType) => {
         return (
           <MainComment
             key={childrenComment.id}
+            userId={childrenComment.user.id}
             nickname={childrenComment.user.nickname}
             createdAt={childrenComment.created_at}
             comment={childrenComment.comment}
