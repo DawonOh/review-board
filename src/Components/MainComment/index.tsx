@@ -29,7 +29,7 @@ const WriteDate = Styled.span`
 
 const Content = Styled.div`
   margin-top: 0.5em;
-  line-height: 1.1em;
+  line-height: 1.3em;
 `;
 
 const LockIcon = Styled.div`

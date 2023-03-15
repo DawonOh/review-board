@@ -58,7 +58,7 @@ const MainImg = Styled.img`
 const Content = Styled.div`
   width: 70%;
   white-space: pre-wrap;
-  line-height: 1.1em;
+  line-height: 1.3em;
 `;
 
 const LikeContainer = Styled.div`
