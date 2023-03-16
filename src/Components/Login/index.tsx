@@ -129,12 +129,12 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
       .then(res => res.json())
       .then(json => {
         let message = String(json.message);
-        if (message.includes('success')) {
+        if (message.includes('SIGNIN_SUCCESS')) {
           localStorage.setItem('token', json.result.token);
           setIsModalOpen(false);
           setIsLoginPass(false);
         } else {
-          setIsLoginPass(false);
+          setIsLoginPass(true);
           setEmail('');
           setPassword('');
           emailInput.current?.focus();

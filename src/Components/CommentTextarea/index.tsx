@@ -146,46 +146,46 @@ export const CommentTextarea = ({
   const cruComment = () => {
     //댓글 작성
     if (!isModify && isNestedComment === false) {
-      // fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
-      //   method: 'POST',
-      //   headers: requestHeaders,
-      //   body: JSON.stringify({
-      //     feed: feed,
-      //     content: mainCommentText,
-      //     is_private: isPrivate,
-      //   }),
-      // })
-      //   .then(res => res.json())
-      //   .then(json => {
-      //     if (json.message.includes('SUCCESSFULLY')) {
-      //       setAlertMessage([{ id: 1, text: '댓글이 등록되었습니다.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //     if (json.message.includes('empty')) {
-      //       setAlertMessage([{ id: 1, text: '댓글을 입력해주세요.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //     if (json.message.includes('INVALID_TOKEN')) {
-      //       setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //     if (json.message.includes('string')) {
-      //       setAlertMessage([{ id: 1, text: '댓글 내용을 확인해주세요.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //   });
-      setAlertMessage([{ id: 1, text: '댓글이 등록되었습니다.' }]);
-      setIsQuestion(false);
-      setIsAlertModalOpen(true);
-      return;
+      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
+        method: 'POST',
+        headers: requestHeaders,
+        body: JSON.stringify({
+          feed: feed,
+          content: mainCommentText,
+          is_private: isPrivate,
+        }),
+      })
+        .then(res => res.json())
+        .then(json => {
+          if (json.message.includes('SUCCESSFULLY')) {
+            setAlertMessage([{ id: 1, text: '댓글이 등록되었습니다.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+          if (json.message.includes('empty')) {
+            setAlertMessage([{ id: 1, text: '댓글을 입력해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+          if (json.message.includes('INVALID_TOKEN')) {
+            setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+          if (json.message.includes('string')) {
+            setAlertMessage([{ id: 1, text: '댓글 내용을 확인해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+        });
+      // setAlertMessage([{ id: 1, text: '댓글이 등록되었습니다.' }]);
+      // setIsQuestion(false);
+      // setIsAlertModalOpen(true);
+      // return;
     }
     //답글 작성
     if (!isModify && isNestedComment) {

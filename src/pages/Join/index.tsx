@@ -81,9 +81,13 @@ const WarnMessage = Styled.p<{
   isEmailPass?: boolean;
   isPassWordPass?: boolean;
   isPwChkPass?: boolean;
+  isEmailCanUse?: boolean;
 }>`
   display: ${props =>
-    props.isEmailPass || props.isPassWordPass || props.isPwChkPass
+    props.isEmailPass ||
+    props.isPassWordPass ||
+    props.isPwChkPass ||
+    props.isEmailCanUse
       ? 'none'
       : 'block'};
   margin-top: 0.3em;
@@ -110,6 +114,7 @@ const Button = Styled.button`
 export const Join = () => {
   const [email, setEmail] = useState('');
   const [isEmailPass, setIsEmailPass] = useState(true);
+  const [isEmailCanUse, setIsEmailCanUse] = useState(true);
 
   const [passWord, setPassWord] = useState('');
   const [isPassWordPass, setIsPassWordPass] = useState(true);
@@ -121,6 +126,9 @@ export const Join = () => {
   const [isNickPass, setIsNickPass] = useState(true);
   const [isTryNickCheck, setIsTryNickCheck] = useState('notYet');
 
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('Content-Type', 'application/json');
+
   //이메일 유효성 검사
   const checkEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     const emailRegex = /[a-zA-Z0-9._+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+/;
@@ -130,6 +138,22 @@ export const Join = () => {
       setIsEmailPass(false);
     }
     setEmail(e.target.value);
+  };
+
+  //이메일 중복 검사
+  const checkAlreadyUsedEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    fetch(`http://localhost:8000/users/checkemail?email=${email}`, {
+      headers: requestHeaders,
+    })
+      .then(res => res.json())
+      .then(json => {
+        let result = String(json.message);
+        if (result.includes('ALREADY_EXSITS')) {
+          setIsEmailCanUse(false);
+        } else {
+          setIsEmailCanUse(true);
+        }
+      });
   };
 
   //비밀번호 유효성 검사
@@ -155,21 +179,18 @@ export const Join = () => {
     setPassCheck(e.target.value);
   };
 
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('Content-Type', 'application/json');
-
   //닉네임 중복확인
   const getNickNameValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickNameValue(e.target.value);
   };
   const checkNickName = () =>
-    fetch(`http://localhost:8000/users/signup?nickname=${nickName}`, {
+    fetch(`http://localhost:8000/users/checknickname?nickname=${nickName}`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
       .then(json => {
         let result = String(json.message);
-        if (result.includes('available')) {
+        if (result.includes('AVAILABLE_NICKNAME')) {
           alert('사용 가능한 닉네임입니다.');
           setIsTryNickCheck('pass');
           setIsNickPass(true);
@@ -192,6 +213,7 @@ export const Join = () => {
       passCheck &&
       nickName &&
       isEmailPass &&
+      isEmailCanUse &&
       isPassWordPass &&
       isPwChkPass &&
       isNickPass &&
@@ -203,6 +225,7 @@ export const Join = () => {
       passWord === '' ||
       passCheck === '' ||
       nickName === '' ||
+      isEmailCanUse === false ||
       isEmailPass === false ||
       isPassWordPass === false ||
       isPwChkPass === false ||
@@ -215,14 +238,14 @@ export const Join = () => {
         headers: requestHeaders,
         body: JSON.stringify({
           nickname: nickName,
-          password: passWord,
           email: email,
+          password: passWord,
         }),
       })
         .then(res => res.json())
         .then(json => {
           let result = String(json.message);
-          if (result.includes('success')) {
+          if (result.includes('SIGNUP_SUCCESS')) {
             alert('회원가입되었습니다.');
             window.location.href = '/';
           } else {
@@ -244,9 +267,14 @@ export const Join = () => {
                 type="text"
                 placeholder="예시)example@email.com"
                 onChange={checkEmail}
+                onBlur={checkAlreadyUsedEmail}
               />
               <WarnMessage isEmailPass={isEmailPass}>
                 이메일 형식에 맞지 않습니다.
+              </WarnMessage>
+
+              <WarnMessage isEmailCanUse={isEmailCanUse}>
+                사용중인 이메일입니다.
               </WarnMessage>
             </div>
             <div />
