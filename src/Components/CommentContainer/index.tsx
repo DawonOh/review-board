@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { CommentList } from 'Components/CommentList';
 import { CommentTextarea } from 'Components/CommentTextarea';
+import { useParams } from 'react-router-dom';
 
 const ReplyContainer = Styled.div`
   width: 70%;
@@ -61,23 +62,53 @@ export interface ChildrenArr {
 }
 export const CommentContainer = () => {
   const [mainCommentList, setMainCommentList] = useState<CommentJsonType[]>([]);
+  //댓글 작성 여부
+  const [success, setSuccess] = useState(false);
+  //로그인 한 유저 Id
+  const [loginUserId, setLoginUserId] = useState(0);
   const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('Content-Type', 'application/json');
+  requestHeaders.set('accept', 'application/json');
+  let token = localStorage.getItem('token');
+  token && requestHeaders.set('Authorization', token);
+
+  const params = useParams();
+  let feedId = params.id;
+
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   useEffect(() => {
-    fetch('/data/commentData.json')
-      .then(res => res.json())
-      .then(result => {
-        setMainCommentList(result);
+    fetch(`${BACK_URL}:${BACK_PORT}/comments/${feedId}`, {
+      headers: requestHeaders,
+    })
+      .then(response => response.json())
+      .then(json => {
+        setMainCommentList(json);
       });
-  }, [mainCommentList]);
+    if (success) {
+      setSuccess(false);
+    }
+  }, [success]);
+  useEffect(() => {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/getme`, {
+      headers: requestHeaders,
+    })
+      .then(res => res.json())
+      .then(json => {
+        json.myInfo && setLoginUserId(json.myInfo.id);
+      });
+  }, []);
   return (
     <ReplyContainer>
       <Title>댓글</Title>
-      <CommentTextarea isNestedComment={false} />
+      <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
       {mainCommentList.map((mainComment: CommentJsonType) => {
         return (
           <Fragment key={mainComment.id}>
-            <CommentList mainComment={mainComment} />
+            <CommentList
+              mainComment={mainComment}
+              setSuccess={setSuccess}
+              loginUserId={loginUserId}
+            />
           </Fragment>
         );
       })}

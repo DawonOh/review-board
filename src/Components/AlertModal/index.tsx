@@ -86,7 +86,7 @@ export const AlertModal = ({
             <CloseButton
               onClick={() => {
                 setIsAlertModalOpen(false);
-                setResult && isQuestion && setResult(true);
+                setResult && setResult(true);
               }}
             >
               확인

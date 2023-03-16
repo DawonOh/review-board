@@ -36,9 +36,15 @@ interface PropsType {
       }
     ];
   };
+  setSuccess: Function;
+  loginUserId: Number;
 }
 
-export const CommentList = ({ mainComment }: PropsType) => {
+export const CommentList = ({
+  mainComment,
+  setSuccess,
+  loginUserId,
+}: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
   useEffect(() => {
@@ -57,6 +63,8 @@ export const CommentList = ({ mainComment }: PropsType) => {
         setIsTextareaOpen={setIsTextareaOpen}
         isTextareaOpen={isTextareaOpen}
         commentId={mainComment.id}
+        setIsDeleted={setSuccess}
+        loginUserId={loginUserId}
       />
 
       {childrenComments.map((childrenComment: ChildrenArr) => {
@@ -73,11 +81,19 @@ export const CommentList = ({ mainComment }: PropsType) => {
             setIsTextareaOpen={setIsTextareaOpen}
             isTextareaOpen={isTextareaOpen}
             commentId={childrenComment.id}
+            setIsDeleted={setSuccess}
+            loginUserId={loginUserId}
           />
         );
       })}
       {isTextareaOpen && (
-        <CommentTextarea isNestedComment={true} parentId={mainComment.id} />
+        <CommentTextarea
+          isNestedComment={true}
+          parentId={mainComment.id}
+          setIsTextareaOpen={setIsTextareaOpen}
+          isTextareaOpen={isTextareaOpen}
+          setSuccess={setSuccess}
+        />
       )}
     </Fragment>
   );

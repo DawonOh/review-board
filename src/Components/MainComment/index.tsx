@@ -74,6 +74,8 @@ interface MainCommentProps {
   setIsTextareaOpen: Function;
   isTextareaOpen: boolean;
   commentId: number;
+  setIsDeleted: Function;
+  loginUserId: Number;
 }
 
 interface MessageType {
@@ -91,6 +93,8 @@ export const MainComment = ({
   setIsTextareaOpen,
   isTextareaOpen,
   commentId,
+  setIsDeleted,
+  loginUserId,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
   const [isModify, setIsModify] = useState(false);
@@ -102,33 +106,24 @@ export const MainComment = ({
   const [result, setResult] = useState(false);
   //AlertModal 메세지 내용
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
-  //로그인 한 유저 Id
-  const [loginUserId, setLoginUserId] = useState(0);
+  //비밀댓글 닉네임
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const createAtDate = createdAt.slice(0, -8);
 
   const token = localStorage.getItem('token');
   const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('Content-Type', 'application/json');
-  token && requestHeaders.set('token', token);
+  requestHeaders.set('accept', 'application/json');
+  token && requestHeaders.set('Authorization', token);
 
-  useEffect(() => {
-    // fetch(`${BACK_URL}:${BACK_PORT}/users/getme`, {
-    //   headers: requestHeaders,
-    // })
-    //   .then(res => res.json())
-    //   .then(json => {
-    //     setLoginUserId(json.myInfo.id);
-    //   });
-  }, []);
   useEffect(() => {
     if (deletedAt) {
       setSpecificComment('삭제된 댓글입니다.');
       return;
     }
     if (isPrivate) {
-      setSpecificComment('비밀댓글입니다.');
+      comment === '## PRIVATE_COMMENT ##' &&
+        setSpecificComment('비밀댓글입니다.');
       return;
     }
     setSpecificComment(comment);
@@ -140,7 +135,6 @@ export const MainComment = ({
   const modifyNestedReply = () => {
     setIsModify(!isModify);
   };
-
   const openAlertModal = () => {
     if (isAlertModalOpen) {
       return (
@@ -160,38 +154,37 @@ export const MainComment = ({
     setIsQuestion(true);
     setIsAlertModalOpen(true);
   };
+  console.log('isModify : ', isModify);
   useEffect(() => {
     if (result) {
-      // fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
-      //   method: 'DELETE',
-      //   headers: requestHeaders,
-      // })
-      //   .then(res => res.json())
-      //   .then(json => {
-      //     if (json.message.includes('SUCCESSFULLY')) {
-      //       setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //     if (json.message.includes('INVALID_TOKEN')) {
-      //       setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //     if (json.message.includes('EXIST')) {
-      //       setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
-      //       setIsQuestion(false);
-      //       setIsAlertModalOpen(true);
-      //       return;
-      //     }
-      //   });
-      // return;
-      // setIsAlertModalOpen(false);
-      setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
-      setIsQuestion(false);
-      setIsAlertModalOpen(true);
+      fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: requestHeaders,
+      })
+        .then(res => res.json())
+        .then(json => {
+          if (json.message.includes('SUCCESSFULLY')) {
+            setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            setIsDeleted(true);
+            return;
+          }
+          if (json.message.includes('INVALID_TOKEN')) {
+            setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            setIsDeleted(false);
+            return;
+          }
+          if (json.message.includes('EXIST')) {
+            setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            setIsDeleted(false);
+            return;
+          }
+        });
       return;
     }
   }, [result]);
@@ -228,6 +221,8 @@ export const MainComment = ({
             isModify={true}
             commentId={commentId}
             content={specificComment}
+            setIsModify={setIsModify}
+            setSuccess={setIsDeleted}
           />
         ) : (
           <Content>{specificComment}</Content>
