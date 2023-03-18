@@ -108,6 +108,7 @@ export const CommentContainer = () => {
               mainComment={mainComment}
               setSuccess={setSuccess}
               loginUserId={loginUserId}
+              success={success}
             />
           </Fragment>
         );

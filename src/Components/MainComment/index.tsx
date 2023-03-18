@@ -102,10 +102,10 @@ export const MainComment = ({
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
   const [isQuestion, setIsQuestion] = useState(false);
-  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
-  const [result, setResult] = useState(false);
   //AlertModal 메세지 내용
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
+  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
+  const [result, setResult] = useState(false);
   //비밀댓글 닉네임
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -154,7 +154,6 @@ export const MainComment = ({
     setIsQuestion(true);
     setIsAlertModalOpen(true);
   };
-  console.log('isModify : ', isModify);
   useEffect(() => {
     if (result) {
       fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {

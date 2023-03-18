@@ -48,7 +48,7 @@ interface Props {
   setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
   contents: { id: number; text: string }[];
   isQuestion?: boolean;
-  setResult?: (result: boolean) => void;
+  setResult?: Function;
 }
 
 export const AlertModal = ({

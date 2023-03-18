@@ -38,18 +38,23 @@ interface PropsType {
   };
   setSuccess: Function;
   loginUserId: Number;
+  success: boolean;
 }
 
 export const CommentList = ({
   mainComment,
   setSuccess,
   loginUserId,
+  success,
 }: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);
+  useEffect(() => {
+    success && setIsTextareaOpen(false);
+  }, [success]);
   return (
     <Fragment>
       <MainComment
@@ -90,8 +95,6 @@ export const CommentList = ({
         <CommentTextarea
           isNestedComment={true}
           parentId={mainComment.id}
-          setIsTextareaOpen={setIsTextareaOpen}
-          isTextareaOpen={isTextareaOpen}
           setSuccess={setSuccess}
         />
       )}

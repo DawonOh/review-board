@@ -126,6 +126,9 @@ export const Join = () => {
   const [isNickPass, setIsNickPass] = useState(true);
   const [isTryNickCheck, setIsTryNickCheck] = useState('notYet');
 
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
 
@@ -142,7 +145,7 @@ export const Join = () => {
 
   //이메일 중복 검사
   const checkAlreadyUsedEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    fetch(`http://localhost:8000/users/checkemail?email=${email}`, {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/checkemail?email=${email}`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -184,7 +187,7 @@ export const Join = () => {
     setNickNameValue(e.target.value);
   };
   const checkNickName = () =>
-    fetch(`http://localhost:8000/users/checknickname?nickname=${nickName}`, {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/checknickname?nickname=${nickName}`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -233,7 +236,7 @@ export const Join = () => {
     ) {
       alert('입력한 정보를 다시 확인해주세요.');
     } else {
-      fetch('http://localhost:8000/users/signup', {
+      fetch(`${BACK_URL}:${BACK_PORT}/users/signup`, {
         method: 'POST',
         headers: requestHeaders,
         body: JSON.stringify({

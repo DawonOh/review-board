@@ -82,8 +82,6 @@ interface Props {
   commentId?: number;
   parentId?: number;
   setSuccess?: Function;
-  setIsTextareaOpen?: Function;
-  isTextareaOpen?: boolean;
 }
 interface MessageType {
   id: number;
@@ -96,9 +94,7 @@ export const CommentTextarea = ({
   commentId,
   parentId,
   setSuccess,
-  setIsTextareaOpen,
   setIsModify,
-  isTextareaOpen,
 }: Props) => {
   //비밀댓글 여부
   const [isPrivate, setIsPrivate] = useState(false);
@@ -110,10 +106,10 @@ export const CommentTextarea = ({
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
   const [isQuestion, setIsQuestion] = useState(false);
-  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
-  const [result, setResult] = useState(false);
   //AlertModal 메세지 내용
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
+  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
+  const [result, setResult] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const openAlertModal = () => {
@@ -171,6 +167,7 @@ export const CommentTextarea = ({
             if (textareaFocus.current !== null) {
               textareaFocus.current.value = '';
             }
+
             setReplyMainTextLength(0);
             return;
           }
@@ -222,17 +219,13 @@ export const CommentTextarea = ({
             setAlertMessage([{ id: 1, text: '답글이 등록되었습니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
-            if (textareaFocus.current !== null) {
-              textareaFocus.current.value = '';
-            }
-            setIsTextareaOpen && setIsTextareaOpen(false);
-            setSuccess && setSuccess(true);
             return;
           }
           if (json.message.includes('empty')) {
             setAlertMessage([{ id: 1, text: '답글을 입력해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccess && setSuccess(false);
             return;
           }
           if (json.message.includes('INVALID_TOKEN')) {
@@ -240,12 +233,14 @@ export const CommentTextarea = ({
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setIsModify && setIsModify(false);
+            setSuccess && setSuccess(false);
             return;
           }
           if (json.message.includes('string')) {
             setAlertMessage([{ id: 1, text: '답글 내용을 확인해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccess && setSuccess(false);
             return;
           }
         });
@@ -268,31 +263,37 @@ export const CommentTextarea = ({
             setAlertMessage([{ id: 1, text: '수정되었습니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
-            setIsModify && result && setIsModify(false);
-            setSuccess && setSuccess(true);
             return;
           }
           if (json.message.includes('INVALID_TOKEN')) {
             setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccess && setSuccess(false);
             return;
           }
           if (json.message.includes('EXIST')) {
             setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccess && setSuccess(false);
             return;
           }
           if (json.message.includes('COMMENT_IS_NOT_CHANGED')) {
             setAlertMessage([{ id: 1, text: '수정할 내용을 입력해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccess && setSuccess(false);
             return;
           }
         });
     }
   };
+
+  useEffect(() => {
+    result && setIsModify && setIsModify(false);
+    result && setSuccess && setSuccess(true);
+  }, [result]);
 
   const handleClickPrivate = () => {
     setIsPrivate(!isPrivate);
