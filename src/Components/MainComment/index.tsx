@@ -106,7 +106,6 @@ export const MainComment = ({
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
   //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
   const [result, setResult] = useState(false);
-  //비밀댓글 닉네임
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const createAtDate = createdAt.slice(0, -8);
@@ -117,6 +116,7 @@ export const MainComment = ({
   token && requestHeaders.set('Authorization', token);
 
   useEffect(() => {
+    setSpecificComment(comment);
     if (deletedAt) {
       setSpecificComment('삭제된 댓글입니다.');
       return;
@@ -126,9 +126,7 @@ export const MainComment = ({
         setSpecificComment('비밀댓글입니다.');
       return;
     }
-    setSpecificComment(comment);
-    return;
-  }, [comment, isPrivate, deletedAt]);
+  }, [comment]);
   const writeNewNestedReply = () => {
     setIsTextareaOpen(!isTextareaOpen);
   };
@@ -191,7 +189,11 @@ export const MainComment = ({
     <Fragment>
       <MainCommentContainer isChildren={isChildren}>
         <InfoDiv>
-          <Writer>{isPrivate || deletedAt ? '-' : nickname}</Writer>
+          <Writer>
+            {(loginUserId !== userId && isPrivate) || deletedAt
+              ? '-'
+              : nickname}
+          </Writer>
           <WriteDate>{createAtDate}</WriteDate>
           {isPrivate && deletedAt === null && <LockIcon />}
           {!deletedAt && (
@@ -222,6 +224,7 @@ export const MainComment = ({
             content={specificComment}
             setIsModify={setIsModify}
             setSuccess={setIsDeleted}
+            modifyPrivate={isPrivate}
           />
         ) : (
           <Content>{specificComment}</Content>

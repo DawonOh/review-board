@@ -82,6 +82,7 @@ interface Props {
   commentId?: number;
   parentId?: number;
   setSuccess?: Function;
+  modifyPrivate?: boolean;
 }
 interface MessageType {
   id: number;
@@ -95,6 +96,7 @@ export const CommentTextarea = ({
   parentId,
   setSuccess,
   setIsModify,
+  modifyPrivate,
 }: Props) => {
   //비밀댓글 여부
   const [isPrivate, setIsPrivate] = useState(false);
@@ -110,6 +112,8 @@ export const CommentTextarea = ({
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
   //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
   const [result, setResult] = useState(false);
+  //수정되었는지 여부
+  const [successModify, setSuccessModify] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const openAlertModal = () => {
@@ -145,9 +149,27 @@ export const CommentTextarea = ({
   requestHeaders.set('Content-Type', 'application/json');
   const params = useParams();
   let feed = Number(params.id);
+
+  const notEmpty = () => {
+    if (Boolean(mainCommentText.replace(/ /g, '') === '')) {
+      setAlertMessage([{ id: 1, text: '내용을 입력해주세요.' }]);
+      setIsQuestion(false);
+      setIsAlertModalOpen(true);
+      setSuccess && setSuccess(false);
+      if (textareaFocus.current !== null) {
+        textareaFocus.current.value = '';
+      }
+      setMainCommentText('');
+      setReplyMainTextLength(0);
+    }
+  };
   const cruComment = () => {
     //댓글 작성
-    if (!isModify && isNestedComment === false) {
+    if (
+      !isModify &&
+      isNestedComment === false &&
+      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+    ) {
       fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
         method: 'POST',
         headers: requestHeaders,
@@ -159,7 +181,7 @@ export const CommentTextarea = ({
       })
         .then(res => res.json())
         .then(json => {
-          if (json.message.includes('SUCCESSFULLY')) {
+          if (String(json.message).includes('SUCCESSFULLY')) {
             setAlertMessage([{ id: 1, text: '댓글이 등록되었습니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
@@ -167,32 +189,26 @@ export const CommentTextarea = ({
             if (textareaFocus.current !== null) {
               textareaFocus.current.value = '';
             }
+            setMainCommentText('');
 
             setReplyMainTextLength(0);
             return;
           }
-          if (json.message.includes('empty')) {
+          if (String(json.message.isNotEmpty).includes('empty')) {
             setAlertMessage([{ id: 1, text: '댓글을 입력해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
             return;
           }
-          if (json.message.includes('INVALID_TOKEN')) {
+          if (String(json.message).includes('INVALID_TOKEN')) {
             setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
             return;
           }
-          if (json.message.isNotEmpty) {
-            setAlertMessage([{ id: 1, text: '댓글을 입력해주세요.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setSuccess && setSuccess(false);
-            return;
-          }
-          if (json.message.includes('string')) {
+          if (String(json.message).includes('string')) {
             setAlertMessage([{ id: 1, text: '댓글 내용을 확인해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
@@ -202,7 +218,11 @@ export const CommentTextarea = ({
         });
     }
     //답글 작성
-    if (!isModify && isNestedComment) {
+    if (
+      !isModify &&
+      isNestedComment &&
+      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+    ) {
       fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
         method: 'POST',
         headers: requestHeaders,
@@ -215,20 +235,20 @@ export const CommentTextarea = ({
       })
         .then(res => res.json())
         .then(json => {
-          if (json.message.includes('SUCCESSFULLY')) {
+          if (String(json.message).includes('SUCCESSFULLY')) {
             setAlertMessage([{ id: 1, text: '답글이 등록되었습니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             return;
           }
-          if (json.message.includes('empty')) {
+          if (String(json.message.isNotEmpty).includes('empty')) {
             setAlertMessage([{ id: 1, text: '답글을 입력해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
             return;
           }
-          if (json.message.includes('INVALID_TOKEN')) {
+          if (String(json.message).includes('INVALID_TOKEN')) {
             setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
@@ -236,7 +256,7 @@ export const CommentTextarea = ({
             setSuccess && setSuccess(false);
             return;
           }
-          if (json.message.includes('string')) {
+          if (String(json.message).includes('string')) {
             setAlertMessage([{ id: 1, text: '답글 내용을 확인해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
@@ -247,7 +267,10 @@ export const CommentTextarea = ({
     }
 
     //댓글,답글 수정
-    if (isModify) {
+    if (
+      isModify &&
+      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+    ) {
       fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
         method: 'PATCH',
         headers: requestHeaders,
@@ -259,31 +282,35 @@ export const CommentTextarea = ({
       })
         .then(res => res.json())
         .then(json => {
-          if (json.message.includes('SUCCESSFULLY')) {
+          if (String(json.message).includes('SUCCESSFULLY')) {
             setAlertMessage([{ id: 1, text: '수정되었습니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
+            setSuccessModify(true);
             return;
           }
-          if (json.message.includes('INVALID_TOKEN')) {
+          if (String(json.message).includes('INVALID_TOKEN')) {
             setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
+            setSuccessModify(false);
             return;
           }
-          if (json.message.includes('EXIST')) {
+          if (String(json.message).includes('EXIST')) {
             setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
+            setSuccessModify(false);
             return;
           }
-          if (json.message.includes('COMMENT_IS_NOT_CHANGED')) {
+          if (String(json.message).includes('COMMENT_IS_NOT_CHANGED')) {
             setAlertMessage([{ id: 1, text: '수정할 내용을 입력해주세요.' }]);
             setIsQuestion(false);
             setIsAlertModalOpen(true);
             setSuccess && setSuccess(false);
+            setSuccessModify(false);
             return;
           }
         });
@@ -294,6 +321,14 @@ export const CommentTextarea = ({
     result && setIsModify && setIsModify(false);
     result && setSuccess && setSuccess(true);
   }, [result]);
+
+  useEffect(() => {
+    modifyPrivate && setIsPrivate(modifyPrivate);
+  }, [modifyPrivate]);
+
+  useEffect(() => {
+    successModify && setSuccess && setSuccess(true);
+  }, [successModify]);
 
   const handleClickPrivate = () => {
     setIsPrivate(!isPrivate);
@@ -333,7 +368,12 @@ export const CommentTextarea = ({
             <LockIcon isPrivate={isPrivate} onClick={handleClickPrivate} />
             <SmallFont>비밀댓글</SmallFont>
           </LockDiv>
-          <ApplyButton onClick={cruComment}>
+          <ApplyButton
+            onClick={() => {
+              cruComment();
+              notEmpty();
+            }}
+          >
             {isModify ? '수정' : '등록'}
           </ApplyButton>
         </Buttons>
