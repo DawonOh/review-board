@@ -1,10 +1,24 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import Styled from 'styled-components';
+
+import { Header, WriteContainer } from 'Components';
+
+const MainContainer = Styled.div`
+  width: 70%;
+  height: 100%;
+  position: relate;
+  margin: 0 auto;
+  padding: 2em;
+`;
 
 export const WriteFeed = () => {
+  const [isMenuOn, setIsMenuOn] = useState(false);
   return (
     <Fragment>
-      <div></div>
-      <div></div>
+      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MainContainer>
+        <WriteContainer />
+      </MainContainer>
     </Fragment>
   );
 };

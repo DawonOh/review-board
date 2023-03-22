@@ -127,9 +127,9 @@ export const MainPage = () => {
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
+  const [isLogin, setIsLogin] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
   useEffect(() => {
@@ -140,6 +140,11 @@ export const MainPage = () => {
       .then(json => {
         setCategoryList([{ id: 0, category: '전체보기' }, ...json]);
       });
+  }, []);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    token && setIsLogin(true);
+    !token && setIsLogin(false);
   }, []);
 
   const toggleDown = () => {
@@ -198,9 +203,11 @@ export const MainPage = () => {
             })}
           </CategorySelectBox>
         </div>
-        <Link to="/writeFeed">
-          <GotoWriteButton>리뷰쓰기</GotoWriteButton>
-        </Link>
+        {isLogin && (
+          <Link to="/writeFeed">
+            <GotoWriteButton>리뷰쓰기</GotoWriteButton>
+          </Link>
+        )}
       </CategoryContainer>
       <CardList categoryId={categoryId} />
     </MainContainer>
