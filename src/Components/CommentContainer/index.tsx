@@ -94,7 +94,7 @@ export const CommentContainer = () => {
     })
       .then(res => res.json())
       .then(json => {
-        json.myInfo && setLoginUserId(json.myInfo.id);
+        setLoginUserId(json.userInfo.id);
       });
   }, []);
   return (
