@@ -134,7 +134,7 @@ const Card = (
     }
   }, [img]);
 
-  const createAtDate = createdAt.slice(0, -6);
+  const createAtDate = createdAt.slice(0, -8);
   return (
     <Link to={'/feed/' + id}>
       <CardContainer ref={ref}>

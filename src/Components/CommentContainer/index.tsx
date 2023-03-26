@@ -89,7 +89,7 @@ export const CommentContainer = () => {
     }
   }, [success]);
   useEffect(() => {
-    fetch(`${BACK_URL}:${BACK_PORT}/users/getme`, {
+    fetch(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
