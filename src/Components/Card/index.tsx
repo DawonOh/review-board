@@ -162,13 +162,15 @@ const Card = (
 
   let token = localStorage.getItem('token');
   useEffect(() => {
-    axios
-      .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
-        headers: { Accept: `application/json`, Authorization: token },
-      })
-      .then(response => {
-        setIsLike(response.data.checkValue);
-      });
+    if (token) {
+      axios
+        .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
+        .then(response => {
+          setIsLike(response.data.checkValue);
+        });
+    }
   }, []);
 
   const createAtDate = createdAt.slice(0, -8);
