@@ -14,6 +14,11 @@ interface cardListType {
   title: string;
   userId: number;
   userNickname: string;
+  viewCnt: number;
+  updatedAt: string;
+  postedAt: string;
+  deletedAt: string | null;
+  statusId: number;
 }
 
 export const useCardList = (pageNumber: number, categoryId: any) => {
