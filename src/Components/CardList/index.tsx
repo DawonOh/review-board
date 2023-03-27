@@ -54,6 +54,11 @@ interface cardListType {
   title: string;
   userId: number;
   userNickname: string;
+  viewCnt: number;
+  updatedAt: string;
+  postedAt: string;
+  deletedAt: string | null;
+  statusId: number;
 }
 
 export const CardList = (categoryId: any) => {
@@ -102,11 +107,11 @@ export const CardList = (categoryId: any) => {
               file={card.filesCnt}
               img={card.imgUrl}
               content={card.content}
-              isLike={true}
               likeCount={card.likeCnt}
               commentCount={card.commentCnt}
-              nickName="Tester"
+              nickName={card.userNickname}
               createdAt={card.createdAt}
+              viewCnt={card.viewCnt}
             />
           );
         } else {
@@ -119,11 +124,11 @@ export const CardList = (categoryId: any) => {
               file={card.filesCnt}
               img={card.imgUrl}
               content={card.content}
-              isLike={true}
               likeCount={card.likeCnt}
               commentCount={card.commentCnt}
-              nickName="Tester"
+              nickName={card.userNickname}
               createdAt={card.createdAt}
+              viewCnt={card.viewCnt}
             />
           );
         }

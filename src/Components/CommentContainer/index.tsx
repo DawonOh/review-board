@@ -60,12 +60,14 @@ export interface ChildrenArr {
   comment: string;
   is_private: boolean;
 }
-export const CommentContainer = () => {
+
+interface loginUserIdType {
+  loginUserId: number;
+}
+export const CommentContainer = ({ loginUserId }: loginUserIdType) => {
   const [mainCommentList, setMainCommentList] = useState<CommentJsonType[]>([]);
   //댓글 작성 여부
   const [success, setSuccess] = useState(false);
-  //로그인 한 유저 Id
-  const [loginUserId, setLoginUserId] = useState(0);
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('accept', 'application/json');
   let token = localStorage.getItem('token');
@@ -88,15 +90,7 @@ export const CommentContainer = () => {
       setSuccess(false);
     }
   }, [success]);
-  useEffect(() => {
-    fetch(`${BACK_URL}:${BACK_PORT}/users/getme`, {
-      headers: requestHeaders,
-    })
-      .then(res => res.json())
-      .then(json => {
-        setLoginUserId(json.userInfo.id);
-      });
-  }, []);
+
   return (
     <ReplyContainer>
       <Title>댓글</Title>
