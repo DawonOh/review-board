@@ -134,24 +134,82 @@ interface LikeType {
   symbolId: number;
 }
 
+interface SymbolType {
+  message: string;
+  result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
+}
+
+interface LoginLikeType {
+  checkValue: boolean;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: number;
+    feed: number;
+    symbol: number;
+  };
+}
+
 export const FeedDetail = () => {
   const [isLike, setIsLike] = useState(false);
   const [detailContent, setDetailContent] = useState<DataType>();
   const [likeCount, setLikeCount] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  let token = localStorage.getItem('token');
+
   const handleClickLike = () => {
-    setIsLike(!isLike);
+    if (isLike === false) {
+      axios
+        .post<SymbolType>(
+          `${BACK_URL}:${BACK_PORT}/symbols/${feedId}`,
+          {
+            symbolId: 1,
+          },
+          { headers: { Accept: `application/json`, Authorization: token } }
+        )
+        .then(response => {
+          setIsLike(true);
+          for (let i = 0; i < response.data.result.length; i++) {
+            for (let i = 0; i < response.data.result.length; i++) {
+              if (response.data.result[i].symbolId === 1) {
+                setLikeCount(response.data.result[i].count);
+              }
+            }
+          }
+        });
+      return;
+    }
+    if (isLike) {
+      axios
+        .delete<SymbolType>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
+        .then(response => {
+          setIsLike(false);
+          for (let i = 0; i < response.data.result.length; i++) {
+            if (response.data.result[i].symbolId === 1) {
+              setLikeCount(response.data.result[i].count);
+            }
+          }
+        });
+      return;
+    }
   };
+
   const params = useParams();
   let feedId = params.id;
+
   useEffect(() => {
     axios
       .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`)
       .then(response => {
         setDetailContent(response.data);
       })
-      .catch(error => {
+      .catch(() => {
         alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
       });
 
@@ -163,6 +221,14 @@ export const FeedDetail = () => {
             setLikeCount(response.data[i].count);
           }
         }
+      });
+
+    axios
+      .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${feedId}`, {
+        headers: { Accept: `application/json`, Authorization: token },
+      })
+      .then(response => {
+        setIsLike(response.data.checkValue);
       });
   }, []);
   const createDate = detailContent?.result.created_at.slice(0, -8);
