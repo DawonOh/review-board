@@ -6,6 +6,7 @@ import HeartIconImg from '../../assets/images/heart.png';
 import LikeIconImg from '../../assets/images/like.png';
 import DisLikeImg from '../../assets/images/dislike.png';
 import ThumbsUpImg from '../../assets/images/thumbsUp.png';
+import ViewIconImg from '../../assets/images/view.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
 
@@ -83,6 +84,15 @@ const LikeIcon = Styled.div<{ isLike: boolean }>`
   cursor: pointer;
 `;
 
+const ViewIcon = Styled.div`
+  min-width: 1em;
+  min-height: 1em;
+  margin-left: 0.2em;
+  background: url(${ViewIconImg});
+  background-repeat: no-repeat;
+  background-size: cover;
+`;
+
 const WriterInfo = Styled.span`
   font-weight: 700;
 `;
@@ -92,7 +102,7 @@ const Dates = Styled.div`
 `;
 const Buttons = Styled.div`
   ${flexCenterAlign}
-  gap: 0.2em;
+  gap: 0.5em;
 
 `;
 const ModifyDeleteButton = Styled.button<{ text: string }>`
@@ -101,6 +111,11 @@ const ModifyDeleteButton = Styled.button<{ text: string }>`
   color: #fff;
   background-color: ${props => (props.text === '수정' ? '#676FA3' : '#FF5959')};
   cursor: pointer;
+`;
+
+const ViewCntContainer = Styled.div`
+  ${flexCenterAlign}
+  margin-right: 0.5em;
 `;
 
 interface DataType {
@@ -152,7 +167,11 @@ interface LoginLikeType {
   };
 }
 
-export const FeedDetail = () => {
+interface loginUserIdType {
+  loginUserId: number;
+}
+
+export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const [isLike, setIsLike] = useState(false);
   const [detailContent, setDetailContent] = useState<DataType>();
   const [likeCount, setLikeCount] = useState(0);
@@ -245,10 +264,12 @@ export const FeedDetail = () => {
             <Dates>{createDate} 작성</Dates>
             <Dates>{updateDate} 편집</Dates>
           </div>
-          <Buttons>
-            <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
-            <ModifyDeleteButton text="삭제">삭제</ModifyDeleteButton>
-          </Buttons>
+          {detailContent?.result.user.id === loginUserId && (
+            <Buttons>
+              <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
+              <ModifyDeleteButton text="삭제">삭제</ModifyDeleteButton>
+            </Buttons>
+          )}
         </BothSideContainer>
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
@@ -268,7 +289,13 @@ export const FeedDetail = () => {
             <LikeIcon isLike={isLike} onClick={handleClickLike} />
             <span>{likeCount}</span>
           </LikeContainer>
-          <WriterInfo>by {detailContent?.result.user.nickname}</WriterInfo>
+          <Buttons>
+            <ViewCntContainer>
+              <ViewIcon />
+              <span>{detailContent?.result.viewCnt}</span>
+            </ViewCntContainer>
+            <WriterInfo>by {detailContent?.result.user.nickname}</WriterInfo>
+          </Buttons>
         </BothSideContainer>
       </ContentContainer>
     </Fragment>

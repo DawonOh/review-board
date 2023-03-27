@@ -37,7 +37,7 @@ interface PropsType {
     ];
   };
   setSuccess: Function;
-  loginUserId: Number;
+  loginUserId: number;
   success: boolean;
 }
 

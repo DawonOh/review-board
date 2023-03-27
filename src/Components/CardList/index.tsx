@@ -109,7 +109,7 @@ export const CardList = (categoryId: any) => {
               content={card.content}
               likeCount={card.likeCnt}
               commentCount={card.commentCnt}
-              nickName="Tester"
+              nickName={card.userNickname}
               createdAt={card.createdAt}
               viewCnt={card.viewCnt}
             />
@@ -126,7 +126,7 @@ export const CardList = (categoryId: any) => {
               content={card.content}
               likeCount={card.likeCnt}
               commentCount={card.commentCnt}
-              nickName="Tester"
+              nickName={card.userNickname}
               createdAt={card.createdAt}
               viewCnt={card.viewCnt}
             />

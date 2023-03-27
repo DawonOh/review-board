@@ -199,7 +199,7 @@ const Card = (
         </UnderBar>
         <Icons>
           <Date>{createAtDate}</Date>
-          {nickName && <NickName>{nickName}</NickName>}
+          {nickName && <NickName>by {nickName}</NickName>}
         </Icons>
       </CardContainer>
     </Link>

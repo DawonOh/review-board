@@ -133,6 +133,7 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
           localStorage.setItem('token', json.result.token);
           setIsModalOpen(false);
           setIsLoginPass(false);
+          window.location.href = '/';
         } else {
           setIsLoginPass(true);
           setEmail('');
