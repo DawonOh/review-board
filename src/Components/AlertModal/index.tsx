@@ -30,10 +30,15 @@ const StyledModal = Modal.styled`
   border-radius: 4px;
 `;
 
-const CloseButton = Styled.button`
+const Buttons = Styled.div`
+  display: flex;
+  gap: 1em;
+`;
+
+const CloseButton = Styled.button<{ isCancle?: boolean }>`
   ${ButtonLayout}
   padding: 0.4em 0.6em;
-  background-color: #676FA3;
+  background-color: ${props => (props.isCancle ? '#C1C1C1' : '#676FA3')};
   color: #fff;
   cursor: pointer;
 `;
@@ -42,12 +47,16 @@ interface Props {
   isAlertModalOpen: boolean;
   setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
   contents: { id: number; text: string }[];
+  isQuestion?: boolean;
+  setResult?: Function;
 }
 
 export const AlertModal = ({
   isAlertModalOpen,
   setIsAlertModalOpen,
   contents,
+  isQuestion,
+  setResult,
 }: Props) => {
   return (
     <ModalProvider>
@@ -62,13 +71,27 @@ export const AlertModal = ({
               return <p key={content.id}>{content.text}</p>;
             })}
           </AlertMessage>
-          <CloseButton
-            onClick={() => {
-              setIsAlertModalOpen(false);
-            }}
-          >
-            확인
-          </CloseButton>
+          <Buttons>
+            {isQuestion && (
+              <CloseButton
+                onClick={() => {
+                  setIsAlertModalOpen(false);
+                  setResult && isQuestion && setResult(false);
+                }}
+                isCancle={true}
+              >
+                취소
+              </CloseButton>
+            )}
+            <CloseButton
+              onClick={() => {
+                setIsAlertModalOpen(false);
+                setResult && setResult(true);
+              }}
+            >
+              확인
+            </CloseButton>
+          </Buttons>
         </AlertModalContainer>
       </StyledModal>
     </ModalProvider>
