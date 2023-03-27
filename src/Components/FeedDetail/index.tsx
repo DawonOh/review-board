@@ -128,16 +128,16 @@ interface DataType {
 }
 
 interface LikeType {
-  feedId: number;
-  symbolId: number;
-  symbol: string;
   count: number;
+  feedId: number;
+  symbol: string;
+  symbolId: number;
 }
 
 export const FeedDetail = () => {
   const [isLike, setIsLike] = useState(false);
   const [detailContent, setDetailContent] = useState<DataType>();
-  const [likeCount, setLikeCount] = useState<LikeType>();
+  const [likeCount, setLikeCount] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const handleClickLike = () => {
@@ -156,12 +156,17 @@ export const FeedDetail = () => {
       });
 
     axios
-      .get<LikeType>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`)
-      .then(response => setLikeCount(response.data));
+      .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`)
+      .then(response => {
+        for (let i = 0; i < response.data.length; i++) {
+          if (response.data[i].symbolId === 1) {
+            setLikeCount(response.data[i].count);
+          }
+        }
+      });
   }, []);
   const createDate = detailContent?.result.created_at.slice(0, -8);
   const updateDate = detailContent?.result.updated_at.slice(0, -8);
-
   return (
     <Fragment>
       <TitleContainer>
@@ -195,7 +200,7 @@ export const FeedDetail = () => {
         <BothSideContainer>
           <LikeContainer>
             <LikeIcon isLike={isLike} onClick={handleClickLike} />
-            <span>10</span>
+            <span>{likeCount}</span>
           </LikeContainer>
           <WriterInfo>by {detailContent?.result.user.nickname}</WriterInfo>
         </BothSideContainer>
