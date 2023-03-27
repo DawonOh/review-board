@@ -5,7 +5,9 @@ import HeartIconImg from '../../assets/images/heart.png';
 import LikeIconImg from '../../assets/images/like.png';
 import CommentIconImg from '../../assets/images/comment.png';
 import Clip from '../../assets/images/clip.png';
-import { Link } from 'react-router-dom';
+import ViewIconImg from '../../assets/images/view.png';
+import { Link, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const CardContainer = Styled.div<{ ref?: ForwardedRef<HTMLDivElement> | null }>`
   border: 1px solid #EBEBEB;
@@ -72,15 +74,15 @@ const Icons = Styled.div`
 `;
 
 const Icon = Styled.img`
-  width: 1.5em;
+  width: 1.3em;
 `;
 
 const Counts = Styled.span`
-  margin: 0 1em 0 0.3em;
+  margin: 0 1em 0 0.1em;
 `;
 const UnderBar = Styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 `;
 
@@ -102,11 +104,28 @@ interface Props {
   file: string;
   img?: string;
   content: string;
-  isLike: boolean;
   likeCount: string;
   commentCount: string;
   nickName?: string;
   createdAt: string;
+  viewCnt: number;
+  updatedAt?: string;
+  postedAt?: string;
+  deletedAt?: string | null;
+  statusId?: number;
+}
+
+interface LoginLikeType {
+  checkValue: boolean;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: number;
+    feed: number;
+    symbol: number;
+  };
 }
 
 const Card = (
@@ -117,15 +136,22 @@ const Card = (
     file,
     img,
     content,
-    isLike,
     likeCount,
     commentCount,
     nickName,
     createdAt,
+    viewCnt,
+    updatedAt,
+    postedAt,
+    deletedAt,
+    statusId,
   }: Props,
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
+  const [isLike, setIsLike] = useState(false);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   useEffect(() => {
     if (img) {
       setIsHaveThumbnail(true);
@@ -134,7 +160,18 @@ const Card = (
     }
   }, [img]);
 
-  const createAtDate = createdAt.slice(0, -6);
+  let token = localStorage.getItem('token');
+  useEffect(() => {
+    axios
+      .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
+        headers: { Accept: `application/json`, Authorization: token },
+      })
+      .then(response => {
+        setIsLike(response.data.checkValue);
+      });
+  }, []);
+
+  const createAtDate = createdAt.slice(0, -8);
   return (
     <Link to={'/feed/' + id}>
       <CardContainer ref={ref}>
@@ -147,16 +184,21 @@ const Card = (
         <Content isHaveThumbnail={isHaveThumbnail}>{content}</Content>
         <UnderBar>
           <Icons>
-            <Icon src={isLike ? LikeIconImg : HeartIconImg} alt="좋아요" />
+            <Icon
+              src={isLike ? LikeIconImg : HeartIconImg}
+              alt="좋아요 아이콘"
+            />
             <Counts>{likeCount}</Counts>
-            <Icon src={CommentIconImg} alt="댓글" />
+            <Icon src={CommentIconImg} alt="댓글 아이콘" />
             <Counts>{commentCount}</Counts>
-          </Icons>
-          <Icons>
-            <Date>{createAtDate}</Date>
-            {nickName && <NickName>{nickName}</NickName>}
+            <Icon src={ViewIconImg} alt="조회수 아이콘" />
+            <Counts>{viewCnt}</Counts>
           </Icons>
         </UnderBar>
+        <Icons>
+          <Date>{createAtDate}</Date>
+          {nickName && <NickName>{nickName}</NickName>}
+        </Icons>
       </CardContainer>
     </Link>
   );
