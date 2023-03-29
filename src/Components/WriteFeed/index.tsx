@@ -6,6 +6,8 @@ import LikeIconImg from '../../assets/images/thumbsUp.png';
 import DoubleLikeImg from '../../assets/images/double-like.png';
 import DisLikeImg from '../../assets/images/dislike.png';
 import QuestionMark from '../../assets/images/question.png';
+import FileIconImg from '../../assets/images/clip.png';
+import axios, { AxiosResponse } from 'axios';
 
 const TitleDiv = Styled.div`
   display: flex;
@@ -110,10 +112,13 @@ const TitleInput = Styled.input`
 
 const ImgPreview = Styled.div`
   ${flexCenterAlign}
-  height: 10em;
+  padding: 1em;
   gap: 0.5em;
   border: 1px solid #f1f1f1;
   border-radius: 0.3em;
+  @media (max-width: 767px) {
+    flex-direction: column;
+  }
 `;
 
 const ImgPreviewMessage = Styled.div`
@@ -122,9 +127,15 @@ const ImgPreviewMessage = Styled.div`
   font-size: 1.2em;
 `;
 
-const ImgPreviewItem = Styled.img`
-  max-width: 12em;
-  max-height: 8em;
+const FilePreviewDiv = Styled.div`
+  ${flexCenterAlign}
+  flex-direction: column;
+  gap: 0.5em;
+`;
+
+const ImgPreviewItem = Styled.img<{ isFile: boolean }>`
+  max-width: ${props => (props.isFile ? '7em' : '12em')};
+  max-height: ${props => (props.isFile ? '5em' : '8em')};
   cursor: pointer;
 `;
 
@@ -156,13 +167,13 @@ const Button = Styled.button<{ isSave: boolean }>`
   cursor: pointer;
 `;
 
-const SaveAlertDiv = Styled.div<{ isSaved: string }>`
+const SaveAlertDiv = Styled.div<{ isSaved: string; isNotNull: boolean }>`
 visibility: ${props => (props.isSaved === 'true' ? 'visible' : 'hidden')};
   position: absolute;
   padding: 0.3em;
   right: 20em;
   color: #fff;
-  background-color: #CDDEFF;
+  background-color: ${props => (props.isNotNull ? '#CDDEFF' : '#FF5959')};
   border-radius: 0.3em;
   animation-name: ${props =>
     props.isSaved === 'true'
@@ -257,27 +268,33 @@ const Count = Styled.span<{ textLength: number; maxLength: number }>`
   padding: 0.2em;
 `;
 
+const WarningMessage = Styled.p`
+  color: #FF5959;
+`;
+
 interface CategoryType {
   id: number;
   category: string;
 }
 
-interface ImgType {
-  lastModified: number;
-  name: string;
-  size: number;
-  type: string;
-  webkitRelativePath: string;
+interface FileLinkType {
+  file_link: string[];
 }
+
+interface PreviewType {
+  id: number;
+  url: string;
+  name: string;
+}
+
 export const WriteContainer = () => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [categoryName, setCategoryName] = useState('카테고리');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
-  const [mainFileList, setMainFileList] = useState<ImgType[]>([]);
-  const [fileName, setFileName] = useState('선택된 파일이 없습니다.');
-  const [previewList, setPreviewList] = useState<string[]>([]);
+  const [mainFileList, setMainFileList] = useState<File[]>([]);
+  const [previewList, setPreviewList] = useState<PreviewType[]>([]);
   const [isSaved, setIsSaved] = useState('none');
   const [isQuestionOpen, setIsQuestionOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -285,6 +302,10 @@ export const WriteContainer = () => {
   const [content, setContent] = useState('');
   const [contentLength, setContentLength] = useState(0);
   const [selectedLike, setSelectedLike] = useState(1);
+  const [isNotNull, setIsNotNull] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFileSizePass, setIsFileSizePass] = useState(true);
+  const [isFileCountPass, setIsFileCountPass] = useState(true);
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -301,6 +322,17 @@ export const WriteContainer = () => {
         setCategoryList([{ id: 0, category: '카테고리' }, ...json]);
       });
   }, []);
+
+  useEffect(() => {
+    if (title && content) {
+      setIsNotNull(true);
+      return;
+    }
+    if (title === '' || content === '') {
+      setIsNotNull(false);
+      return;
+    }
+  }, [title, content]);
 
   const getTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLength(e.target.value.length);
@@ -321,54 +353,69 @@ export const WriteContainer = () => {
 
   const input = useRef<HTMLInputElement>(null);
 
+  const formData = new FormData();
+
   const getFileList = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.target?.files && setMainFileList(Array.from(e.target.files));
+    const FILE_SIZE = 5 * 1024 * 1024;
+    if (e.target.files) {
+      let files: File[] = [...e.target?.files];
+      let passFiles: File[] = [];
+      files.forEach(file => {
+        if (file.size > FILE_SIZE) {
+          setIsFileSizePass(false);
+          return;
+        }
+        passFiles.push(file);
+      });
+      if (passFiles.length > 5) {
+        setIsFileCountPass(false);
+        passFiles.slice(0, 5);
+        return;
+      }
+      setIsFileCountPass(true);
+      setMainFileList(passFiles);
+    }
   };
+
+  let token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (mainFileList && mainFileList.length === 0) {
-      setFileName('선택된 파일이 없습니다.');
-      return;
-    }
-    if (mainFileList && mainFileList.length === 1) {
-      setFileName(mainFileList[0].name);
-      return;
-    }
-    if (mainFileList && mainFileList.length > 1) {
-      setFileName(
-        mainFileList[0].name + '외 ' + (mainFileList.length - 1) + '장'
-      );
-      return;
-    }
+    setIsLoading(true);
+    mainFileList.forEach(file => {
+      formData.append('file', file);
+    });
+    axios
+      .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
+        headers: { Accept: `multipart/form-data`, Authorization: token },
+      })
+      .then(response => {
+        setIsLoading(false);
+        let arr: PreviewType[] = [];
+        for (let i = 0; i < response.data.file_link.length; i++) {
+          const obj = {
+            id: i + 1,
+            url: response.data.file_link[i],
+            name: mainFileList[i].name,
+          };
+          arr.push(obj);
+        }
+        setPreviewList(arr);
+      })
+      .catch(() => {
+        alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+      });
   }, [mainFileList]);
 
-  const savePreImgFile = () => {
-    const file = input.current?.files && input.current?.files;
-    let fileArr: any[] = [];
+  useEffect(() => {
+    const showMessage = setInterval(() => {
+      setIsSaved('true');
+      setTimeout(() => {
+        setIsSaved('false');
+      }, 3000);
+    }, 60000);
 
-    if (file) {
-      for (let i = 0; i < file.length; i++) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          fileArr[i] = reader.result;
-          setPreviewList([...fileArr]);
-        };
-        reader.readAsDataURL(file[i]);
-      }
-    }
-  };
-
-  const deletePreviewImg = (idx: number) => {
-    setPreviewList(previewList.filter((_, item) => item !== idx));
-    setMainFileList(mainFileList.filter((_, item) => item !== idx));
-  };
-
-  const showMessage = () => {
-    setIsSaved('true');
-    setTimeout(function () {
-      setIsSaved('false');
-    }, 3000);
-  };
+    return () => clearInterval(showMessage);
+  }, []);
 
   const QuestionDivRef = useRef<HTMLDivElement>(null);
 
@@ -387,12 +434,43 @@ export const WriteContainer = () => {
     };
   }, [QuestionDivRef]);
 
+  const previewFiles = () => {
+    const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];
+
+    return (
+      mainFileList.length !== 0 &&
+      previewList.map(item => {
+        const extension = item.url.split('.').pop();
+        if (!extension) {
+          return null;
+        }
+        return allowExtensions.includes(extension) ? (
+          <ImgPreviewItem
+            key={item.id}
+            src={item.url}
+            alt={item.id + '번째 이미지'}
+            isFile={false}
+          />
+        ) : (
+          <FilePreviewDiv key={item.id}>
+            <ImgPreviewItem
+              src={FileIconImg}
+              alt="파일 미리보기 아이콘"
+              isFile={true}
+            />
+            <span>{item.name}</span>
+          </FilePreviewDiv>
+        );
+      })
+    );
+  };
+
   return (
     <Fragment>
       <TitleDiv>
         <Title>게시글 작성</Title>
-        <SaveAlertDiv isSaved={isSaved}>
-          2023.03.21 16:32:00 저장되었습니다.
+        <SaveAlertDiv isSaved={isSaved} isNotNull={isNotNull}>
+          {isNotNull ? '임시저장되었습니다.' : '제목과 내용을 입력해주세요.'}
         </SaveAlertDiv>
       </TitleDiv>
       <MenuContainer>
@@ -440,19 +518,16 @@ export const WriteContainer = () => {
             input.current?.click();
           }}
         >
-          이미지 선택
+          파일 선택
         </UploadButton>
         <FileInput
           type="file"
           ref={input}
           onChange={e => {
             getFileList(e);
-            savePreImgFile();
           }}
           multiple
-          accept="image/jpg, image/png, image/jpeg, image/gif"
         />
-        <span>{fileName}</span>
         <RadioContainer>
           <RadioButton>
             <RadioImg src={DoubleLikeImg} alt="매우좋아요 선택하기" />
@@ -504,12 +579,16 @@ export const WriteContainer = () => {
         </div>
       </MenuContainer>
       <InfoDiv>
-        <p>
-          • 이미지 여러 장 업로드 시 Ctrl키를 누른 상태로 이미지를 선택해주세요.
-        </p>
-        <p>• png / jpg / jpeg 확장자만 가능합니다.</p>
+        <p>• 여러 파일 업로드 시 Ctrl키를 누른 상태로 이미지를 선택해주세요.</p>
+        <p>• 이미지는 png / jpg / jpeg / gif 확장자만 가능합니다.</p>
         <p>• 최대 5장, 각 이미지는 5MB까지 업로드가 가능합니다.</p>
         <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>
+        {isFileSizePass === false && (
+          <WarningMessage>• 파일 용량을 확인해주세요!</WarningMessage>
+        )}
+        {isFileCountPass === false && (
+          <WarningMessage>• 파일 개수를 확인해주세요!</WarningMessage>
+        )}
       </InfoDiv>
       <ContentsContainer>
         <InputDiv>
@@ -526,21 +605,12 @@ export const WriteContainer = () => {
 
         <ImgPreview>
           {mainFileList.length === 0 && (
-            <ImgPreviewMessage>이미지 미리보기</ImgPreviewMessage>
+            <ImgPreviewMessage>파일 미리보기</ImgPreviewMessage>
           )}
-          {mainFileList.length !== 0 &&
-            previewList.map((item, idx) => {
-              return (
-                <ImgPreviewItem
-                  key={idx}
-                  src={item}
-                  alt={idx + 1 + '번째 사진'}
-                  onClick={() => {
-                    deletePreviewImg(idx);
-                  }}
-                />
-              );
-            })}
+          {mainFileList.length !== 0 && isLoading && (
+            <ImgPreviewMessage>Loading...</ImgPreviewMessage>
+          )}
+          {previewFiles()}
         </ImgPreview>
         <InputDiv>
           <ContentTextarea
@@ -554,9 +624,7 @@ export const WriteContainer = () => {
         </InputDiv>
       </ContentsContainer>
       <Buttons>
-        <Button isSave={true} onClick={showMessage}>
-          임시저장
-        </Button>
+        <Button isSave={true}>임시저장</Button>
         <Button isSave={false}>등록</Button>
       </Buttons>
     </Fragment>
