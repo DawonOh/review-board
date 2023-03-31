@@ -7,7 +7,7 @@ import DoubleLikeImg from '../../assets/images/double-like.png';
 import DisLikeImg from '../../assets/images/dislike.png';
 import QuestionMark from '../../assets/images/question.png';
 import FileIconImg from '../../assets/images/clip.png';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 const TitleDiv = Styled.div`
   display: flex;
@@ -167,13 +167,21 @@ const Button = Styled.button<{ isSave: boolean }>`
   cursor: pointer;
 `;
 
-const SaveAlertDiv = Styled.div<{ isSaved: string; isNotNull: boolean }>`
+const SaveAlertDiv = Styled.div<{
+  isSaved: string;
+  isNotNull: boolean;
+  isSaveSuccess: boolean;
+  categoryId: number;
+}>`
 visibility: ${props => (props.isSaved === 'true' ? 'visible' : 'hidden')};
   position: absolute;
   padding: 0.3em;
   right: 20em;
   color: #fff;
-  background-color: ${props => (props.isNotNull ? '#CDDEFF' : '#FF5959')};
+  background-color: ${props =>
+    props.isNotNull && props.isSaveSuccess && props.categoryId !== 0
+      ? '#CDDEFF'
+      : '#FF5959'};
   border-radius: 0.3em;
   animation-name: ${props =>
     props.isSaved === 'true'
@@ -278,7 +286,7 @@ interface CategoryType {
 }
 
 interface FileLinkType {
-  file_link: string[];
+  file_links: string[];
 }
 
 interface PreviewType {
@@ -287,10 +295,49 @@ interface PreviewType {
   name: string;
 }
 
+interface SaveResultType {
+  message: string;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+      nickname: string;
+      email: string;
+    };
+    title: string;
+    content: string;
+    category: number;
+    posted_at: string;
+    feedSymbol: [];
+    uploadFiles: [
+      [
+        {
+          id: 1;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string;
+          is_img: boolean;
+          file_link: string;
+        }
+      ]
+    ];
+  };
+}
+
+interface EstimatioinType {
+  id: number;
+  estimation: string;
+  img: string;
+}
 export const WriteContainer = () => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
-  const [categoryName, setCategoryName] = useState('카테고리');
+  const [categoryName, setCategoryName] = useState('카테고리 선택');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
   const [mainFileList, setMainFileList] = useState<File[]>([]);
@@ -306,6 +353,12 @@ export const WriteContainer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFileSizePass, setIsFileSizePass] = useState(true);
   const [isFileCountPass, setIsFileCountPass] = useState(true);
+  const [isFirstSave, setIsFirstSave] = useState(true);
+  const [fileLink, setFileLink] = useState<string[]>([]);
+  const [isSaveSuccess, setIsSaveSuccess] = useState(true);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [estimationList, setEstimationList] = useState<EstimatioinType[]>([]);
+  const [feedId, setFeedId] = useState(0);
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -319,19 +372,33 @@ export const WriteContainer = () => {
     })
       .then(res => res.json())
       .then(json => {
-        setCategoryList([{ id: 0, category: '카테고리' }, ...json]);
+        setCategoryList([{ id: 0, category: '카테고리 선택' }, ...json]);
+      });
+
+    axios
+      .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`)
+      .then(response => {
+        const imgList: string[] = [LikeIconImg, DoubleLikeImg, DisLikeImg];
+        const result = response.data.map((estimation, index) => ({
+          ...estimation,
+          img: imgList[index],
+        }));
+        setEstimationList(result);
       });
   }, []);
 
   useEffect(() => {
-    if (title && content) {
-      setIsNotNull(true);
-      return;
-    }
-    if (title === '' || content === '') {
-      setIsNotNull(false);
-      return;
-    }
+    const timeoutId = setTimeout(() => {
+      if (title && content) {
+        setIsNotNull(true);
+        return;
+      }
+      if (title === '' || content === '') {
+        setIsNotNull(false);
+        return;
+      }
+    }, 3000);
+    return () => clearTimeout(timeoutId);
   }, [title, content]);
 
   const getTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -384,38 +451,109 @@ export const WriteContainer = () => {
     mainFileList.forEach(file => {
       formData.append('file', file);
     });
-    axios
-      .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
-        headers: { Accept: `multipart/form-data`, Authorization: token },
-      })
-      .then(response => {
-        setIsLoading(false);
-        let arr: PreviewType[] = [];
-        for (let i = 0; i < response.data.file_link.length; i++) {
-          const obj = {
-            id: i + 1,
-            url: response.data.file_link[i],
-            name: mainFileList[i].name,
-          };
-          arr.push(obj);
-        }
-        setPreviewList(arr);
-      })
-      .catch(() => {
-        alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
-      });
+    if (mainFileList.length !== 0) {
+      axios
+        .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
+          headers: { Accept: `multipart/form-data`, Authorization: token },
+        })
+        .then(response => {
+          setFileLink(response.data.file_links);
+          setIsLoading(false);
+          let arr: PreviewType[] = [];
+          for (let i = 0; i < response.data.file_links.length; i++) {
+            const obj = {
+              id: i + 1,
+              url: response.data.file_links[i],
+              name: mainFileList[i].name,
+            };
+            arr.push(obj);
+          }
+          setPreviewList(arr);
+        })
+        .catch(() => {
+          alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+        });
+    }
   }, [mainFileList]);
 
-  useEffect(() => {
-    const showMessage = setInterval(() => {
-      setIsSaved('true');
-      setTimeout(() => {
-        setIsSaved('false');
-      }, 3000);
-    }, 60000);
+  const saveAlertMessage = () => {
+    setIsSaved('true');
 
-    return () => clearInterval(showMessage);
-  }, []);
+    setTimeout(() => {
+      setIsSaved('false');
+    }, 3000);
+  };
+  const saveFeedPost = () => {
+    axios
+      .post<SaveResultType>(
+        `${BACK_URL}:${BACK_PORT}/feeds/temp`,
+        {
+          title: title,
+          content: content,
+          estimation: selectedLike,
+          category: categoryId,
+          fileLinks: fileLink,
+        },
+        { headers: { Accept: `application/json`, Authorization: token } }
+      )
+      .then(response => {
+        setIsFirstSave(false);
+        setIsSaveSuccess(true);
+        saveAlertMessage();
+        setFeedId(response.data.result.id);
+      })
+      .catch(error => {
+        setIsSaveSuccess(true);
+        saveAlertMessage();
+      });
+  };
+
+  const saveFeedPatch = () => {
+    axios
+      .patch<SaveResultType>(
+        `${BACK_URL}:${BACK_PORT}/feeds/temp`,
+        {
+          feedId: feedId,
+          title: title,
+          content: content,
+          estimation: selectedLike,
+          category: categoryId,
+          fileLinks: fileLink,
+        },
+        { headers: { Accept: `application/json`, Authorization: token } }
+      )
+      .then(response => {
+        setIsFirstSave(false);
+        setIsSaveSuccess(true);
+        saveAlertMessage();
+      })
+      .catch(error => {
+        setIsSaveSuccess(false);
+        saveAlertMessage();
+      });
+  };
+  const saveFeed = () => {
+    if (isNotNull === false || categoryId === 0) {
+      saveAlertMessage();
+    }
+    if (isNotNull && isFirstSave && categoryId !== 0) {
+      saveFeedPost();
+      return;
+    }
+
+    if (isNotNull && isFirstSave === false && categoryId !== 0) {
+      saveFeedPatch();
+      return;
+    }
+  };
+
+  // useEffect(() => {
+  //   const showMessage = setInterval(() => {
+  //     saveFeed();
+  //   }, 60000);
+
+  //   return () => clearInterval(showMessage);
+  // }, []);
 
   const QuestionDivRef = useRef<HTMLDivElement>(null);
 
@@ -465,12 +603,36 @@ export const WriteContainer = () => {
     );
   };
 
+  useEffect(() => {
+    if (isNotNull === false) {
+      setSaveMessage('제목과 내용을 입력해주세요.');
+      return;
+    }
+    if (categoryId === 0) {
+      setSaveMessage('카테고리를 선택해주세요.');
+      return;
+    }
+    if (isSaveSuccess) {
+      setSaveMessage('임시저장되었습니다.');
+      return;
+    }
+    if (isSaveSuccess === false) {
+      setSaveMessage('임시저장에 실패했습니다.');
+      return;
+    }
+  }, [isNotNull, isSaveSuccess, categoryId]);
+
   return (
     <Fragment>
       <TitleDiv>
         <Title>게시글 작성</Title>
-        <SaveAlertDiv isSaved={isSaved} isNotNull={isNotNull}>
-          {isNotNull ? '임시저장되었습니다.' : '제목과 내용을 입력해주세요.'}
+        <SaveAlertDiv
+          isSaved={isSaved}
+          isNotNull={isNotNull}
+          isSaveSuccess={isSaveSuccess}
+          categoryId={categoryId}
+        >
+          {saveMessage}
         </SaveAlertDiv>
       </TitleDiv>
       <MenuContainer>
@@ -529,40 +691,22 @@ export const WriteContainer = () => {
           multiple
         />
         <RadioContainer>
-          <RadioButton>
-            <RadioImg src={DoubleLikeImg} alt="매우좋아요 선택하기" />
-            <input
-              type="radio"
-              value="1"
-              name="select"
-              defaultChecked
-              onInput={() => {
-                setSelectedLike(1);
-              }}
-            />
-          </RadioButton>
-          <RadioButton>
-            <RadioImg src={LikeIconImg} alt="좋아요 선택하기" />
-            <input
-              type="radio"
-              value="2"
-              name="select"
-              onInput={() => {
-                setSelectedLike(2);
-              }}
-            />
-          </RadioButton>
-          <RadioButton>
-            <RadioImg src={DisLikeImg} alt="별로예요 선택하기" />
-            <input
-              type="radio"
-              value="3"
-              name="select"
-              onInput={() => {
-                setSelectedLike(3);
-              }}
-            />
-          </RadioButton>
+          {estimationList.map(estimation => {
+            return (
+              <RadioButton key={estimation.id}>
+                <RadioImg src={estimation.img} alt={estimation.estimation} />
+                <input
+                  type="radio"
+                  value={estimation.id}
+                  name="select"
+                  defaultChecked={estimation.id === 1 && true}
+                  onInput={() => {
+                    setSelectedLike(estimation.id);
+                  }}
+                />
+              </RadioButton>
+            );
+          })}
         </RadioContainer>
         <div ref={QuestionDivRef}>
           <RadioImg
@@ -624,7 +768,9 @@ export const WriteContainer = () => {
         </InputDiv>
       </ContentsContainer>
       <Buttons>
-        <Button isSave={true}>임시저장</Button>
+        <Button isSave={true} onClick={saveFeed}>
+          임시저장
+        </Button>
         <Button isSave={false}>등록</Button>
       </Buttons>
     </Fragment>
