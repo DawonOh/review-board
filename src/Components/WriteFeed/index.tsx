@@ -349,7 +349,6 @@ export const WriteContainer = () => {
   const [content, setContent] = useState('');
   const [contentLength, setContentLength] = useState(0);
   const [selectedLike, setSelectedLike] = useState(1);
-  const [isNotNull, setIsNotNull] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFileSizePass, setIsFileSizePass] = useState(true);
   const [isFileCountPass, setIsFileCountPass] = useState(true);
@@ -359,6 +358,7 @@ export const WriteContainer = () => {
   const [saveMessage, setSaveMessage] = useState('');
   const [estimationList, setEstimationList] = useState<EstimatioinType[]>([]);
   const [feedId, setFeedId] = useState(0);
+  const [isNotNull, setIsNotNull] = useState(false);
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -366,6 +366,7 @@ export const WriteContainer = () => {
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
 
+  // 처음 렌더링 시 불러오는 데이터(카테고리, 좋아요)
   useEffect(() => {
     fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
       headers: requestHeaders,
@@ -378,7 +379,7 @@ export const WriteContainer = () => {
     axios
       .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`)
       .then(response => {
-        const imgList: string[] = [LikeIconImg, DoubleLikeImg, DisLikeImg];
+        const imgList: string[] = [DoubleLikeImg, LikeIconImg, DisLikeImg];
         const result = response.data.map((estimation, index) => ({
           ...estimation,
           img: imgList[index],
@@ -387,28 +388,38 @@ export const WriteContainer = () => {
       });
   }, []);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (title && content) {
-        setIsNotNull(true);
-        return;
-      }
-      if (title === '' || content === '') {
-        setIsNotNull(false);
-        return;
-      }
-    }, 3000);
-    return () => clearTimeout(timeoutId);
-  }, [title, content]);
+  const inputValueRef = useRef<HTMLInputElement>(null);
+  const textareaValueRef = useRef<HTMLTextAreaElement>(null);
+  const selectRef = useRef<HTMLLIElement>(null);
 
+  // 제목, 내용 값 가져오기
   const getTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLength(e.target.value.length);
     setTitle(e.target.value);
+    if (inputValueRef.current) inputValueRef.current.value = e.target.value;
   };
   const getContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContentLength(e.target.value.length);
     setContent(e.target.value);
+    if (textareaValueRef.current)
+      textareaValueRef.current.value = e.target.value;
   };
+  const handleSelectChange = (categoryId: number) => {
+    setCategoryId(categoryId);
+    if (selectRef.current) selectRef.current.value = categoryId;
+  };
+
+  // 제목, 내용 여부에 따른 isNotNull값 설정
+  useEffect(() => {
+    if (title && content) {
+      setIsNotNull(true);
+      return;
+    }
+    if (title === '' || content === '') {
+      setIsNotNull(false);
+      return;
+    }
+  }, [title, content]);
 
   const handleToggle = () => {
     setIsToggleOpen(!isToggleOpen);
@@ -483,15 +494,19 @@ export const WriteContainer = () => {
       setIsSaved('false');
     }, 3000);
   };
-  const saveFeedPost = () => {
+  const saveFeedPost = (
+    titleValue: string,
+    contentValue: string,
+    selectCategory: number | undefined
+  ) => {
     axios
       .post<SaveResultType>(
         `${BACK_URL}:${BACK_PORT}/feeds/temp`,
         {
-          title: title,
-          content: content,
+          title: titleValue,
+          content: contentValue,
           estimation: selectedLike,
-          category: categoryId,
+          category: selectCategory,
           fileLinks: fileLink,
         },
         { headers: { Accept: `application/json`, Authorization: token } }
@@ -501,6 +516,7 @@ export const WriteContainer = () => {
         setIsSaveSuccess(true);
         saveAlertMessage();
         setFeedId(response.data.result.id);
+        return;
       })
       .catch(error => {
         setIsSaveSuccess(true);
@@ -508,16 +524,20 @@ export const WriteContainer = () => {
       });
   };
 
-  const saveFeedPatch = () => {
+  const saveFeedPatch = (
+    titleValue: string,
+    contentValue: string,
+    selectCategory: number | undefined
+  ) => {
     axios
       .patch<SaveResultType>(
         `${BACK_URL}:${BACK_PORT}/feeds/temp`,
         {
           feedId: feedId,
-          title: title,
-          content: content,
+          title: titleValue,
+          content: contentValue,
           estimation: selectedLike,
-          category: categoryId,
+          category: selectCategory,
           fileLinks: fileLink,
         },
         { headers: { Accept: `application/json`, Authorization: token } }
@@ -526,34 +546,41 @@ export const WriteContainer = () => {
         setIsFirstSave(false);
         setIsSaveSuccess(true);
         saveAlertMessage();
+        return;
       })
       .catch(error => {
+        setIsFirstSave(false);
         setIsSaveSuccess(false);
         saveAlertMessage();
       });
   };
-  const saveFeed = () => {
-    if (isNotNull === false || categoryId === 0) {
+
+  const saveFeed = (
+    inputValueRef: HTMLInputElement | null,
+    textareaValueRef: HTMLTextAreaElement | null,
+    selectValueRef: HTMLLIElement | null
+  ) => {
+    const titleValue = inputValueRef?.value.trim();
+    const contentValue = textareaValueRef?.value.trim();
+    const selectCategory = selectValueRef?.value;
+    if (!titleValue || !contentValue || selectCategory === 0) {
       saveAlertMessage();
-    }
-    if (isNotNull && isFirstSave && categoryId !== 0) {
-      saveFeedPost();
       return;
     }
-
-    if (isNotNull && isFirstSave === false && categoryId !== 0) {
-      saveFeedPatch();
+    if (titleValue && contentValue && isFirstSave && selectCategory !== 0) {
+      saveFeedPost(titleValue, contentValue, selectCategory);
+      return;
+    }
+    if (
+      titleValue &&
+      contentValue &&
+      isFirstSave === false &&
+      selectCategory !== 0
+    ) {
+      saveFeedPatch(titleValue, contentValue, selectCategory);
       return;
     }
   };
-
-  // useEffect(() => {
-  //   const showMessage = setInterval(() => {
-  //     saveFeed();
-  //   }, 60000);
-
-  //   return () => clearInterval(showMessage);
-  // }, []);
 
   const QuestionDivRef = useRef<HTMLDivElement>(null);
 
@@ -604,7 +631,7 @@ export const WriteContainer = () => {
   };
 
   useEffect(() => {
-    if (isNotNull === false) {
+    if (title.trim() === '' || content.trim() === '') {
       setSaveMessage('제목과 내용을 입력해주세요.');
       return;
     }
@@ -620,7 +647,19 @@ export const WriteContainer = () => {
       setSaveMessage('임시저장에 실패했습니다.');
       return;
     }
-  }, [isNotNull, isSaveSuccess, categoryId]);
+  }, [title, content, isSaveSuccess, categoryId]);
+
+  useEffect(() => {
+    const showMessage = setInterval(() => {
+      saveFeed(
+        inputValueRef.current,
+        textareaValueRef.current,
+        selectRef.current
+      );
+    }, 60000);
+
+    return () => clearInterval(showMessage);
+  }, [isFirstSave]);
 
   return (
     <Fragment>
@@ -653,8 +692,8 @@ export const WriteContainer = () => {
                 onClick={e => {
                   setCategoryName(category.category);
                   setIsToggleOpen(false);
-                  setCategoryId(category.id);
                   handleClickIndex(e, idx);
+                  handleSelectChange(category.id);
                 }}
               >
                 {category.category}
@@ -666,9 +705,10 @@ export const WriteContainer = () => {
                 onClick={e => {
                   setCategoryName(category.category);
                   setIsToggleOpen(true);
-                  setCategoryId(category.id);
                   handleClickIndex(e, idx);
+                  handleSelectChange(category.id);
                 }}
+                ref={selectRef}
               >
                 {category.category}
               </ActiveItem>
@@ -741,6 +781,8 @@ export const WriteContainer = () => {
             placeholder="제목을 입력해주세요."
             onInput={getTitle}
             maxLength={30}
+            ref={inputValueRef}
+            value={title}
           />
           <Count maxLength={30} textLength={titleLength}>
             {titleLength} / 30
@@ -761,6 +803,8 @@ export const WriteContainer = () => {
             placeholder="내용을 입력해주세요."
             onInput={getContent}
             maxLength={10000}
+            ref={textareaValueRef}
+            defaultValue={content}
           />
           <Count maxLength={10000} textLength={contentLength}>
             {contentLength} / 10000
@@ -768,7 +812,16 @@ export const WriteContainer = () => {
         </InputDiv>
       </ContentsContainer>
       <Buttons>
-        <Button isSave={true} onClick={saveFeed}>
+        <Button
+          isSave={true}
+          onClick={() =>
+            saveFeed(
+              inputValueRef.current,
+              textareaValueRef.current,
+              selectRef.current
+            )
+          }
+        >
           임시저장
         </Button>
         <Button isSave={false}>등록</Button>
