@@ -465,6 +465,8 @@ export const WriteContainer = () => {
           file => file.name !== name
         );
         setMainFileList(mainFileListResult);
+        const fileLinkResult = fileLink.filter(file => file !== url);
+        setFileLink(fileLinkResult);
       });
   };
 
@@ -680,6 +682,27 @@ export const WriteContainer = () => {
     return () => clearInterval(showMessage);
   }, [isFirstSave]);
 
+  const feedUpload = () => {
+    axios
+      .post<SaveResultType>(
+        `${BACK_URL}:${BACK_PORT}/feeds/post`,
+        {
+          title: title,
+          content: content,
+          estimation: selectedLike,
+          category: categoryId,
+          fileLinks: fileLink,
+        },
+        { headers: { Accept: `application/json`, Authorization: token } }
+      )
+      .then(response => {
+        window.location.href = '/';
+      })
+      .catch(error => {
+        alert('게시글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      });
+  };
+
   return (
     <Fragment>
       <TitleDiv>
@@ -843,7 +866,9 @@ export const WriteContainer = () => {
         >
           임시저장
         </Button>
-        <Button isSave={false}>등록</Button>
+        <Button isSave={false} onClick={feedUpload}>
+          등록
+        </Button>
       </Buttons>
     </Fragment>
   );
