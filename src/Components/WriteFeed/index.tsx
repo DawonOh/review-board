@@ -396,17 +396,13 @@ export const WriteContainer = () => {
   const getTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLength(e.target.value.length);
     setTitle(e.target.value);
-    if (inputValueRef.current) inputValueRef.current.value = e.target.value;
   };
   const getContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContentLength(e.target.value.length);
     setContent(e.target.value);
-    if (textareaValueRef.current)
-      textareaValueRef.current.value = e.target.value;
   };
   const handleSelectChange = (categoryId: number) => {
     setCategoryId(categoryId);
-    if (selectRef.current) selectRef.current.value = categoryId;
   };
 
   // 제목, 내용 여부에 따른 isNotNull값 설정
@@ -453,6 +449,23 @@ export const WriteContainer = () => {
       setIsFileCountPass(true);
       setMainFileList(passFiles);
     }
+  };
+
+  // 업로드 한 파일 제거(onclick)
+  const deleteFile = (url: string, name: string) => {
+    axios
+      .delete<string>(`${BACK_URL}:${BACK_PORT}/upload`, {
+        data: { file_links: [url] },
+        headers: { Accept: `application/json`, Authorization: token },
+      })
+      .then(response => {
+        const result = previewList.filter(file => file.url !== url);
+        setPreviewList(result);
+        const mainFileListResult = mainFileList.filter(
+          file => file.name !== name
+        );
+        setMainFileList(mainFileListResult);
+      });
   };
 
   let token = localStorage.getItem('token');
@@ -615,6 +628,9 @@ export const WriteContainer = () => {
             src={item.url}
             alt={item.id + '번째 이미지'}
             isFile={false}
+            onClick={() => {
+              deleteFile(item.url, item.name);
+            }}
           />
         ) : (
           <FilePreviewDiv key={item.id}>
@@ -622,6 +638,9 @@ export const WriteContainer = () => {
               src={FileIconImg}
               alt="파일 미리보기 아이콘"
               isFile={true}
+              onClick={() => {
+                deleteFile(item.url, item.name);
+              }}
             />
             <span>{item.name}</span>
           </FilePreviewDiv>
