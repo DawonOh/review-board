@@ -683,24 +683,30 @@ export const WriteContainer = () => {
   }, [isFirstSave]);
 
   const feedUpload = () => {
-    axios
-      .post<SaveResultType>(
-        `${BACK_URL}:${BACK_PORT}/feeds/post`,
-        {
-          title: title,
-          content: content,
-          estimation: selectedLike,
-          category: categoryId,
-          fileLinks: fileLink,
-        },
-        { headers: { Accept: `application/json`, Authorization: token } }
-      )
-      .then(response => {
-        window.location.href = '/';
-      })
-      .catch(error => {
-        alert('게시글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
-      });
+    if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
+      alert('제목 / 내용 / 카테고리는 필수입니다.');
+      return;
+    }
+    if (title && content && categoryId) {
+      axios
+        .post<SaveResultType>(
+          `${BACK_URL}:${BACK_PORT}/feeds/post`,
+          {
+            title: title,
+            content: content,
+            estimation: selectedLike,
+            category: categoryId,
+            fileLinks: fileLink,
+          },
+          { headers: { Accept: `application/json`, Authorization: token } }
+        )
+        .then(response => {
+          window.location.href = '/';
+        })
+        .catch(error => {
+          alert('게시글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        });
+    }
   };
 
   return (
