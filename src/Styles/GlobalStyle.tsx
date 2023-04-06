@@ -10,6 +10,7 @@ ${reset}
 
   *{
     box-sizing:border-box;
+    font-family: 'IBM Plex Sans KR', sans-serif;
   }
 
   @media all and (min-width:1024px) {

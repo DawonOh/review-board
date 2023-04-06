@@ -38,7 +38,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
     let cancel: any;
     axios({
       method: 'GET',
-      url: `${BACK_URL}:${BACK_PORT}/feeds`,
+      url: `${BACK_URL}:${BACK_PORT}/feeds/post`,
       params: { page: pageNumber, categoryId: categoryId.categoryId },
       cancelToken: new axios.CancelToken(c => {
         cancel = c;

@@ -6,3 +6,4 @@ export * from './CardList';
 export * from './Card';
 export * from './FeedDetail';
 export * from './CommentContainer';
+export * from './WriteFeed';

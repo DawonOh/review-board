@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 import { Header, MobileMenu, CardList } from 'Components';
+import { ButtonLayout } from 'Styles/CommonStyle';
 import Styled from 'styled-components';
 import ToggleImg from '../../assets/images/toggleDown.png';
+import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`
   width: 100%;
@@ -12,6 +14,7 @@ const MainContainer = Styled.div`
 `;
 const CategoryContainer = Styled.div`
   display: flex;
+  justify-content: space-between;
   width: 80%;
   padding: 0 2em;
   margin: 0 auto;
@@ -103,6 +106,15 @@ const ActiveItem = Styled.li`
   border-radius: 8px;
 `;
 
+const GotoWriteButton = Styled.button`
+  ${ButtonLayout}
+  padding: 0.5em;
+  background-color: #fff;
+  color: #676FA3;
+  border: 1px solid #676FA3;
+  cursor: pointer;
+`;
+
 interface CategoryType {
   id: number;
   category: string;
@@ -115,9 +127,9 @@ export const MainPage = () => {
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
+  const [isLogin, setIsLogin] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
   useEffect(() => {
@@ -128,6 +140,11 @@ export const MainPage = () => {
       .then(json => {
         setCategoryList([{ id: 0, category: '전체보기' }, ...json]);
       });
+  }, []);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    token && setIsLogin(true);
+    !token && setIsLogin(false);
   }, []);
 
   const toggleDown = () => {
@@ -145,45 +162,52 @@ export const MainPage = () => {
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <CategoryContainer>
-        <CategoryButton onClick={toggleDown}>
-          {categoryName}
-          <ToggleButton
-            src={ToggleImg}
-            alt="토글버튼"
-            isToggleOpen={isToggleOpen}
-          />
-        </CategoryButton>
-        <CategorySelectBox isToggleOpen={isToggleOpen}>
-          {categoryList.map((category: CategoryType, idx: number) => {
-            return idx !== countIdx ? (
-              <CategoryItem
-                key={category.id}
-                value={category.id}
-                onClick={e => {
-                  setCategoryName(category.category);
-                  setIsToggleOpen('close');
-                  setCategoryId(category.id);
-                  handleClickIndex(e, idx);
-                }}
-              >
-                {category.category}
-              </CategoryItem>
-            ) : (
-              <ActiveItem
-                key={category.id}
-                value={category.id}
-                onClick={e => {
-                  setCategoryName(category.category);
-                  setIsToggleOpen('open');
-                  setCategoryId(category.id);
-                  handleClickIndex(e, idx);
-                }}
-              >
-                {category.category}
-              </ActiveItem>
-            );
-          })}
-        </CategorySelectBox>
+        <div>
+          <CategoryButton onClick={toggleDown}>
+            {categoryName}
+            <ToggleButton
+              src={ToggleImg}
+              alt="토글버튼"
+              isToggleOpen={isToggleOpen}
+            />
+          </CategoryButton>
+          <CategorySelectBox isToggleOpen={isToggleOpen}>
+            {categoryList.map((category: CategoryType, idx: number) => {
+              return idx !== countIdx ? (
+                <CategoryItem
+                  key={category.id}
+                  value={category.id}
+                  onClick={e => {
+                    setCategoryName(category.category);
+                    setIsToggleOpen('close');
+                    setCategoryId(category.id);
+                    handleClickIndex(e, idx);
+                  }}
+                >
+                  {category.category}
+                </CategoryItem>
+              ) : (
+                <ActiveItem
+                  key={category.id}
+                  value={category.id}
+                  onClick={e => {
+                    setCategoryName(category.category);
+                    setIsToggleOpen('open');
+                    setCategoryId(category.id);
+                    handleClickIndex(e, idx);
+                  }}
+                >
+                  {category.category}
+                </ActiveItem>
+              );
+            })}
+          </CategorySelectBox>
+        </div>
+        {isLogin && (
+          <Link to="/writeFeed">
+            <GotoWriteButton>리뷰쓰기</GotoWriteButton>
+          </Link>
+        )}
       </CategoryContainer>
       <CardList categoryId={categoryId} />
     </MainContainer>
