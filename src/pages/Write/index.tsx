@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import Styled from 'styled-components';
 
-import { Header, WriteContainer } from 'Components';
+import { Header, MobileMenu, WriteContainer } from 'Components';
 
 const MainContainer = Styled.div`
   width: 70%;
@@ -16,6 +16,7 @@ export const WriteFeed = () => {
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MainContainer>
         <WriteContainer />
       </MainContainer>
