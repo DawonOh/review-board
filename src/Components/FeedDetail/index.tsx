@@ -7,6 +7,7 @@ import LikeIconImg from '../../assets/images/like.png';
 import DisLikeImg from '../../assets/images/dislike.png';
 import ThumbsUpImg from '../../assets/images/thumbsUp.png';
 import ViewIconImg from '../../assets/images/view.png';
+import DownloadIconImg from '../../assets/images/download.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
 
@@ -84,16 +85,17 @@ const LikeIcon = Styled.div<{ isLike: boolean }>`
   cursor: pointer;
 `;
 
-const ViewIcon = Styled.div`
+const ViewIcon = Styled.div<{ isDownload?: boolean }>`
   min-width: 1em;
   min-height: 1em;
-  margin-left: 0.2em;
-  background: url(${ViewIconImg});
+  margin-right: 0.3em;
+  background: url(${props =>
+    props.isDownload ? DownloadIconImg : ViewIconImg});
   background-repeat: no-repeat;
   background-size: cover;
 `;
 
-const WriterInfo = Styled.span`
+const BoldFont = Styled.span`
   font-weight: 700;
 `;
 
@@ -118,6 +120,30 @@ const ViewCntContainer = Styled.div`
   margin-right: 0.5em;
 `;
 
+const FileTitleDiv = Styled.div`
+  width: 70%;
+  margin-top: 3em;
+  padding: 1em;
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #676FA3;
+  border-bottom: 1px solid #dbdbdb;
+`;
+const FileLink = Styled.a`
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  width: 70%;
+  padding: 1em;
+  cursor: pointer;
+`;
+
+const SmallFont = Styled.span`
+  color: #BDBDBD;
+  font-size: 0.8em;
+  margin-left: 1em;
+`;
+
 interface DataType {
   result: {
     category: { id: number; category: string };
@@ -132,7 +158,15 @@ interface DataType {
     };
     title: string;
     updated_at: string;
-    uploadFiles: [{ id: number; is_img: boolean; file_link: string }];
+    uploadFiles: [
+      {
+        id: number;
+        is_img: boolean;
+        file_link: string;
+        file_name: string;
+        file_size: string;
+      }
+    ];
     length: number;
     user: {
       id: number;
@@ -250,6 +284,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         setIsLike(response.data.checkValue);
       });
   }, []);
+
   const createDate = detailContent?.result.created_at.slice(0, -8);
   const updateDate = detailContent?.result.updated_at.slice(0, -8);
   return (
@@ -271,19 +306,34 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
             </Buttons>
           )}
         </BothSideContainer>
+
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img && (
               <MainImg
                 key={file.id}
                 src={file.file_link}
-                alt={index + '번 째 사진'}
+                alt={index + 1 + '번 째 사진'}
               />
             )
           );
         })}
-
         <Content>{detailContent?.result.content}</Content>
+        <FileTitleDiv>첨부파일</FileTitleDiv>
+        {detailContent?.result.uploadFiles.map((file, index) => {
+          return (
+            file.is_img === false && (
+              <FileLink href={file.file_link} key={file.id} download>
+                <div>
+                  <span>{file.file_name}</span>
+                  <SmallFont>{file.file_size}</SmallFont>
+                </div>
+
+                <ViewIcon isDownload={true} />
+              </FileLink>
+            )
+          );
+        })}
         <BothSideContainer>
           <LikeContainer>
             <LikeIcon isLike={isLike} onClick={handleClickLike} />
@@ -294,7 +344,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
               <ViewIcon />
               <span>{detailContent?.result.viewCnt}</span>
             </ViewCntContainer>
-            <WriterInfo>by {detailContent?.result.user.nickname}</WriterInfo>
+            <BoldFont>by {detailContent?.result.user.nickname}</BoldFont>
           </Buttons>
         </BothSideContainer>
       </ContentContainer>
