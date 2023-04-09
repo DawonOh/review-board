@@ -10,6 +10,7 @@ import ViewIconImg from '../../assets/images/view.png';
 import DownloadIconImg from '../../assets/images/download.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
+import { AlertModal } from '../AlertModal';
 
 const TitleContainer = Styled.div`
   display: flex;
@@ -205,12 +206,35 @@ interface loginUserIdType {
   loginUserId: number;
 }
 
+interface MessageType {
+  id: number;
+  text: string;
+}
+
 export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const [isLike, setIsLike] = useState(false);
   const [detailContent, setDetailContent] = useState<DataType>();
   const [likeCount, setLikeCount] = useState(0);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isQuestion, setIsQuestion] = useState(false);
+  const [result, setResult] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={messages}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
 
   let token = localStorage.getItem('token');
 
@@ -285,6 +309,25 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       });
   }, []);
 
+  const deleteFeed = () => {
+    setMessages([{ id: 1, text: '삭제하시겠습니까?' }]);
+    setIsQuestion(true);
+    setIsAlertModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (result) {
+      axios
+        .delete<string>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
+        .then(response => {
+          setIsAlertModalOpen(false);
+          window.location.href = '/';
+        });
+    }
+  }, [result]);
+
   const createDate = detailContent?.result.created_at.slice(0, -8);
   const updateDate = detailContent?.result.updated_at.slice(0, -8);
   return (
@@ -302,7 +345,9 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           {detailContent?.result.user.id === loginUserId && (
             <Buttons>
               <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
-              <ModifyDeleteButton text="삭제">삭제</ModifyDeleteButton>
+              <ModifyDeleteButton text="삭제" onClick={deleteFeed}>
+                삭제
+              </ModifyDeleteButton>
             </Buttons>
           )}
         </BothSideContainer>
@@ -348,6 +393,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           </Buttons>
         </BothSideContainer>
       </ContentContainer>
+      {openAlertModal()}
     </Fragment>
   );
 };
