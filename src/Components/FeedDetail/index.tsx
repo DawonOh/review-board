@@ -292,6 +292,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
             setHaveFile(false);
             return;
           }
+          if (file.is_img === false) {
+            setHaveFile(true);
+            return;
+          }
         });
       })
       .catch(() => {
