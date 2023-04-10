@@ -9,8 +9,9 @@ import ThumbsUpImg from '../../assets/images/thumbsUp.png';
 import ViewIconImg from '../../assets/images/view.png';
 import DownloadIconImg from '../../assets/images/download.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
-import { useParams } from 'react-router-dom';
+import { resolvePath, useParams } from 'react-router-dom';
 import { AlertModal } from '../AlertModal';
+import { Link } from 'react-router-dom';
 
 const TitleContainer = Styled.div`
   display: flex;
@@ -219,6 +220,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const [isQuestion, setIsQuestion] = useState(false);
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [haveFile, setHaveFile] = useState(true);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -285,6 +287,12 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`)
       .then(response => {
         setDetailContent(response.data);
+        response.data.result.uploadFiles.forEach(file => {
+          if (file.is_img) {
+            setHaveFile(false);
+            return;
+          }
+        });
       })
       .catch(() => {
         alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -324,6 +332,9 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         .then(response => {
           setIsAlertModalOpen(false);
           window.location.href = '/';
+        })
+        .catch(() => {
+          alert('잠시 후 다시 시도해주세요.');
         });
     }
   }, [result]);
@@ -344,7 +355,13 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           </div>
           {detailContent?.result.user.id === loginUserId && (
             <Buttons>
-              <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
+              <Link
+                to="/writeFeed"
+                state={{ feedId: feedId, isModify: true, isTemp: false }}
+              >
+                <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
+              </Link>
+
               <ModifyDeleteButton text="삭제" onClick={deleteFeed}>
                 삭제
               </ModifyDeleteButton>
@@ -364,7 +381,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           );
         })}
         <Content>{detailContent?.result.content}</Content>
-        <FileTitleDiv>첨부파일</FileTitleDiv>
+        {haveFile && <FileTitleDiv>첨부파일</FileTitleDiv>}
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img === false && (
