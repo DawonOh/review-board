@@ -117,6 +117,7 @@ const ImgPreview = Styled.div`
   gap: 0.5em;
   border: 1px solid #f1f1f1;
   border-radius: 0.3em;
+  flex-wrap: wrap;
   @media (max-width: 767px) {
     flex-direction: column;
   }
@@ -131,6 +132,7 @@ const ImgPreviewMessage = Styled.div`
 const FilePreviewDiv = Styled.div`
   ${flexCenterAlign}
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.5em;
 `;
 
@@ -172,7 +174,7 @@ const SaveAlertDiv = Styled.div<{
   isSaved: string;
   isNotNull: boolean;
   isSaveSuccess: boolean;
-  categoryId: number;
+  categoryId: number | undefined;
 }>`
 visibility: ${props => (props.isSaved === 'true' ? 'visible' : 'hidden')};
   position: absolute;
@@ -281,23 +283,6 @@ const WarningMessage = Styled.p`
   color: #FF5959;
 `;
 
-const UploadedFiles = Styled.div`
-  display: flex;
-  margin-top: 1em;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.3em;
-`;
-
-const SmallTitle = Styled.h2`
-  font-weight: 700;
-  color: #676FA3;
-`;
-
-const FileName = Styled.span`
-  font-size: 0.9em;
-`;
-
 interface CategoryType {
   id: number;
   category: string;
@@ -388,7 +373,7 @@ export const WriteContainer = () => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [categoryName, setCategoryName] = useState('카테고리 선택');
-  const [categoryId, setCategoryId] = useState(0);
+  const [categoryId, setCategoryId] = useState<number | undefined>(0);
   const [countIdx, setCountIdx] = useState(0);
   const [mainFileList, setMainFileList] = useState<File[]>([]);
   const [previewList, setPreviewList] = useState<PreviewType[]>([]);
@@ -398,7 +383,7 @@ export const WriteContainer = () => {
   const [titleLength, setTitleLength] = useState(0);
   const [content, setContent] = useState('');
   const [contentLength, setContentLength] = useState(0);
-  const [selectedLike, setSelectedLike] = useState(1);
+  const [selectedLike, setSelectedLike] = useState<number | undefined>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isFileSizePass, setIsFileSizePass] = useState(true);
   const [isFileCountPass, setIsFileCountPass] = useState(true);
@@ -455,17 +440,26 @@ export const WriteContainer = () => {
           setModifyData(response.data);
           if (response.data.result.uploadFiles) {
             let uploadFilesLinks: string[] = [];
+            let uploadPreviewFiles: PreviewType[] = [];
             response.data.result.uploadFiles.forEach(file => {
               uploadFilesLinks.push(file.file_link);
+              let items: PreviewType = {
+                id: file.id,
+                url: file.file_link,
+                name: file.file_name,
+              };
+              uploadPreviewFiles.push(items);
             });
             setFileLink(uploadFilesLinks);
+            setPreviewList(uploadPreviewFiles);
           }
-          setSelectedLike(response.data.result.estimation.id);
-          setCategoryId(response.data.result.category.id);
           setTitle(response.data.result.title);
           setContent(response.data.result.content);
           setTitleLength(response.data.result.title.length);
           setContentLength(response.data.result.content.length);
+          setCategoryName(response.data.result.category.category);
+          setCategoryId(response.data.result.category.id);
+          setSelectedLike(response.data.result.estimation.id);
         })
         .catch(() => {
           alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -516,44 +510,42 @@ export const WriteContainer = () => {
 
   // input에서 파일 목록 가져오기
   const getFileList = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const FILE_SIZE = 5 * 1024 * 1024;
+    const maxFileSize = 5 * 1024 * 1024;
+    const maxFileCount = 5;
+    setIsFileSizePass(true);
+    setIsFileCountPass(true);
     if (e.target.files) {
       let files: File[] = [...e.target?.files];
       let passFiles: File[] = [];
-      files.forEach(file => {
-        if (file.size > FILE_SIZE) {
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (files[i].size > maxFileSize) {
           setIsFileSizePass(false);
-          return;
+          continue;
         }
         passFiles.push(file);
-      });
-      if (passFiles.length > 5) {
-        setIsFileCountPass(false);
-        passFiles.slice(0, 5);
-        return;
+        if (passFiles.length > maxFileCount) {
+          setIsFileCountPass(false);
+        }
       }
-      setIsFileCountPass(true);
-      setMainFileList(passFiles);
+      setMainFileList(passFiles.slice(0, maxFileCount));
     }
   };
 
   // 업로드 한 파일 제거(onclick)
   const deleteFile = (url: string, name: string) => {
-    axios
-      .delete<string>(`${BACK_URL}:${BACK_PORT}/upload`, {
-        data: { file_links: [url] },
-        headers: { Accept: `application/json`, Authorization: token },
-      })
-      .then(response => {
-        const result = previewList.filter(file => file.url !== url);
-        setPreviewList(result);
-        const mainFileListResult = mainFileList.filter(
-          file => file.name !== name
-        );
-        setMainFileList(mainFileListResult);
-        const fileLinkResult = fileLink.filter(file => file !== url);
-        setFileLink(fileLinkResult);
-      });
+    const result = previewList.filter(file => file.url !== url);
+    setPreviewList(result);
+    const mainFileListResult = mainFileList.filter(file => file.name !== name);
+    setMainFileList(mainFileListResult);
+    const fileLinkResult = fileLink.filter(file => file !== url);
+    setFileLink(fileLinkResult);
+  };
+
+  // 라디오 버튼 체크
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedLike(Number(e.target.value));
   };
 
   let token = localStorage.getItem('token');
@@ -570,21 +562,22 @@ export const WriteContainer = () => {
           headers: { Accept: `multipart/form-data`, Authorization: token },
         })
         .then(response => {
-          setFileLink(response.data.file_links);
+          setFileLink([...fileLink, ...response.data.file_links]);
           setIsLoading(false);
           let arr: PreviewType[] = [];
           for (let i = 0; i < response.data.file_links.length; i++) {
             const obj = {
-              id: i + 1,
+              id: Math.floor(Math.random() * 100000),
               url: response.data.file_links[i],
               name: mainFileList[i].name,
             };
             arr.push(obj);
           }
-          setPreviewList(arr);
+          setPreviewList([...previewList, ...arr]);
         })
-        .catch(() => {
+        .catch(error => {
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+          setMainFileList([]);
         });
     }
   }, [mainFileList]);
@@ -706,11 +699,12 @@ export const WriteContainer = () => {
     };
   }, [QuestionDivRef]);
 
+  // 파일 미리보기
   const previewFiles = () => {
     const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];
 
     return (
-      mainFileList.length !== 0 &&
+      (mainFileList.length !== 0 || previewList.length !== 0) &&
       previewList.map(item => {
         const extension = item.url.split('.').pop();
         if (!extension) {
@@ -730,7 +724,7 @@ export const WriteContainer = () => {
           <FilePreviewDiv key={item.id}>
             <ImgPreviewItem
               src={FileIconImg}
-              alt="파일 미리보기 아이콘"
+              alt="파일 아이콘"
               isFile={true}
               onClick={() => {
                 deleteFile(item.url, item.name);
@@ -779,23 +773,34 @@ export const WriteContainer = () => {
 
   // 게시글 등록
   const feedUpload = () => {
+    let bodyObj;
+    if (feedId !== 0) {
+      bodyObj = {
+        feedId: feedId,
+        title: title,
+        content: content,
+        estimation: selectedLike,
+        category: categoryId,
+        fileLinks: fileLink,
+      };
+    } else {
+      bodyObj = {
+        title: title,
+        content: content,
+        estimation: selectedLike,
+        category: categoryId,
+        fileLinks: fileLink,
+      };
+    }
     if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
       alert('제목 / 내용 / 카테고리는 필수입니다.');
       return;
     }
     if (title && content && categoryId) {
       axios
-        .post<SaveResultType>(
-          `${BACK_URL}:${BACK_PORT}/feeds/post`,
-          {
-            title: title,
-            content: content,
-            estimation: selectedLike,
-            category: categoryId,
-            fileLinks: fileLink,
-          },
-          { headers: { Accept: `application/json`, Authorization: token } }
-        )
+        .post<SaveResultType>(`${BACK_URL}:${BACK_PORT}/feeds/post`, bodyObj, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
         .then(response => {
           window.location.href = '/';
         })
@@ -833,6 +838,7 @@ export const WriteContainer = () => {
         });
     }
   };
+
   return (
     <Fragment>
       <TitleDiv>
@@ -841,16 +847,14 @@ export const WriteContainer = () => {
           isSaved={isSaved}
           isNotNull={isNotNull}
           isSaveSuccess={isSaveSuccess}
-          categoryId={categoryId}
+          categoryId={categoryId && categoryId}
         >
           {saveMessage}
         </SaveAlertDiv>
       </TitleDiv>
       <MenuContainer>
         <CategoryButton onClick={handleToggle}>
-          {ifModifyFeed === false
-            ? categoryName
-            : modifyData?.result.category.category}
+          {categoryName}
           <ToggleButton
             src={ToggleImg}
             alt="토글버튼"
@@ -913,9 +917,9 @@ export const WriteContainer = () => {
                   type="radio"
                   value={estimation.id}
                   name="select"
-                  defaultChecked={estimation.id === selectedLike}
-                  onInput={() => {
-                    setSelectedLike(estimation.id);
+                  checked={estimation.id === selectedLike}
+                  onChange={e => {
+                    handleChange(e);
                   }}
                 />
               </RadioButton>
@@ -937,34 +941,18 @@ export const WriteContainer = () => {
         </div>
       </MenuContainer>
       <InfoDiv>
-        {modifyId === 0 && (
-          <p>
-            • 여러 파일 업로드 시 Ctrl키를 누른 상태로 이미지를 선택해주세요.
-          </p>
+        <p>• 파일은 한 번 선택 시 5개까지 가능합니다.</p>
+        <p>• 최대 파일 갯수는 제한 없습니다.</p>
+        <p>• 이미지는 png / jpg / jpeg / gif만 업로드가 가능합니다.</p>
+        <p>• 이미지 및 파일은 5MB까지 업로드가 가능합니다.</p>
+        <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>
+        {isFileSizePass === false && mainFileList.length !== 0 && (
+          <WarningMessage>• 파일 용량을 확인해주세요.</WarningMessage>
         )}
-        {modifyId === 0 && (
-          <p>• 이미지는 png / jpg / jpeg / gif 확장자만 가능합니다.</p>
-        )}
-        {modifyId === 0 && (
-          <p>• 최대 5장, 각 이미지는 5MB까지 업로드가 가능합니다.</p>
-        )}
-        {modifyId === 0 && <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>}
-        {modifyId !== 0 && <p>• 파일을 업로드하면 기존 파일이 대체됩니다.</p>}
-        {isFileSizePass === false && (
-          <WarningMessage>• 파일 용량을 확인해주세요!</WarningMessage>
-        )}
-        {isFileCountPass === false && (
-          <WarningMessage>• 파일 개수를 확인해주세요!</WarningMessage>
+        {isFileCountPass === false && mainFileList.length !== 0 && (
+          <WarningMessage>• 파일 개수를 확인해주세요.</WarningMessage>
         )}
       </InfoDiv>
-      {modifyId !== 0 && (
-        <UploadedFiles>
-          <SmallTitle>첨부된 파일</SmallTitle>
-          {modifyData?.result.uploadFiles.map(file => {
-            return <FileName key={file.id}>{file.file_name}</FileName>;
-          })}
-        </UploadedFiles>
-      )}
       <ContentsContainer>
         <InputDiv>
           <TitleInput
@@ -981,10 +969,10 @@ export const WriteContainer = () => {
         </InputDiv>
 
         <ImgPreview>
-          {mainFileList.length === 0 && (
+          {mainFileList.length === 0 && previewList.length === 0 && (
             <ImgPreviewMessage>파일 미리보기</ImgPreviewMessage>
           )}
-          {mainFileList.length !== 0 && isLoading && (
+          {mainFileList.length !== 0 && isFileCountPass && isLoading && (
             <ImgPreviewMessage>Loading...</ImgPreviewMessage>
           )}
           {previewFiles()}

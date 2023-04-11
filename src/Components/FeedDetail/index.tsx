@@ -9,7 +9,7 @@ import ThumbsUpImg from '../../assets/images/thumbsUp.png';
 import ViewIconImg from '../../assets/images/view.png';
 import DownloadIconImg from '../../assets/images/download.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
-import { resolvePath, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { AlertModal } from '../AlertModal';
 import { Link } from 'react-router-dom';
 
@@ -220,7 +220,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const [isQuestion, setIsQuestion] = useState(false);
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [haveFile, setHaveFile] = useState(true);
+  const [haveFile, setHaveFile] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -288,10 +288,6 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       .then(response => {
         setDetailContent(response.data);
         response.data.result.uploadFiles.forEach(file => {
-          if (file.is_img) {
-            setHaveFile(false);
-            return;
-          }
           if (file.is_img === false) {
             setHaveFile(true);
             return;
