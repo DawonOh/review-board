@@ -204,7 +204,10 @@ export const MainPage = () => {
           </CategorySelectBox>
         </div>
         {isLogin && (
-          <Link to="/writeFeed">
+          <Link
+            to="/writeFeed"
+            state={{ feedId: 0, isModify: false, isTemp: true }}
+          >
             <GotoWriteButton>리뷰쓰기</GotoWriteButton>
           </Link>
         )}
