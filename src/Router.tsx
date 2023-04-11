@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Join, MainPage, Feed, WriteFeed } from 'pages';
+import { Join, MainPage, Feed, WriteFeed, TempList } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
 const Router = () => {
@@ -12,6 +12,7 @@ const Router = () => {
         <Route path="/" element={<MainPage />} />
         <Route path="/feed/:id" element={<Feed />} />
         <Route path="/writeFeed" element={<WriteFeed />} />
+        <Route path="/temp/list" element={<TempList />} />
       </Routes>
     </BrowserRouter>
   );

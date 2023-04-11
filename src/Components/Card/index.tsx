@@ -165,10 +165,14 @@ const Card = (
     if (token) {
       axios
         .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
+          timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
         .then(response => {
           setIsLike(response.data.checkValue);
+        })
+        .catch(() => {
+          alert('잠시 후 다시 시도해주세요.');
         });
     }
   }, []);

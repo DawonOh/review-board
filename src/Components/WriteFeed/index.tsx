@@ -423,7 +423,9 @@ export const WriteContainer = () => {
       });
 
     axios
-      .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`)
+      .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`, {
+        timeout: 5000,
+      })
       .then(response => {
         const imgList: string[] = [DoubleLikeImg, LikeIconImg, DisLikeImg];
         const result = response.data.map((estimation, index) => ({
@@ -431,11 +433,17 @@ export const WriteContainer = () => {
           img: imgList[index],
         }));
         setEstimationList(result);
+      })
+      .catch(() => {
+        alert('잠시 후 다시 시도해주세요.');
       });
 
     if (modifyId !== 0) {
       axios
-        .get<ModifyDataType>(`${BACK_URL}:${BACK_PORT}/feeds/${modifyId}`)
+        .get<ModifyDataType>(`${BACK_URL}:${BACK_PORT}/feeds/${modifyId}`, {
+          timeout: 5000,
+          headers: { Accept: `application/json`, Authorization: token },
+        })
         .then(response => {
           setModifyData(response.data);
           if (response.data.result.uploadFiles) {
@@ -460,10 +468,15 @@ export const WriteContainer = () => {
           setCategoryName(response.data.result.category.category);
           setCategoryId(response.data.result.category.id);
           setSelectedLike(response.data.result.estimation.id);
+          setCountIdx(response.data.result.category.id);
         })
         .catch(() => {
           alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
         });
+    }
+    if (isTempFeed && modifyId !== 0) {
+      setIsFirstSave(false);
+      setFeedId(modifyId);
     }
   }, []);
 
@@ -559,6 +572,7 @@ export const WriteContainer = () => {
     if (mainFileList.length !== 0) {
       axios
         .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
+          timeout: 5000,
           headers: { Accept: `multipart/form-data`, Authorization: token },
         })
         .then(response => {
@@ -574,6 +588,7 @@ export const WriteContainer = () => {
             arr.push(obj);
           }
           setPreviewList([...previewList, ...arr]);
+          setMainFileList([]);
         })
         .catch(error => {
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
@@ -607,7 +622,10 @@ export const WriteContainer = () => {
           category: selectCategory,
           fileLinks: fileLink,
         },
-        { headers: { Accept: `application/json`, Authorization: token } }
+        {
+          timeout: 5000,
+          headers: { Accept: `application/json`, Authorization: token },
+        }
       )
       .then(response => {
         setIsFirstSave(false);
@@ -639,7 +657,10 @@ export const WriteContainer = () => {
           category: selectCategory,
           fileLinks: fileLink,
         },
-        { headers: { Accept: `application/json`, Authorization: token } }
+        {
+          timeout: 5000,
+          headers: { Accept: `application/json`, Authorization: token },
+        }
       )
       .then(response => {
         setIsFirstSave(false);
@@ -667,7 +688,13 @@ export const WriteContainer = () => {
       saveAlertMessage();
       return;
     }
-    if (titleValue && contentValue && isFirstSave && selectCategory !== 0) {
+    if (
+      titleValue &&
+      contentValue &&
+      isFirstSave &&
+      selectCategory !== 0 &&
+      modifyId === 0
+    ) {
       saveFeedPost(titleValue, contentValue, selectCategory);
       return;
     }
@@ -769,7 +796,7 @@ export const WriteContainer = () => {
 
       return () => clearInterval(showMessage);
     }
-  }, [isFirstSave]);
+  }, [isFirstSave, selectedLike, fileLink]);
 
   // 게시글 등록
   const feedUpload = () => {
@@ -799,6 +826,7 @@ export const WriteContainer = () => {
     if (title && content && categoryId) {
       axios
         .post<SaveResultType>(`${BACK_URL}:${BACK_PORT}/feeds/post`, bodyObj, {
+          timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
         .then(response => {
@@ -828,7 +856,10 @@ export const WriteContainer = () => {
             category: categoryId,
             fileLinks: fileLink,
           },
-          { headers: { Accept: `application/json`, Authorization: token } }
+          {
+            timeout: 5000,
+            headers: { Accept: `application/json`, Authorization: token },
+          }
         )
         .then(response => {
           window.location.href = `/feed/${modifyId}`;
@@ -946,7 +977,7 @@ export const WriteContainer = () => {
         <p>• 이미지는 png / jpg / jpeg / gif만 업로드가 가능합니다.</p>
         <p>• 이미지 및 파일은 5MB까지 업로드가 가능합니다.</p>
         <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>
-        {isFileSizePass === false && mainFileList.length !== 0 && (
+        {isFileSizePass === false && (
           <WarningMessage>• 파일 용량을 확인해주세요.</WarningMessage>
         )}
         {isFileCountPass === false && mainFileList.length !== 0 && (

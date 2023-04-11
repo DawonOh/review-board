@@ -14,6 +14,12 @@
     },
     {
       "id": 3,
+      "title": "임시저장 목록",
+      "icon": "images/temp.png",
+      "link": "/temp/list"
+    },
+    {
+      "id": 4,
       "title": "마이페이지",
       "icon": "images/person.png",
       "link": "/mypage"
