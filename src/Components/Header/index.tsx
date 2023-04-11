@@ -73,6 +73,7 @@ const MenuButton = Styled.div<{ isMenuOn: boolean }>`
 `;
 const Icons = Styled.div`
   display: flex;
+  position: relatve;
   gap: 1.3em;
 `;
 const Icon = Styled.img`
@@ -87,6 +88,25 @@ const LoginButton = Styled.button`
   color: #fff;
   cursor: pointer;
 `;
+
+const HoverMenu = Styled.div<{ isHover: boolean }>`
+  display: ${props => (props.isHover ? 'flex' : 'none')};
+  position: absolute;
+  flex-direction: column;
+  padding: 1em;
+  gap: 1em;
+  background-color: #fff;
+  border: 1px solid #BDBDBD;
+  border-radius: 0.3em;
+`;
+
+const HoverMenuItem = Styled.span`
+  cursor: pointer;
+  &:hover {
+    color: #676FA3;
+  }
+`;
+
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -95,6 +115,7 @@ interface Props {
 export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [isHover, setIsHover] = useState(false);
   const handleModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -114,6 +135,14 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     localStorage.clear();
     window.location.href = '/';
   };
+
+  const handleMouseOver = () => {
+    setIsHover(true);
+  };
+
+  const handleMouseOut = () => {
+    setIsHover(false);
+  };
   return (
     <HeaderContainer>
       <Link to="/">
@@ -127,9 +156,17 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
         </Link>
         {isLogin ? (
           <Icons>
-            <Link to="/mypage">
+            <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
               <Icon src={PersonIcon} alt="마이페이지" />
-            </Link>
+              <HoverMenu isHover={isHover}>
+                <Link to="/mychannel">
+                  <HoverMenuItem>내 채널</HoverMenuItem>
+                </Link>
+                <Link to="/temp/list">
+                  <HoverMenuItem>임시저장 목록</HoverMenuItem>
+                </Link>
+              </HoverMenu>
+            </div>
             <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
           </Icons>
         ) : (

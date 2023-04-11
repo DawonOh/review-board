@@ -6,7 +6,7 @@ import LikeIconImg from '../../assets/images/like.png';
 import CommentIconImg from '../../assets/images/comment.png';
 import Clip from '../../assets/images/clip.png';
 import ViewIconImg from '../../assets/images/view.png';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const CardContainer = Styled.div<{ ref?: ForwardedRef<HTMLDivElement> | null }>`
