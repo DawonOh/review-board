@@ -63,6 +63,13 @@ const DeleteButton = Styled.button`
   cursor: pointer;
 `;
 
+const NoDataMessage = Styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+`;
+
 interface TempListType {
   message: string;
   result: [
@@ -140,9 +147,12 @@ export const TempList = () => {
     }
   };
 
+  let token = localStorage.getItem('token');
+
   useEffect(() => {
     axios
       .get<TempListType>(`${BACK_URL}:${BACK_PORT}/feeds/temp`, {
+        timeout: 5000,
         headers: { Accept: `application/json`, Authorization: token },
       })
       .then(response => {
@@ -159,11 +169,11 @@ export const TempList = () => {
     setIsAlertModalOpen(true);
   };
 
-  let token = localStorage.getItem('token');
   useEffect(() => {
     if (result) {
       axios
         .delete(`${BACK_URL}:${BACK_PORT}/feeds/${tempFeedId}`, {
+          timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
         .then(() => {
@@ -183,23 +193,34 @@ export const TempList = () => {
         <Container>
           <Title>임시 저장 목록</Title>
           <ListItemContainer>
-            {tempData.map(feed => {
-              return (
-                <ListItem onClick={() => setTempFeedId(feed.id)} key={feed.id}>
-                  <Link
-                    to="/writeFeed"
-                    state={{ feedId: feed.id, isModify: false, isTemp: true }}
+            {tempData.length !== 0 ? (
+              tempData.map(feed => {
+                return (
+                  <ListItem
+                    onClick={() => setTempFeedId(feed.id)}
+                    key={feed.id}
                   >
-                    <FeedTitleDiv>{feed.title}</FeedTitleDiv>
-                    <FeedContentDiv>{feed.content}</FeedContentDiv>
-                  </Link>
-                  <ButtonDiv>
-                    <CreatedAtDiv>{feed.createdAt.slice(0, -3)}</CreatedAtDiv>
-                    <DeleteButton onClick={deleteTempFeed}>삭제</DeleteButton>
-                  </ButtonDiv>
-                </ListItem>
-              );
-            })}
+                    <Link
+                      to="/writeFeed"
+                      state={{
+                        feedId: feed.id,
+                        isModify: false,
+                        isTemp: true,
+                      }}
+                    >
+                      <FeedTitleDiv>{feed.title}</FeedTitleDiv>
+                      <FeedContentDiv>{feed.content}</FeedContentDiv>
+                    </Link>
+                    <ButtonDiv>
+                      <CreatedAtDiv>{feed.createdAt.slice(0, -3)}</CreatedAtDiv>
+                      <DeleteButton onClick={deleteTempFeed}>삭제</DeleteButton>
+                    </ButtonDiv>
+                  </ListItem>
+                );
+              })
+            ) : (
+              <NoDataMessage>임시저장된 게시물이 없습니다.</NoDataMessage>
+            )}
           </ListItemContainer>
         </Container>
         {openAlertModal()}

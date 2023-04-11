@@ -248,7 +248,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           {
             symbolId: 1,
           },
-          { headers: { Accept: `application/json`, Authorization: token } }
+          {
+            timeout: 5000,
+            headers: { Accept: `application/json`, Authorization: token },
+          }
         )
         .then(response => {
           setIsLike(true);
@@ -259,12 +262,16 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
               }
             }
           }
+        })
+        .catch(() => {
+          alert('잠시 후 다시 시도해주세요.');
         });
       return;
     }
     if (isLike) {
       axios
         .delete<SymbolType>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
+          timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
         .then(response => {
@@ -274,6 +281,9 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
               setLikeCount(response.data.result[i].count);
             }
           }
+        })
+        .catch(() => {
+          alert('잠시 후 다시 시도해주세요.');
         });
       return;
     }
@@ -284,7 +294,9 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
 
   useEffect(() => {
     axios
-      .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`)
+      .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+        timeout: 5000,
+      })
       .then(response => {
         setDetailContent(response.data);
         response.data.result.uploadFiles.forEach(file => {
@@ -299,21 +311,30 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       });
 
     axios
-      .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`)
+      .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
+        timeout: 5000,
+      })
       .then(response => {
         for (let i = 0; i < response.data.length; i++) {
           if (response.data[i].symbolId === 1) {
             setLikeCount(response.data[i].count);
           }
         }
+      })
+      .catch(() => {
+        alert('잠시 후 다시 시도해주세요.');
       });
 
     axios
       .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${feedId}`, {
+        timeout: 5000,
         headers: { Accept: `application/json`, Authorization: token },
       })
       .then(response => {
         setIsLike(response.data.checkValue);
+      })
+      .catch(() => {
+        alert('잠시 후 다시 시도해주세요.');
       });
   }, []);
 
@@ -327,6 +348,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
     if (result) {
       axios
         .delete<string>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+          timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
         .then(response => {
