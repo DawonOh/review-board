@@ -8,6 +8,7 @@ import DisLikeImg from '../../assets/images/dislike.png';
 import QuestionMark from '../../assets/images/question.png';
 import FileIconImg from '../../assets/images/clip.png';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 const TitleDiv = Styled.div`
   display: flex;
@@ -116,6 +117,7 @@ const ImgPreview = Styled.div`
   gap: 0.5em;
   border: 1px solid #f1f1f1;
   border-radius: 0.3em;
+  flex-wrap: wrap;
   @media (max-width: 767px) {
     flex-direction: column;
   }
@@ -130,6 +132,7 @@ const ImgPreviewMessage = Styled.div`
 const FilePreviewDiv = Styled.div`
   ${flexCenterAlign}
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.5em;
 `;
 
@@ -171,7 +174,7 @@ const SaveAlertDiv = Styled.div<{
   isSaved: string;
   isNotNull: boolean;
   isSaveSuccess: boolean;
-  categoryId: number;
+  categoryId: number | undefined;
 }>`
 visibility: ${props => (props.isSaved === 'true' ? 'visible' : 'hidden')};
   position: absolute;
@@ -334,11 +337,43 @@ interface EstimatioinType {
   estimation: string;
   img: string;
 }
+
+interface ModifyDataType {
+  result: {
+    category: { id: number; category: string };
+    content: string;
+    created_at: string;
+    estimation: { estimation: string; id: number };
+    id: number;
+    posted_at: string;
+    status: {
+      id: number;
+      is_status: string;
+    };
+    title: string;
+    updated_at: string;
+    uploadFiles: [
+      {
+        id: number;
+        is_img: boolean;
+        file_link: string;
+        file_name: string;
+        file_size: string;
+      }
+    ];
+    length: number;
+    user: {
+      id: number;
+      nickname: string;
+    };
+    viewCnt: number;
+  };
+}
 export const WriteContainer = () => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [categoryName, setCategoryName] = useState('카테고리 선택');
-  const [categoryId, setCategoryId] = useState(0);
+  const [categoryId, setCategoryId] = useState<number | undefined>(0);
   const [countIdx, setCountIdx] = useState(0);
   const [mainFileList, setMainFileList] = useState<File[]>([]);
   const [previewList, setPreviewList] = useState<PreviewType[]>([]);
@@ -348,25 +383,36 @@ export const WriteContainer = () => {
   const [titleLength, setTitleLength] = useState(0);
   const [content, setContent] = useState('');
   const [contentLength, setContentLength] = useState(0);
-  const [selectedLike, setSelectedLike] = useState(1);
+  const [selectedLike, setSelectedLike] = useState<number | undefined>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isFileSizePass, setIsFileSizePass] = useState(true);
   const [isFileCountPass, setIsFileCountPass] = useState(true);
   const [isFirstSave, setIsFirstSave] = useState(true);
   const [fileLink, setFileLink] = useState<string[]>([]);
-  const [isSaveSuccess, setIsSaveSuccess] = useState(true);
+  const [isSaveSuccess, setIsSaveSuccess] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [estimationList, setEstimationList] = useState<EstimatioinType[]>([]);
   const [feedId, setFeedId] = useState(0);
   const [isNotNull, setIsNotNull] = useState(false);
+  const [modifyData, setModifyData] = useState<ModifyDataType>();
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
+  let location = useLocation();
 
-  // 처음 렌더링 시 불러오는 데이터(카테고리, 좋아요)
+  // 수정 시 전달받는 feedId
+  let modifyId = location.state.feedId;
+
+  // 수정인지 등록인지 구분
+  let ifModifyFeed = location.state.isModify;
+
+  // 임시저장 실행 여부
+  let isTempFeed = location.state.isTemp;
+
+  // 처음 렌더링 시 불러오는 데이터(카테고리, 좋아요, 수정할 feedId)
   useEffect(() => {
     fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
       headers: requestHeaders,
@@ -386,6 +432,39 @@ export const WriteContainer = () => {
         }));
         setEstimationList(result);
       });
+
+    if (modifyId !== 0) {
+      axios
+        .get<ModifyDataType>(`${BACK_URL}:${BACK_PORT}/feeds/${modifyId}`)
+        .then(response => {
+          setModifyData(response.data);
+          if (response.data.result.uploadFiles) {
+            let uploadFilesLinks: string[] = [];
+            let uploadPreviewFiles: PreviewType[] = [];
+            response.data.result.uploadFiles.forEach(file => {
+              uploadFilesLinks.push(file.file_link);
+              let items: PreviewType = {
+                id: file.id,
+                url: file.file_link,
+                name: file.file_name,
+              };
+              uploadPreviewFiles.push(items);
+            });
+            setFileLink(uploadFilesLinks);
+            setPreviewList(uploadPreviewFiles);
+          }
+          setTitle(response.data.result.title);
+          setContent(response.data.result.content);
+          setTitleLength(response.data.result.title.length);
+          setContentLength(response.data.result.content.length);
+          setCategoryName(response.data.result.category.category);
+          setCategoryId(response.data.result.category.id);
+          setSelectedLike(response.data.result.estimation.id);
+        })
+        .catch(() => {
+          alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+        });
+    }
   }, []);
 
   const inputValueRef = useRef<HTMLInputElement>(null);
@@ -429,49 +508,49 @@ export const WriteContainer = () => {
 
   const formData = new FormData();
 
+  // input에서 파일 목록 가져오기
   const getFileList = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const FILE_SIZE = 5 * 1024 * 1024;
+    const maxFileSize = 5 * 1024 * 1024;
+    const maxFileCount = 5;
+    setIsFileSizePass(true);
+    setIsFileCountPass(true);
     if (e.target.files) {
       let files: File[] = [...e.target?.files];
       let passFiles: File[] = [];
-      files.forEach(file => {
-        if (file.size > FILE_SIZE) {
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (files[i].size > maxFileSize) {
           setIsFileSizePass(false);
-          return;
+          continue;
         }
         passFiles.push(file);
-      });
-      if (passFiles.length > 5) {
-        setIsFileCountPass(false);
-        passFiles.slice(0, 5);
-        return;
+        if (passFiles.length > maxFileCount) {
+          setIsFileCountPass(false);
+        }
       }
-      setIsFileCountPass(true);
-      setMainFileList(passFiles);
+      setMainFileList(passFiles.slice(0, maxFileCount));
     }
   };
 
   // 업로드 한 파일 제거(onclick)
   const deleteFile = (url: string, name: string) => {
-    axios
-      .delete<string>(`${BACK_URL}:${BACK_PORT}/upload`, {
-        data: { file_links: [url] },
-        headers: { Accept: `application/json`, Authorization: token },
-      })
-      .then(response => {
-        const result = previewList.filter(file => file.url !== url);
-        setPreviewList(result);
-        const mainFileListResult = mainFileList.filter(
-          file => file.name !== name
-        );
-        setMainFileList(mainFileListResult);
-        const fileLinkResult = fileLink.filter(file => file !== url);
-        setFileLink(fileLinkResult);
-      });
+    const result = previewList.filter(file => file.url !== url);
+    setPreviewList(result);
+    const mainFileListResult = mainFileList.filter(file => file.name !== name);
+    setMainFileList(mainFileListResult);
+    const fileLinkResult = fileLink.filter(file => file !== url);
+    setFileLink(fileLinkResult);
+  };
+
+  // 라디오 버튼 체크
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedLike(Number(e.target.value));
   };
 
   let token = localStorage.getItem('token');
 
+  // 파일 업로드
   useEffect(() => {
     setIsLoading(true);
     mainFileList.forEach(file => {
@@ -483,25 +562,27 @@ export const WriteContainer = () => {
           headers: { Accept: `multipart/form-data`, Authorization: token },
         })
         .then(response => {
-          setFileLink(response.data.file_links);
+          setFileLink([...fileLink, ...response.data.file_links]);
           setIsLoading(false);
           let arr: PreviewType[] = [];
           for (let i = 0; i < response.data.file_links.length; i++) {
             const obj = {
-              id: i + 1,
+              id: Math.floor(Math.random() * 100000),
               url: response.data.file_links[i],
               name: mainFileList[i].name,
             };
             arr.push(obj);
           }
-          setPreviewList(arr);
+          setPreviewList([...previewList, ...arr]);
         })
-        .catch(() => {
+        .catch(error => {
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+          setMainFileList([]);
         });
     }
   }, [mainFileList]);
 
+  // 임시저장 메세지 출력
   const saveAlertMessage = () => {
     setIsSaved('true');
 
@@ -509,6 +590,8 @@ export const WriteContainer = () => {
       setIsSaved('false');
     }, 3000);
   };
+
+  // 임시저장 POST
   const saveFeedPost = (
     titleValue: string,
     contentValue: string,
@@ -534,11 +617,12 @@ export const WriteContainer = () => {
         return;
       })
       .catch(error => {
-        setIsSaveSuccess(true);
+        setIsSaveSuccess(false);
         saveAlertMessage();
       });
   };
 
+  // 임시저장 PATCH
   const saveFeedPatch = (
     titleValue: string,
     contentValue: string,
@@ -570,6 +654,7 @@ export const WriteContainer = () => {
       });
   };
 
+  // 임시저장(saveFeed)
   const saveFeed = (
     inputValueRef: HTMLInputElement | null,
     textareaValueRef: HTMLTextAreaElement | null,
@@ -614,11 +699,12 @@ export const WriteContainer = () => {
     };
   }, [QuestionDivRef]);
 
+  // 파일 미리보기
   const previewFiles = () => {
     const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];
 
     return (
-      mainFileList.length !== 0 &&
+      (mainFileList.length !== 0 || previewList.length !== 0) &&
       previewList.map(item => {
         const extension = item.url.split('.').pop();
         if (!extension) {
@@ -638,7 +724,7 @@ export const WriteContainer = () => {
           <FilePreviewDiv key={item.id}>
             <ImgPreviewItem
               src={FileIconImg}
-              alt="파일 미리보기 아이콘"
+              alt="파일 아이콘"
               isFile={true}
               onClick={() => {
                 deleteFile(item.url, item.name);
@@ -660,46 +746,61 @@ export const WriteContainer = () => {
       setSaveMessage('카테고리를 선택해주세요.');
       return;
     }
-    if (isSaveSuccess) {
-      setSaveMessage('임시저장되었습니다.');
-      return;
-    }
     if (isSaveSuccess === false) {
       setSaveMessage('임시저장에 실패했습니다.');
       return;
     }
+    if (isSaveSuccess) {
+      setSaveMessage('임시저장되었습니다.');
+      return;
+    }
   }, [title, content, isSaveSuccess, categoryId]);
 
+  // 임시저장 1분마다 실행
   useEffect(() => {
-    const showMessage = setInterval(() => {
-      saveFeed(
-        inputValueRef.current,
-        textareaValueRef.current,
-        selectRef.current
-      );
-    }, 60000);
+    if (isTempFeed) {
+      const showMessage = setInterval(() => {
+        saveFeed(
+          inputValueRef.current,
+          textareaValueRef.current,
+          selectRef.current
+        );
+      }, 60000);
 
-    return () => clearInterval(showMessage);
+      return () => clearInterval(showMessage);
+    }
   }, [isFirstSave]);
 
+  // 게시글 등록
   const feedUpload = () => {
+    let bodyObj;
+    if (feedId !== 0) {
+      bodyObj = {
+        feedId: feedId,
+        title: title,
+        content: content,
+        estimation: selectedLike,
+        category: categoryId,
+        fileLinks: fileLink,
+      };
+    } else {
+      bodyObj = {
+        title: title,
+        content: content,
+        estimation: selectedLike,
+        category: categoryId,
+        fileLinks: fileLink,
+      };
+    }
     if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
       alert('제목 / 내용 / 카테고리는 필수입니다.');
       return;
     }
     if (title && content && categoryId) {
       axios
-        .post<SaveResultType>(
-          `${BACK_URL}:${BACK_PORT}/feeds/post`,
-          {
-            title: title,
-            content: content,
-            estimation: selectedLike,
-            category: categoryId,
-            fileLinks: fileLink,
-          },
-          { headers: { Accept: `application/json`, Authorization: token } }
-        )
+        .post<SaveResultType>(`${BACK_URL}:${BACK_PORT}/feeds/post`, bodyObj, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
         .then(response => {
           window.location.href = '/';
         })
@@ -709,15 +810,44 @@ export const WriteContainer = () => {
     }
   };
 
+  // 게시글 수정
+  const feedModify = () => {
+    if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
+      alert('제목 / 내용 / 카테고리는 필수입니다.');
+      return;
+    }
+    if (title && content && categoryId) {
+      axios
+        .patch<SaveResultType>(
+          `${BACK_URL}:${BACK_PORT}/feeds/post`,
+          {
+            feedId: modifyId,
+            title: title,
+            content: content,
+            estimation: selectedLike,
+            category: categoryId,
+            fileLinks: fileLink,
+          },
+          { headers: { Accept: `application/json`, Authorization: token } }
+        )
+        .then(response => {
+          window.location.href = `/feed/${modifyId}`;
+        })
+        .catch(error => {
+          alert('게시글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        });
+    }
+  };
+
   return (
     <Fragment>
       <TitleDiv>
-        <Title>게시글 작성</Title>
+        <Title>{ifModifyFeed === false ? '게시글 작성' : '게시글 수정'}</Title>
         <SaveAlertDiv
           isSaved={isSaved}
           isNotNull={isNotNull}
           isSaveSuccess={isSaveSuccess}
-          categoryId={categoryId}
+          categoryId={categoryId && categoryId}
         >
           {saveMessage}
         </SaveAlertDiv>
@@ -787,9 +917,9 @@ export const WriteContainer = () => {
                   type="radio"
                   value={estimation.id}
                   name="select"
-                  defaultChecked={estimation.id === 1 && true}
-                  onInput={() => {
-                    setSelectedLike(estimation.id);
+                  checked={estimation.id === selectedLike}
+                  onChange={e => {
+                    handleChange(e);
                   }}
                 />
               </RadioButton>
@@ -811,15 +941,16 @@ export const WriteContainer = () => {
         </div>
       </MenuContainer>
       <InfoDiv>
-        <p>• 여러 파일 업로드 시 Ctrl키를 누른 상태로 이미지를 선택해주세요.</p>
-        <p>• 이미지는 png / jpg / jpeg / gif 확장자만 가능합니다.</p>
-        <p>• 최대 5장, 각 이미지는 5MB까지 업로드가 가능합니다.</p>
+        <p>• 파일은 한 번 선택 시 5개까지 가능합니다.</p>
+        <p>• 최대 파일 갯수는 제한 없습니다.</p>
+        <p>• 이미지는 png / jpg / jpeg / gif만 업로드가 가능합니다.</p>
+        <p>• 이미지 및 파일은 5MB까지 업로드가 가능합니다.</p>
         <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>
-        {isFileSizePass === false && (
-          <WarningMessage>• 파일 용량을 확인해주세요!</WarningMessage>
+        {isFileSizePass === false && mainFileList.length !== 0 && (
+          <WarningMessage>• 파일 용량을 확인해주세요.</WarningMessage>
         )}
-        {isFileCountPass === false && (
-          <WarningMessage>• 파일 개수를 확인해주세요!</WarningMessage>
+        {isFileCountPass === false && mainFileList.length !== 0 && (
+          <WarningMessage>• 파일 개수를 확인해주세요.</WarningMessage>
         )}
       </InfoDiv>
       <ContentsContainer>
@@ -830,7 +961,7 @@ export const WriteContainer = () => {
             onInput={getTitle}
             maxLength={30}
             ref={inputValueRef}
-            value={title}
+            defaultValue={modifyData ? modifyData.result.title : title}
           />
           <Count maxLength={30} textLength={titleLength}>
             {titleLength} / 30
@@ -838,10 +969,10 @@ export const WriteContainer = () => {
         </InputDiv>
 
         <ImgPreview>
-          {mainFileList.length === 0 && (
+          {mainFileList.length === 0 && previewList.length === 0 && (
             <ImgPreviewMessage>파일 미리보기</ImgPreviewMessage>
           )}
-          {mainFileList.length !== 0 && isLoading && (
+          {mainFileList.length !== 0 && isFileCountPass && isLoading && (
             <ImgPreviewMessage>Loading...</ImgPreviewMessage>
           )}
           {previewFiles()}
@@ -852,7 +983,7 @@ export const WriteContainer = () => {
             onInput={getContent}
             maxLength={10000}
             ref={textareaValueRef}
-            defaultValue={content}
+            defaultValue={modifyData ? modifyData.result.content : content}
           />
           <Count maxLength={10000} textLength={contentLength}>
             {contentLength} / 10000
@@ -860,20 +991,25 @@ export const WriteContainer = () => {
         </InputDiv>
       </ContentsContainer>
       <Buttons>
+        {isTempFeed && (
+          <Button
+            isSave={true}
+            onClick={() =>
+              saveFeed(
+                inputValueRef.current,
+                textareaValueRef.current,
+                selectRef.current
+              )
+            }
+          >
+            임시저장
+          </Button>
+        )}
         <Button
-          isSave={true}
-          onClick={() =>
-            saveFeed(
-              inputValueRef.current,
-              textareaValueRef.current,
-              selectRef.current
-            )
-          }
+          isSave={false}
+          onClick={ifModifyFeed === false ? feedUpload : feedModify}
         >
-          임시저장
-        </Button>
-        <Button isSave={false} onClick={feedUpload}>
-          등록
+          {ifModifyFeed === false ? '등록' : '수정'}
         </Button>
       </Buttons>
     </Fragment>

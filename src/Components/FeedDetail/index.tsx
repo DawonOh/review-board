@@ -7,8 +7,11 @@ import LikeIconImg from '../../assets/images/like.png';
 import DisLikeImg from '../../assets/images/dislike.png';
 import ThumbsUpImg from '../../assets/images/thumbsUp.png';
 import ViewIconImg from '../../assets/images/view.png';
+import DownloadIconImg from '../../assets/images/download.png';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
+import { AlertModal } from '../AlertModal';
+import { Link } from 'react-router-dom';
 
 const TitleContainer = Styled.div`
   display: flex;
@@ -84,16 +87,17 @@ const LikeIcon = Styled.div<{ isLike: boolean }>`
   cursor: pointer;
 `;
 
-const ViewIcon = Styled.div`
+const ViewIcon = Styled.div<{ isDownload?: boolean }>`
   min-width: 1em;
   min-height: 1em;
-  margin-left: 0.2em;
-  background: url(${ViewIconImg});
+  margin-right: 0.3em;
+  background: url(${props =>
+    props.isDownload ? DownloadIconImg : ViewIconImg});
   background-repeat: no-repeat;
   background-size: cover;
 `;
 
-const WriterInfo = Styled.span`
+const BoldFont = Styled.span`
   font-weight: 700;
 `;
 
@@ -118,6 +122,30 @@ const ViewCntContainer = Styled.div`
   margin-right: 0.5em;
 `;
 
+const FileTitleDiv = Styled.div`
+  width: 70%;
+  margin-top: 3em;
+  padding: 1em;
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #676FA3;
+  border-bottom: 1px solid #dbdbdb;
+`;
+const FileLink = Styled.a`
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  width: 70%;
+  padding: 1em;
+  cursor: pointer;
+`;
+
+const SmallFont = Styled.span`
+  color: #BDBDBD;
+  font-size: 0.8em;
+  margin-left: 1em;
+`;
+
 interface DataType {
   result: {
     category: { id: number; category: string };
@@ -132,7 +160,15 @@ interface DataType {
     };
     title: string;
     updated_at: string;
-    uploadFiles: [{ id: number; is_img: boolean; file_link: string }];
+    uploadFiles: [
+      {
+        id: number;
+        is_img: boolean;
+        file_link: string;
+        file_name: string;
+        file_size: string;
+      }
+    ];
     length: number;
     user: {
       id: number;
@@ -171,12 +207,36 @@ interface loginUserIdType {
   loginUserId: number;
 }
 
+interface MessageType {
+  id: number;
+  text: string;
+}
+
 export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const [isLike, setIsLike] = useState(false);
   const [detailContent, setDetailContent] = useState<DataType>();
   const [likeCount, setLikeCount] = useState(0);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isQuestion, setIsQuestion] = useState(false);
+  const [result, setResult] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [haveFile, setHaveFile] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={messages}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
 
   let token = localStorage.getItem('token');
 
@@ -227,6 +287,12 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`)
       .then(response => {
         setDetailContent(response.data);
+        response.data.result.uploadFiles.forEach(file => {
+          if (file.is_img === false) {
+            setHaveFile(true);
+            return;
+          }
+        });
       })
       .catch(() => {
         alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -250,6 +316,29 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         setIsLike(response.data.checkValue);
       });
   }, []);
+
+  const deleteFeed = () => {
+    setMessages([{ id: 1, text: '삭제하시겠습니까?' }]);
+    setIsQuestion(true);
+    setIsAlertModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (result) {
+      axios
+        .delete<string>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+          headers: { Accept: `application/json`, Authorization: token },
+        })
+        .then(response => {
+          setIsAlertModalOpen(false);
+          window.location.href = '/';
+        })
+        .catch(() => {
+          alert('잠시 후 다시 시도해주세요.');
+        });
+    }
+  }, [result]);
+
   const createDate = detailContent?.result.created_at.slice(0, -8);
   const updateDate = detailContent?.result.updated_at.slice(0, -8);
   return (
@@ -266,24 +355,47 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           </div>
           {detailContent?.result.user.id === loginUserId && (
             <Buttons>
-              <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
-              <ModifyDeleteButton text="삭제">삭제</ModifyDeleteButton>
+              <Link
+                to="/writeFeed"
+                state={{ feedId: feedId, isModify: true, isTemp: false }}
+              >
+                <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
+              </Link>
+
+              <ModifyDeleteButton text="삭제" onClick={deleteFeed}>
+                삭제
+              </ModifyDeleteButton>
             </Buttons>
           )}
         </BothSideContainer>
+
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img && (
               <MainImg
                 key={file.id}
                 src={file.file_link}
-                alt={index + '번 째 사진'}
+                alt={index + 1 + '번 째 사진'}
               />
             )
           );
         })}
-
         <Content>{detailContent?.result.content}</Content>
+        {haveFile && <FileTitleDiv>첨부파일</FileTitleDiv>}
+        {detailContent?.result.uploadFiles.map((file, index) => {
+          return (
+            file.is_img === false && (
+              <FileLink href={file.file_link} key={file.id} download>
+                <div>
+                  <span>{file.file_name}</span>
+                  <SmallFont>{file.file_size}</SmallFont>
+                </div>
+
+                <ViewIcon isDownload={true} />
+              </FileLink>
+            )
+          );
+        })}
         <BothSideContainer>
           <LikeContainer>
             <LikeIcon isLike={isLike} onClick={handleClickLike} />
@@ -294,10 +406,11 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
               <ViewIcon />
               <span>{detailContent?.result.viewCnt}</span>
             </ViewCntContainer>
-            <WriterInfo>by {detailContent?.result.user.nickname}</WriterInfo>
+            <BoldFont>by {detailContent?.result.user.nickname}</BoldFont>
           </Buttons>
         </BothSideContainer>
       </ContentContainer>
+      {openAlertModal()}
     </Fragment>
   );
 };
