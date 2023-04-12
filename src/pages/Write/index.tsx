@@ -8,7 +8,6 @@ const MainContainer = Styled.div`
   height: 100%;
   position: relate;
   margin: 0 auto;
-  padding: 2em;
 `;
 
 export const WriteFeed = () => {

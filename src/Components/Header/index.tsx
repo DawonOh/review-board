@@ -3,8 +3,7 @@ import Styled from 'styled-components';
 
 import { Login, MobileMenu } from 'Components';
 import { ButtonLayout } from 'Styles/CommonStyle';
-import { Link } from 'react-router-dom';
-import SearchIcon from '../../assets/images/search.png';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MenuIcon from '../../assets/images/menu.png';
 import CloseIcon from '../../assets/images/close.png';
 import PersonIcon from '../../assets/images/person.png';
@@ -12,14 +11,28 @@ import LogoutIcon from '../../assets/images/logout.png';
 import axios from 'axios';
 
 const HeaderContainer = Styled.header`
+  position: sticky;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  margin-bottom: 2em;
+  background-color: #fff;
+  box-shadow: 1px 1px 5px 1px #f7f7f7;
+  z-index: 999;
+  @media all and (max-width:767px) {
+    margin-bottom: 0;
+  }
+`;
+
+const CenterContainer = Styled.div`
   display: flex;
-  position: relative;
   justify-content: space-between;
   align-items: center;
   width: 80%;
   height: 100%;
   padding: 2em;
   margin: 0 auto;
+  background-color: #fff;
   @media all and (max-width: 1023px) {
     width: 80%;
   }
@@ -41,7 +54,8 @@ const RightContents = Styled.div`
 `;
 
 const Input = Styled.input`
-  width: 15em;
+  width: 20em;
+  margin-right: 1em;
   padding: 0.6em;
   font-size: 1em;
   border: 1px solid #e0e0e0;
@@ -50,16 +64,6 @@ const Input = Styled.input`
     outline: none;
   }
   z-index: 999;
-`;
-
-const SearchButton = Styled.div`
-  width: 1.3em;
-  height: 1.3em;
-  margin: 0 1.3em 0 0.4em;
-  background: url(${SearchIcon});
-  background-repeat: no-repeat;
-	background-size: cover;
-  cursor: pointer;
 `;
 
 const MenuButton = Styled.div<{ isMenuOn: boolean }>`
@@ -113,7 +117,7 @@ const HoverMenuItem = Styled.span`
 
 const SearchListContainer = Styled.div`
   position: absolute;
-  width: 18em;
+  width: 20em;
   padding: 1em;
   background-color: #fff;
   border: 1px solid #e0e0e0;
@@ -157,7 +161,7 @@ const SearchContent = Styled.div`
 `;
 
 const SearchBackground = Styled.div`
-  position: absolute;
+  position: fixed;
   width: 100%;
   height: 100vh;
   background-color: #000;
@@ -166,6 +170,7 @@ const SearchBackground = Styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   overflow: hidden;
+  z-index: 999;
 `;
 
 const GotoSearchPage = Styled.div`
@@ -204,6 +209,10 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const [loading, setLoading] = useState(true);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const location = useLocation();
+  const pathname = location.pathname;
+
   const handleModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -278,19 +287,21 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     if (!loading && searchList.length !== 0) {
       return searchList.map(result => {
         return (
-          <div key={result.id}>
-            <SearchListItemTitle>
-              <SearchTitle>
-                {result.titleSnippet ? result.titleSnippet : '-'}
-              </SearchTitle>
-              <SearchDate>
-                {result.postedAt && result.postedAt.slice(0, -8)}
-              </SearchDate>
-            </SearchListItemTitle>
-            <SearchContent>
-              {result.contentSnippet ? result.contentSnippet : '-'}
-            </SearchContent>
-          </div>
+          <Link key={result.id} to={'/feed/' + result.id}>
+            <div>
+              <SearchListItemTitle>
+                <SearchTitle>
+                  {result.titleSnippet ? result.titleSnippet : '-'}
+                </SearchTitle>
+                <SearchDate>
+                  {result.postedAt && result.postedAt.slice(0, -8)}
+                </SearchDate>
+              </SearchListItemTitle>
+              <SearchContent>
+                {result.contentSnippet ? result.contentSnippet : '-'}
+              </SearchContent>
+            </div>
+          </Link>
         );
       });
     }
@@ -299,61 +310,72 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const search = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (searchValue.trim() !== '' && e.key === 'Enter') {
+      let url = `/search?query=${searchValue}`;
+      navigate(url);
+    }
+  };
+
   return (
     <Fragment>
       {searchValue.trim() !== '' && <SearchBackground />}
       <HeaderContainer>
-        <Link to="/">
-          <Logo>LOGO</Logo>
-        </Link>
-        <MenuButton onClick={handleMenuOn} isMenuOn={isMenuOn} />
-        <RightContents>
-          <div ref={SearchDivRef}>
-            <Input
-              type="search"
-              placeholder="검색어를 입력해주세요"
-              onChange={e => getSearchValue(e)}
-            />
-            {searchValue && (
-              <SearchListContainer>
-                <ContentContainer>
-                  {loading ? (
-                    <NoResult>Loading...</NoResult>
-                  ) : (
-                    showResult(searchList)
-                  )}
-                </ContentContainer>
-                <Link to={'/search?query=' + searchValue}>
-                  <GotoSearchPage>더보기</GotoSearchPage>
-                </Link>
-              </SearchListContainer>
-            )}
-          </div>
-          <Link to="/search">
-            <SearchButton />
+        <CenterContainer>
+          <Link to="/">
+            <Logo>LOGO</Logo>
           </Link>
-          {isLogin ? (
-            <Icons>
-              <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                <Icon src={PersonIcon} alt="마이페이지" />
-                <HoverMenu isHover={isHover}>
-                  <Link to="/mychannel">
-                    <HoverMenuItem>내 채널</HoverMenuItem>
-                  </Link>
-                  <Link to="/temp/list">
-                    <HoverMenuItem>임시저장 목록</HoverMenuItem>
-                  </Link>
-                </HoverMenu>
+          <MenuButton onClick={handleMenuOn} isMenuOn={isMenuOn} />
+          <RightContents>
+            {pathname !== '/search' && (
+              <div ref={SearchDivRef}>
+                <Input
+                  type="search"
+                  placeholder="검색어를 입력해주세요"
+                  onChange={e => getSearchValue(e)}
+                  onKeyUp={search}
+                />
+                {searchValue && (
+                  <SearchListContainer>
+                    <ContentContainer>
+                      {loading ? (
+                        <NoResult>Loading...</NoResult>
+                      ) : (
+                        showResult(searchList)
+                      )}
+                    </ContentContainer>
+                    <Link to={'/search?query=' + searchValue}>
+                      <GotoSearchPage>더보기</GotoSearchPage>
+                    </Link>
+                  </SearchListContainer>
+                )}
               </div>
-              <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
-            </Icons>
-          ) : (
-            <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
-          )}
+            )}
+            {isLogin ? (
+              <Icons>
+                <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
+                  <Icon src={PersonIcon} alt="마이페이지" />
+                  <HoverMenu isHover={isHover}>
+                    <Link to="/mychannel">
+                      <HoverMenuItem>내 채널</HoverMenuItem>
+                    </Link>
+                    <Link to="/temp/list">
+                      <HoverMenuItem>임시저장 목록</HoverMenuItem>
+                    </Link>
+                  </HoverMenu>
+                </div>
+                <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
+              </Icons>
+            ) : (
+              <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
+            )}
 
-          <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-          <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-        </RightContents>
+            <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+            <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+          </RightContents>
+        </CenterContainer>
       </HeaderContainer>
     </Fragment>
   );

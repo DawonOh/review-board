@@ -6,9 +6,9 @@ import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
+  width: 100%;
+  height: 100%;
+  position: fixed;
   padding: 3em;
   transform: ${props =>
     props.isMenuOn ? 'translateX(0)' : 'translateX(-100%)'};

@@ -61,7 +61,7 @@ interface cardListType {
   statusId: number;
 }
 
-export const CardList = (categoryId: any) => {
+export const CardList = (categoryId?: any, query?: string) => {
   const [pageNum, setPageNum] = useState(1);
   const { cardList, hasMore, loading, error } = useCardList(
     pageNum,

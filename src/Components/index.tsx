@@ -7,4 +7,3 @@ export * from './Card';
 export * from './FeedDetail';
 export * from './CommentContainer';
 export * from './WriteFeed';
-export * from './Search';
