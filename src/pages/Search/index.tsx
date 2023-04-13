@@ -1,11 +1,10 @@
 import { CardList, Header, MobileMenu } from 'Components';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import SearchIcon from '../../assets/images/search.png';
 import SearchFailIcon from '../../assets/images/searchFail.png';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonLayout } from 'Styles/CommonStyle';
-import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`
   width: 100%;
@@ -18,10 +17,17 @@ const SearchContainer = Styled.div`
   align-items: center;
   width: 80%;
   height: 100%;
-  padding: 2em;
+  padding: 1em;
   margin: 0 auto;
+  margin-top: 1em;
+  gap: 0.2em;
   @media all and (max-width: 1023px) {
     width: 80%;
+  }
+  @media (max-width: 767px) {
+    padding: 0;
+    justify-content: center;
+    gap: 0.3em;
   }
 `;
 
@@ -31,6 +37,9 @@ const SearchInput = Styled.input`
   border: 1px solid #e2e2e2;
   border-radius: 0.3em;
   outline: none;
+  @media (max-width: 767px) {
+    width: 17em;
+  }
 `;
 
 const SearchImg = Styled.div`
@@ -40,12 +49,14 @@ const SearchImg = Styled.div`
   background: url(${SearchIcon});
   background-repeat: no-repeat;
 	background-size: cover;
+  @media (max-width: 767px) {
+    display: none;
+  }
 `;
 
 const SearchButton = Styled.button`
   ${ButtonLayout}
   padding: 0.4em;
-  margin-left: 1em;
   cursor: pointer;
 `;
 

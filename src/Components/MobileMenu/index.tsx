@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-
 import { Login } from 'Components/Login';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
   width: 100%;
@@ -76,26 +76,21 @@ interface MenuProps {
 
 export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
   const [menuList, setMenuList] = useState([]);
-  const [isLogin, setIsLogin] = useState(false);
 
   let token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (token) {
-      setIsLogin(true);
-    } else {
-      setIsLogin(false);
-    }
-    fetch('/data/mobileMenu.json')
-      .then(res => res.json())
-      .then(json => {
-        if (isLogin) {
-          setMenuList(json.menuList);
-        } else if (!isLogin) {
-          setMenuList(json.logoutMenuList);
-        }
-      });
-  }, [isLogin, token]);
+    axios.get('/data/mobileMenu.json').then(response => {
+      if (token) {
+        setMenuList(response.data.menuList);
+        return;
+      }
+      if (!token) {
+        setMenuList(response.data.logoutMenuList);
+        return;
+      }
+    });
+  }, [token]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -123,7 +118,7 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
             </Fragment>
           );
         })}
-        {isLogin ? (
+        {token ? (
           <LogoutButton onClick={logout}>로그아웃</LogoutButton>
         ) : (
           <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
