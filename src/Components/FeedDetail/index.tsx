@@ -64,11 +64,15 @@ const BothSideContainer = Styled.div`
   }
 `;
 
-const MainImg = Styled.img`
+const MainImgA = Styled.a`
+  ${flexCenterAlign}
   width: 50%;
   @media (max-width: 767px) {
     width: 70%;
   }
+`;
+const MainImg = Styled.img`
+  width: 100%;
 `;
 
 const Content = Styled.div`
@@ -245,7 +249,11 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   let token = localStorage.getItem('token');
 
   const handleClickLike = () => {
-    if (isLike === false) {
+    if (
+      isLike === false &&
+      token &&
+      loginUserId !== detailContent?.result.user.id
+    ) {
       axios
         .post<SymbolType>(
           `${BACK_URL}:${BACK_PORT}/symbols/${feedId}`,
@@ -267,8 +275,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
             }
           }
         })
-        .catch(() => {
-          alert('잠시 후 다시 시도해주세요.');
+        .catch(error => {
+          if (error.code === 'ECONNABORTED') {
+            alert('잠시 후 다시 시도해주세요.');
+          }
         });
       return;
     }
@@ -286,8 +296,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
             }
           }
         })
-        .catch(() => {
-          alert('잠시 후 다시 시도해주세요.');
+        .catch(error => {
+          if (error.code === 'ECONNABORTED') {
+            alert('잠시 후 다시 시도해주세요.');
+          }
         });
       return;
     }
@@ -325,21 +337,28 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           }
         }
       })
-      .catch(() => {
+      .catch(error => {
         alert('잠시 후 다시 시도해주세요.');
       });
 
-    axios
-      .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${feedId}`, {
-        timeout: 5000,
-        headers: { Accept: `application/json`, Authorization: token },
-      })
-      .then(response => {
-        setIsLike(response.data.checkValue);
-      })
-      .catch(() => {
-        alert('잠시 후 다시 시도해주세요.');
-      });
+    if (token) {
+      axios
+        .get<LoginLikeType>(
+          `${BACK_URL}:${BACK_PORT}/symbols/check/${feedId}`,
+          {
+            timeout: 5000,
+            headers: { Accept: `application/json`, Authorization: token },
+          }
+        )
+        .then(response => {
+          setIsLike(response.data.checkValue);
+        })
+        .catch(error => {
+          if (error.code === 'ECONNABORTED') {
+            alert('잠시 후 다시 시도해주세요.');
+          }
+        });
+    }
   }, []);
 
   const deleteFeed = () => {
@@ -359,8 +378,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           setIsAlertModalOpen(false);
           window.location.href = '/';
         })
-        .catch(() => {
-          alert('잠시 후 다시 시도해주세요.');
+        .catch(error => {
+          if (error.code === 'ECONNABORTED') {
+            alert('잠시 후 다시 시도해주세요.');
+          }
         });
     }
   }, [result]);
@@ -398,11 +419,14 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img && (
-              <MainImg
+              <MainImgA
+                href={file.file_link}
+                target="_blank"
+                rel="noreferrer"
                 key={file.id}
-                src={file.file_link}
-                alt={index + 1 + '번 째 사진'}
-              />
+              >
+                <MainImg src={file.file_link} alt={index + 1 + '번 째 사진'} />
+              </MainImgA>
             )
           );
         })}
