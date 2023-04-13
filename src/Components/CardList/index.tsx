@@ -62,7 +62,7 @@ interface cardListType {
 }
 
 interface PropsType {
-  categoryId?: any;
+  categoryId: any;
   setIsNotEmpty: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -77,7 +77,7 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
   }, [cardList]);
   useEffect(() => {
     setPageNum(1);
-  }, [categoryId?.categoryId]);
+  }, [categoryId]);
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastCardElementRef = useCallback(

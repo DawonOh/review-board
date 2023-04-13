@@ -139,7 +139,7 @@ export const SearchPage = () => {
         />
         <SearchButton onClick={() => searchClick()}>검색</SearchButton>
       </SearchContainer>
-      <CardList setIsNotEmpty={setIsNotEmpty} />
+      <CardList setIsNotEmpty={setIsNotEmpty} categoryId={0} />
       {!isNotEmpty && (
         <NoResults>
           <SearchFail />
