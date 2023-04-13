@@ -25,6 +25,7 @@ const JoinContents = Styled.div`
 `;
 
 const Title = Styled.h1`
+  font-family: 'Kanit', serif;
   margin: 0.3em;
   color: #676fa3;
   font-size: 2.5em;
@@ -261,8 +262,8 @@ export const Join = () => {
     <Bg>
       <JoinContainer>
         <JoinContents>
-          <Title>title</Title>
-          <WelcomeMessage>title에 오신 여러분을 환영합니다!</WelcomeMessage>
+          <Title>ALLREVIEW</Title>
+          <WelcomeMessage>ALLREVIEW에 오신 여러분을 환영합니다!</WelcomeMessage>
           <GridContainer>
             <InputName>이메일</InputName>
             <div>
@@ -289,7 +290,8 @@ export const Join = () => {
                 onChange={checkPw}
               />
               <WarnMessage isPassWordPass={isPassWordPass}>
-                영문, 숫자, 특수문자 포함 8자리 이상으로 설정해주세요.
+                영어 대문자, 소문자, 숫자, 특수문자 포함 8자리 이상으로
+                설정해주세요.
               </WarnMessage>
             </div>
             <div />
@@ -331,5 +333,3 @@ export const Join = () => {
     </Bg>
   );
 };
-
-// export default Join;

@@ -28,7 +28,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "distribute": "npm i && npm run build && pm2 serve build 3002 --name review-board --spa"
   },
   "eslintConfig": {
     "extends": [
@@ -54,6 +55,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest-styled-components": "^7.1.1",
-    "prettier": "^2.8.2"
+    "prettier": "^2.8.2",
+    "pm2": "^5.1.2"
   }
 }

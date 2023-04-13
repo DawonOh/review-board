@@ -28,6 +28,7 @@ const CloseButton = Styled.div`
 `;
 
 const Title = Styled.h1`
+  font-family: 'Kanit', serif;
   font-size: 2em;
   font-weight: 700;
   color: #676FA3;
@@ -156,7 +157,7 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
             onClick={() => setIsModalOpen(false)}
             data-testid="close button"
           />
-          <Title>Title</Title>
+          <Title>ALLREVIEW</Title>
           <Input
             type="text"
             placeholder="이메일을 입력해주세요."

@@ -39,6 +39,7 @@ const CenterContainer = Styled.div`
 `;
 
 const Logo = Styled.h1`
+  font-family: 'Kanit', serif;
   color: #676FA3;
   font-size: 2em;
   font-weight: 700;
@@ -188,6 +189,7 @@ const GotoSearchPage = Styled.div`
 const NoResult = Styled.div`
   text-align: center;
 `;
+
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -325,7 +327,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
       <HeaderContainer>
         <CenterContainer>
           <Link to="/">
-            <Logo>LOGO</Logo>
+            <Logo>ALLREVIEW</Logo>
           </Link>
           <MenuButton onClick={handleMenuOn} isMenuOn={isMenuOn} />
           <RightContents>
