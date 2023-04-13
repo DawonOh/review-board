@@ -19,6 +19,9 @@ const HeaderContainer = Styled.header`
   background-color: #fff;
   box-shadow: 1px 1px 5px 1px #f7f7f7;
   z-index: 999;
+  @media (max-width: 767px) {
+    margin: 0em;
+  }
 `;
 
 const CenterContainer = Styled.div`

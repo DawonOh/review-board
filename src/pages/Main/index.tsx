@@ -17,6 +17,7 @@ const CategoryContainer = Styled.div`
   width: 80%;
   padding: 0 2em;
   margin: 0 auto;
+  margin-top: 1em;
 `;
 
 const CategoryButton = Styled.div`
