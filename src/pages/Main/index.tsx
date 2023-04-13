@@ -4,6 +4,7 @@ import { Header, MobileMenu, CardList } from 'Components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import Styled from 'styled-components';
 import ToggleImg from '../../assets/images/toggleDown.png';
+import FirstIcon from '../../assets/images/first.png';
 import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`
@@ -116,6 +117,40 @@ const GotoWriteButton = Styled.button`
   cursor: pointer;
 `;
 
+const NoResults = Styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+`;
+
+const NoDataImg = Styled.div`
+  width: 5em;
+  height: 5em;
+  margin-bottom: 1em;
+  background: url(${FirstIcon});
+  background-repeat: no-repeat;
+  background-size: cover;
+  animation-name: move;
+  animation-duration: 1s;
+  animation-direction: alternate-reverse;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  @keyframes move {
+    0% {
+      transform: translateY(0px);
+    }
+    100% {
+      transform: translateY(0.5em);
+    }
+    0% {
+      transform: translateY(0px);
+    }
+`;
+
 interface CategoryType {
   id: number;
   category: string;
@@ -215,7 +250,12 @@ export const MainPage = () => {
         )}
       </CategoryContainer>
       <CardList categoryId={categoryId} setIsNotEmpty={setIsNotEmpty} />
-      {!isNotEmpty && <div>no value</div>}
+      {!isNotEmpty && (
+        <NoResults>
+          <NoDataImg />
+          <div>리뷰가 없습니다! 첫 리뷰를 작성해주세요😎</div>
+        </NoResults>
+      )}
     </MainContainer>
   );
 };
