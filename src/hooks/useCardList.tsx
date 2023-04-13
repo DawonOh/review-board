@@ -22,7 +22,7 @@ interface cardListType {
   statusId: number;
 }
 
-export const useCardList = (pageNumber: number, categoryId: any) => {
+export const useCardList = (pageNumber: number, categoryId?: any) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cardList, setCardList] = useState<cardListType[]>([]);
@@ -36,7 +36,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
 
   useEffect(() => {
     setCardList([]);
-  }, [categoryId.categoryId]);
+  }, [categoryId?.categoryId]);
 
   useEffect(() => {
     setLoading(true);
@@ -46,7 +46,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
       axios({
         method: 'GET',
         url: `${BACK_URL}:${BACK_PORT}/search/list`,
-        params: { query: query, page: pageNumber },
+        params: { query: query, index: pageNumber },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
         }),
@@ -70,7 +70,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
       axios({
         method: 'GET',
         url: `${BACK_URL}:${BACK_PORT}/feeds/post`,
-        params: { page: pageNumber, categoryId: categoryId.categoryId },
+        params: { index: pageNumber, categoryId: categoryId.categoryId },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
         }),
@@ -90,6 +90,6 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
         });
       return () => cancel();
     }
-  }, [categoryId.categoryId, pageNumber]);
+  }, [categoryId?.categoryId, pageNumber]);
   return { loading, error, cardList, hasMore };
 };

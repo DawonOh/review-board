@@ -128,6 +128,7 @@ export const MainPage = () => {
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
   const [isLogin, setIsLogin] = useState(false);
+  const [isNotEmpty, setIsNotEmpty] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const requestHeaders: HeadersInit = new Headers();
@@ -212,7 +213,8 @@ export const MainPage = () => {
           </Link>
         )}
       </CategoryContainer>
-      <CardList categoryId={categoryId} />
+      <CardList categoryId={categoryId} setIsNotEmpty={setIsNotEmpty} />
+      {!isNotEmpty && <div>no value</div>}
     </MainContainer>
   );
 };
