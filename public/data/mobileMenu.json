@@ -3,25 +3,25 @@
     {
       "id": 1,
       "title": "검색",
-      "icon": "images/search.png",
+      "icon": "/images/search.png",
       "link": "/search"
     },
     {
       "id": 2,
       "title": "리뷰쓰기",
-      "icon": "images/write.png",
+      "icon": "/images/write.png",
       "link": "/upload"
     },
     {
       "id": 3,
       "title": "임시저장 목록",
-      "icon": "images/temp.png",
+      "icon": "/images/temp.png",
       "link": "/temp/list"
     },
     {
       "id": 4,
       "title": "마이페이지",
-      "icon": "images/person.png",
+      "icon": "/images/person.png",
       "link": "/mypage"
     }
   ],
