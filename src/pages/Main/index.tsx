@@ -10,7 +10,6 @@ const MainContainer = Styled.div`
   width: 100%;
   height: 100%;
   position: relate;
-  padding: 2em;
 `;
 const CategoryContainer = Styled.div`
   display: flex;
@@ -37,7 +36,7 @@ const CategorySelectBox = Styled.ul<{ isToggleOpen: string }>`
   visibility: ${props =>
     props.isToggleOpen === 'open' ? 'visible' : 'hidden'};
   position: absolute;
-  margin-top: 2em;
+  margin-top: 1em;
   padding: 1em;
   background-color: #fff;
   border: 1px solid #EDEDED;
@@ -60,7 +59,7 @@ const CategorySelectBox = Styled.ul<{ isToggleOpen: string }>`
     }
     to{
       visibility: visible;
-      margin-top: 2em;
+      margin-top: 1em;
       opacity: 1;
     }
   }
@@ -68,7 +67,7 @@ const CategorySelectBox = Styled.ul<{ isToggleOpen: string }>`
   @keyframes slide-modal-close {
     from {
       visibility: visible;
-      margin-top: 2em;
+      margin-top: 1em;
       opacity: 1;
     }
     50% {
@@ -89,6 +88,7 @@ const CategorySelectBox = Styled.ul<{ isToggleOpen: string }>`
       display: none;
     }
   }
+  z-index: 999;
 `;
 
 const CategoryItem = Styled.li`
@@ -128,6 +128,7 @@ export const MainPage = () => {
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
   const [isLogin, setIsLogin] = useState(false);
+  const [isNotEmpty, setIsNotEmpty] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const requestHeaders: HeadersInit = new Headers();
@@ -212,7 +213,8 @@ export const MainPage = () => {
           </Link>
         )}
       </CategoryContainer>
-      <CardList categoryId={categoryId} />
+      <CardList categoryId={categoryId} setIsNotEmpty={setIsNotEmpty} />
+      {!isNotEmpty && <div>no value</div>}
     </MainContainer>
   );
 };

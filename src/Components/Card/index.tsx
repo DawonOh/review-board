@@ -14,6 +14,15 @@ const CardContainer = Styled.div<{ ref?: ForwardedRef<HTMLDivElement> | null }>`
   border-radius: 4px;
   padding: 1em;
   cursor: pointer;
+  &:hover {
+    box-shadow: 1px 1px 3px 1px #f7f7f7;
+    transform: translateY(-3px);
+    transition-duration: 300ms;
+  }
+  &:not(:hover) {
+    transform: translateY(3px);
+    transition-duration: 300ms;
+  }
 `;
 
 const Thumbnail = Styled.img`

@@ -65,8 +65,12 @@ const BothSideContainer = Styled.div`
 `;
 
 const MainImg = Styled.img`
-  width: 70%;
+  width: 50%;
+  @media (max-width: 767px) {
+    width: 70%;
+  }
 `;
+
 const Content = Styled.div`
   width: 70%;
   white-space: pre-wrap;
