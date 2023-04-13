@@ -419,12 +419,13 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img && (
-              <MainImgA href={file.file_link} target="_blank" rel="noreferrer">
-                <MainImg
-                  key={file.id}
-                  src={file.file_link}
-                  alt={index + 1 + '번 째 사진'}
-                />
+              <MainImgA
+                href={file.file_link}
+                target="_blank"
+                rel="noreferrer"
+                key={file.id}
+              >
+                <MainImg src={file.file_link} alt={index + 1 + '번 째 사진'} />
               </MainImgA>
             )
           );
