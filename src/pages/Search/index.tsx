@@ -1,11 +1,10 @@
 import { CardList, Header, MobileMenu } from 'Components';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import SearchIcon from '../../assets/images/search.png';
 import SearchFailIcon from '../../assets/images/searchFail.png';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonLayout } from 'Styles/CommonStyle';
-import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`
   width: 100%;
@@ -93,6 +92,7 @@ export const SearchPage = () => {
   let query = params.get('query');
   useEffect(() => {
     if (query) setQueryValue(query);
+    if (!query) setIsNotEmpty(false);
   }, [query]);
 
   const navigate = useNavigate();
