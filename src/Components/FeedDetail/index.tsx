@@ -64,11 +64,15 @@ const BothSideContainer = Styled.div`
   }
 `;
 
-const MainImg = Styled.img`
+const MainImgA = Styled.a`
+  ${flexCenterAlign}
   width: 50%;
   @media (max-width: 767px) {
     width: 70%;
   }
+`;
+const MainImg = Styled.img`
+  width: 100%;
 `;
 
 const Content = Styled.div`
@@ -415,11 +419,13 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
         {detailContent?.result.uploadFiles.map((file, index) => {
           return (
             file.is_img && (
-              <MainImg
-                key={file.id}
-                src={file.file_link}
-                alt={index + 1 + '번 째 사진'}
-              />
+              <MainImgA href={file.file_link} target="_blank" rel="noreferrer">
+                <MainImg
+                  key={file.id}
+                  src={file.file_link}
+                  alt={index + 1 + '번 째 사진'}
+                />
+              </MainImgA>
             )
           );
         })}
