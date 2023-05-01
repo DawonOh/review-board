@@ -209,6 +209,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchList, setSearchList] = useState<SearchListType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -222,6 +223,18 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     setIsMenuOn(!isMenuOn);
   };
   let token = localStorage.getItem('token');
+
+  useEffect(() => {
+    if (token) {
+      axios
+        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        })
+        .then(response => setLoginUserId(response.data.userInfo.id));
+    }
+  }, [token]);
+
   useEffect(() => {
     if (token) {
       setIsLogin(true);
@@ -360,7 +373,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
                   <Icon src={PersonIcon} alt="마이페이지" />
                   <HoverMenu isHover={isHover}>
-                    <Link to="/mychannel">
+                    <Link to={'/channel/' + loginUserId}>
                       <HoverMenuItem>내 채널</HoverMenuItem>
                     </Link>
                     <Link to="/temp/list">
