@@ -1,46 +1,142 @@
-# Getting Started with Create React App
+# ALLREVIEW
+![ALLREVIEW 메인 로고 이미지](https://user-images.githubusercontent.com/89020079/232500769-a2f07a20-28c4-43c5-990f-9dd538c96228.png)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+  - [1-1.프로젝트 소개](#프로젝트-소개)
+    - [1-1-1.프로젝트 기간](#프로젝트-기간)
+  - [1-2.담당 기능](#담당-기능)
+    - [1-2-1.기획](#기획)
+    - [1-2-2.디자인](#디자인)
+    - [1-2-3.개발](#개발)
+  - [1-3.협업 툴 및 개발환경](#협업-툴-및-개발환경)
+- [2.기능 소개](#기능-소개)
+  - [2-1.로그인 및 회원가입](#로그인-및-회원가입)
+    - [2-1-1.로그인](#로그인)
+    - [2-1.2회원가입](#회원가입)
+  - [2-2.메인페이지](#메인페이지)
+  - [2-3.게시글 작성페이지](#게시글-작성페이지)
+  - [2-4.임시저장 리스트 페이지](#임시저장-리스트-페이지)
+  - [2-5.상세페이지](#상세페이지)
+  - [2-6.검색](#검색)
 
-## Available Scripts
 
-In the project directory, you can run:
+## 😎프로젝트 소개
+- [ALLREVIEW로 이동](http://13.231.5.51:3002/)
+- 분야 상관없이 카테고리로 분류하여 리뷰를 올리고, 댓글과 대댓글로 소통할 수 있는 리뷰 전용 사이트
+### 프로젝트 기간
+- 2023.01.09 ~ 2023.04.13 (실 개발 약 2개월 2주)
 
-### `npm start`
+## ⛏담당 기능
+### 기획
+- 와이어프레임 제작
+- 기획문서 제작
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 디자인
+- 전체 디자인
+  - 반응형 레이아웃
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 개발
+- 회원관리
+  - 로그인
+  - 회원가입
+    
+- 메인페이지
+  - 무한스크롤
+  - 카테고리 필터링
 
-### `npm test`
+- 상세페이지
+  - 게시글 상세 정보
+  - 댓글 / 대댓글(답글)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- 게시글 작성
+  - 파일 업로드
+  - 파일 미리보기
+  - 수동 / 자동 임시저장
 
-### `npm run build`
+- 임시저장 리스트
+  - 임시저장 된 글 목록
+  - 임시저장 게시글 삭제 가능
+  - 리스트에서 게시글 클릭 시 수정 가능
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- 검색
+  - 페이지 상단 Header 검색창 입력 시 실시간 검색 내용 모달창
+  - 검색페이지
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- 반응형 웹
+  - 1024px, 767px 기준
+  - 767px 이하일 경우 모바일 레이아웃으로 반응형 웹 구현
+  - 모바일 메뉴
+    - 검색 / 리뷰쓰기 / 임시저장 목록
+    
+## 🤝협업 툴 및 개발환경
+- OS : Windows, Ubuntu
+- 언어 및 기술 스택 : HTML, CSS, TypeScript, Styled-Components, React
+- 형상관리 : Git/Github
+- 문서관리 : Notion
+- 협업 : Slack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# ✔기능 소개
+## 로그인 및 회원가입
+### 로그인
+- 이메일, 비밀번호를 받습니다.
+![로그인 페이지 이미지](https://user-images.githubusercontent.com/89020079/232508348-3a5c281a-f829-4e7a-8e1c-41be85eae0c5.png)
 
-### `npm run eject`
+### 회원가입
+- 이메일, 이름, 비밀번호, 닉네임을 받습니다.
+- 이메일, 닉네임은 중복확인을 진행합니다.
+![회원가입 페이지 이미지](https://user-images.githubusercontent.com/89020079/232508367-5eb8273a-1004-4f01-a6d6-52498c3c567f.png)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 메인페이지
+- 게시글이 없는 경우
+![메인페이지 게시글 없을 때 이미지](https://user-images.githubusercontent.com/89020079/232508622-049ce5a5-b535-412c-8625-8d68ea5aa1a5.png)
+![mobileMenu](https://user-images.githubusercontent.com/89020079/232509751-702a6750-4638-4a60-93df-0798c2a1e56e.gif)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- 게시글이 있는 경우
+  - 무한스크롤
+![infiniteScroll](https://user-images.githubusercontent.com/89020079/232509315-656ce817-3f4b-496c-a4f4-43e11310bcbe.gif)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- 첨부파일 있는 게시글
+  - 카드 오른쪽 상단에 클립 아이콘이 나타납니다.
+![첨부파일 있는 게시글 이미지](https://user-images.githubusercontent.com/89020079/232509463-74786d62-c937-4817-9997-9b90b28f8b5f.png)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- 카테고리 필터링
+  - 카테고리 별로 게시물을 조회할 수 있습니다.
+![categoryFilter](https://user-images.githubusercontent.com/89020079/232509910-f6a64df2-f6ba-424f-b864-0578d54c4a39.gif)
 
-## Learn More
+## 게시글 작성페이지
+- 파일 업로드 1회 당 최대 5개까지 업로드할 수 있습니다.(최대 파일 갯수 제한 없음)
+  - 이미지 확장자 제한 : jpg, jpeg, png, gif
+- 파일 미리보기가 가능합니다.
+  - 미리보기 목록에서 파일 클릭 시 삭제할 수 있습니다.
+- 임시저장
+  - 자동 : 1분마다 자동 임시저장을 진행합니다.
+  - 수동 : 페이지 하단 임시저장 버튼으로 직접 임시저장이 가능합니다.
+  - 게시글 작성에서만 임시저장이 작동합니다.
+![게시글 작성 페이지 이미지](https://user-images.githubusercontent.com/89020079/232510179-64de82c5-f7e4-431d-8672-01d4fd521094.png)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 임시저장 리스트 페이지
+- 임시저장 된 글 목록을 조회합니다.
+- 임시저장 게시글을 삭제할 수 있습니다.
+- 리스트에서 게시글 클릭 시 수정할 수 있습니다.
+![임시저장 리스트 페이지 이미지](https://user-images.githubusercontent.com/89020079/232510301-a42326b7-6bf6-4044-a43d-37154358c86b.png)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 상세페이지
+- 좋아요 / 제목 / 내용 / 이미지 / 첨부파일 / 조회수 / 작성자 닉네임을 보여줍니다.
+  - 좋아요 기능 : 로그인이 되어있고, 다른 사람의 게시글만 좋아요를 누를 수 있습니다.
+- 로그인 한 사용자 본인 게시글은 수정 / 삭제 버튼이 나타납니다.
+![상세페이지 상단 이미지](https://user-images.githubusercontent.com/89020079/232510394-93ed31ab-3453-4482-bcbb-4dc8b043b5d2.png)
+
+- 댓글
+  - 작성 / 수정 / 삭제가 가능합니다.
+  - 대댓글을 달 수 있습니다.
+  - 댓글 작성 / 수정 시 자물쇠 버튼을 클릭하면 비밀댓글을 달 수 있습니다.
+![상세페이지 하단 이미지](https://user-images.githubusercontent.com/89020079/232510455-be679a3d-39f8-4f23-8b6f-c81f64211750.png)
+
+## 검색
+  - 모든 페이지 상단의 검색창에서 실시간 검색이 가능합니다.
+  - 검색 시 모달창에 뜬 결과를 클릭하면 해당 게시물로 이동합니다.
+  - 모달창의 '더보기' 버튼을 클릭하거나 엔터키를 누르면 검색페이지로 이동합니다.
+  - 모바일 창에서는 모바일 메뉴에서 '검색'을 선택하면 검색 페이지로 이동합니다.
+  - 검색페이지에서 검색창을 통해 검색 결과를 카드 리스트로 확인할 수 있습니다.
+![search](https://user-images.githubusercontent.com/89020079/232510575-11f2278f-dde2-43ad-b9a6-96d8657e840d.gif)
+
+
