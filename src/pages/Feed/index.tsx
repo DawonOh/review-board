@@ -26,7 +26,9 @@ export const Feed = () => {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
-        .then(response => setLoginUserId(response.data.userInfo.id));
+        .then(response => {
+          setLoginUserId(response.data.id);
+        });
     }
   }, []);
   return (
