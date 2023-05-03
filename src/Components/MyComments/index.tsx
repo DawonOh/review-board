@@ -1,0 +1,188 @@
+import React, { Fragment, useEffect, useState } from 'react';
+import axios from 'axios';
+import Styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import ReplyIconImg from '../../assets/images/reply.png';
+import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
+import { AlertModal } from 'Components/AlertModal';
+
+const CommentContainer = Styled.div`
+  display: flex;
+  width: 100%;
+  padding: 0.3em;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    box-shadow: 1px 1px 3px 1px #f3f3f3;
+    transition-duration: 300ms;
+  }
+  &:not(:hover) {
+    transition-duration: 300ms;
+  }
+`;
+
+const ItemInfo = Styled.div`
+  padding: 1em;
+`;
+
+const Index = Styled.div`
+  ${flexCenterAlign}
+  min-width: 3em;
+  height: 100%;
+  min-height: 4em;
+  font-weight: 700;
+`;
+
+const ItemContent = Styled.div`
+  display: -webkit-box;
+  margin-bottom: 1em;
+  word-wrap: break-word;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient:vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ItemDates = Styled.div`
+  font-size: 0.8em;
+  color: #BDBDBD;
+`;
+
+const DeleteButton = Styled.button`
+  ${ButtonLayout}
+  min-width: 3em;
+  min-height: 2em;
+  color: #fff;
+  font-size: 0.8em;
+  background-color: #FF5959;
+  cursor: pointer;
+`;
+
+const IndexAndContent = Styled.div`
+  display: flex;
+`;
+
+const Icon = Styled.img`
+  width: 1em;
+  margin-right: 0.3em;
+`;
+
+const Flex = Styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+interface UserCommentInfoType {
+  userComments: {
+    children: string[];
+    comment: string;
+    created_at: string;
+    deleted_at: string | null;
+    feed: number;
+    id: number;
+    is_private: boolean;
+    parent: number | null;
+    updated_at: string;
+    user: number;
+  };
+  index: number;
+  setIsDeleted: Function;
+}
+
+interface MessageType {
+  id: number;
+  text: string;
+}
+
+export const MyComments = ({
+  userComments,
+  index,
+  setIsDeleted,
+}: UserCommentInfoType) => {
+  //AlertModal open 여부
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
+  const [isQuestion, setIsQuestion] = useState(false);
+  //AlertModal 메세지 내용
+  const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
+  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
+  const [result, setResult] = useState(false);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+  const token = localStorage.getItem('token');
+
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={alertMessage}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
+
+  const deleteComment = () => {
+    setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
+    setIsQuestion(true);
+    setIsAlertModalOpen(true);
+  };
+  useEffect(() => {
+    if (result) {
+      axios
+        .delete(`${BACK_URL}:${BACK_PORT}/comments/${userComments.id}`, {
+          timeout: 5000,
+          headers: { Accept: `application/json`, Authorization: token },
+        })
+        .then(response => {
+          if (response.status === 200) {
+            setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            setIsDeleted(true);
+            return;
+          }
+          if (response.status !== 200) {
+            setAlertMessage([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            setIsDeleted(false);
+            return;
+          }
+        })
+        .catch(() => {
+          alert('오류가 발생했습니다.');
+        });
+    }
+  }, [result]);
+  return (
+    <Fragment>
+      {userComments.deleted_at === null && (
+        <CommentContainer>
+          <Link to={'/feed/' + userComments.feed}>
+            <IndexAndContent>
+              <Index>{index + 1}</Index>
+              <Flex>
+                {userComments.parent && (
+                  <Icon src={ReplyIconImg} alt="대댓글" />
+                )}
+                <ItemInfo>
+                  <ItemContent>{userComments.comment}</ItemContent>
+                  <ItemDates>{userComments.created_at.slice(0, -8)}</ItemDates>
+                </ItemInfo>
+              </Flex>
+            </IndexAndContent>
+          </Link>
+          <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
+        </CommentContainer>
+      )}
+
+      {openAlertModal()}
+    </Fragment>
+  );
+};

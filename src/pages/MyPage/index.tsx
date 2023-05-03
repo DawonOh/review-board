@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Header } from 'Components';
+import { Header, MyComments } from 'Components';
 import axios from 'axios';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
@@ -39,9 +39,27 @@ const WriterFeedListContainer = Styled.div`
   }
 `;
 
-const WriterFeedLisTitle = Styled.h1`
+const TabMenuContainer = Styled.div`
+  width: 100%;
+  display: flex;
+`;
+
+const SelectedMenu = Styled.h1`
+  padding: 0.3em;
   font-size: 1.3em;
   font-weight: 700;
+  color: #676FA3;
+  border: 1px solid #676FA3;
+  border-bottom: none;
+  cursor: pointer;
+`;
+
+const NoneSelectedMenu = Styled.h1`
+  padding: 0.3em;
+  font-size: 1.3em;
+  font-weight: 700;
+  background-color: #F0F0F0;
+  cursor: pointer;
 `;
 
 const ItemTitle = Styled.div`
@@ -55,110 +73,172 @@ const ModifyButton = Styled.button`
   cursor: pointer;
 `;
 
-interface LoginUserType {
-  userInfo: {
-    id: number;
-    created_at: string;
-    nickname: string;
-    email: string;
-  };
-  userFeeds: [
-    {
-      category: string;
-      categoryId: number;
-      commentCnt: string;
-      content: string;
-      createdAt: string;
-      deletedAt: string | null;
-      filesCnt: string;
-      id: number;
-      imgCnt: string;
-      imgUrl: string;
-      likeCnt: string;
-      postedAt: string;
-      statusId: number;
-      title: string;
-      updatedAt: string;
-      userId: number;
-      userNickname: string;
-      viewCnt: number;
-    }
-  ];
-  userComments: [
-    {
-      id: number;
-      content: string;
-      created_at: string;
-      updated_at: string;
-      userId: number;
-      user: {
-        id: number;
-        nickname: string;
-        email: string;
-      };
-    }
-  ];
-  userFeedSymbols: [
-    {
-      id: number;
-      created_at: string;
-      updated_at: string;
-      feed: {
-        id: number;
-        user: {
-          id: number;
-          nickname: string;
-        };
-        title: string;
-      };
-      symbol: {
-        id: number;
-        symbol: string;
-      };
-    }
-  ];
+interface UserInfoType {
+  created_at: string;
+  deleted_at: string | null;
+  email: string;
+  id: number;
+  nickname: string;
+  updated_at: string;
 }
+
+interface UserFeedType {
+  category: string;
+  categoryId: number;
+  commentCnt: string;
+  content: string;
+  createdAt: string;
+  deletedAt: string | null;
+  filesCnt: string;
+  id: number;
+  imgCnt: string;
+  imgUrl: string;
+  likeCnt: string;
+  postedAt: string;
+  statusId: number;
+  title: string;
+  updatedAt: string;
+  userId: number;
+  userNickname: string;
+  viewCnt: number;
+}
+
+interface UserCommentInfoType {
+  children: string[];
+  comment: string;
+  created_at: string;
+  deleted_at: string | null;
+  feed: number;
+  id: number;
+  is_private: boolean;
+  parent: number | null;
+  updated_at: string;
+  user: number;
+}
+
 export const MyPage = () => {
   const [isMenuOn, setIsMenuOn] = useState(false);
-  const [loginUserInfo, setLoginUserInfo] = useState<LoginUserType>();
+  const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
+  const [myPageUserInfo, setMyPageUserInfo] = useState<UserInfoType>();
+  const [userFeedInfo, setUserFeedInfo] = useState<UserFeedType[]>([]);
+  const [selectMenu, setSelectMenu] = useState(true);
+  const [userCommentInfo, setUserCommentInfo] = useState<UserCommentInfoType[]>(
+    []
+  );
+  const [isDeleted, setIsDeleted] = useState(true);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
 
   const params = useParams();
-  let feedId = params.id;
+  let userId = params.id;
 
   useEffect(() => {
     axios
-      .get<LoginUserType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
-      .then(response => setLoginUserInfo(response.data));
+      .then(response => {
+        setMyPageUserInfo(response.data);
+      });
+
+    axios
+      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}`, {
+        timeout: 5000,
+        headers: { Accept: 'application/json', Authorization: token },
+      })
+      .then(response => {
+        setLoginUserInfo(response.data);
+      });
+
+    axios
+      .get<UserFeedType[]>(
+        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/feeds`,
+        {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        }
+      )
+      .then(response => setUserFeedInfo(response.data));
   }, []);
+
+  useEffect(() => {
+    if (isDeleted) {
+      axios
+        .get<UserCommentInfoType[]>(
+          `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/comments`,
+          {
+            timeout: 5000,
+            headers: { Accept: 'application/json', Authorization: token },
+          }
+        )
+        .then(response => {
+          setUserCommentInfo(response.data);
+        });
+    }
+  }, [isDeleted]);
+
+  const handleClickMenu = () => {
+    setSelectMenu(!selectMenu);
+  };
 
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MainContainer>
         <WriterInfoContainer>
-          <ItemTitle>{loginUserInfo?.userInfo.nickname}</ItemTitle>
-          {Number(feedId) === loginUserInfo?.userInfo.id && (
-            <div>{loginUserInfo?.userInfo.email}</div>
+          <ItemTitle>{myPageUserInfo?.nickname}</ItemTitle>
+          {Number(loginUserInfo?.id) === Number(userId) && (
+            <div>{myPageUserInfo?.email}</div>
           )}
-          <div>가입일 : {loginUserInfo?.userInfo.created_at.slice(0, -16)}</div>
+          <div>가입일 : {myPageUserInfo?.created_at.slice(0, -16)}</div>
           <ModifyButton>수정하기</ModifyButton>
         </WriterInfoContainer>
         <WriterFeedListContainer>
-          <WriterFeedLisTitle>작성한 리뷰</WriterFeedLisTitle>
-          <div>리뷰 수 : {loginUserInfo?.userFeeds.length}개</div>
-          {loginUserInfo?.userFeeds.map((feed, index) => {
-            return (
-              <Fragment key={feed.id}>
-                <MyFeeds userFeeds={feed} index={index} />
-              </Fragment>
-            );
-          })}
+          <TabMenuContainer>
+            {selectMenu ? (
+              <SelectedMenu onClick={handleClickMenu}>작성한 리뷰</SelectedMenu>
+            ) : (
+              <NoneSelectedMenu onClick={handleClickMenu}>
+                작성한 리뷰
+              </NoneSelectedMenu>
+            )}
+            {selectMenu ? (
+              <NoneSelectedMenu onClick={handleClickMenu}>
+                작성한 댓글
+              </NoneSelectedMenu>
+            ) : (
+              <SelectedMenu onClick={handleClickMenu}>작성한 댓글</SelectedMenu>
+            )}
+          </TabMenuContainer>
+          {selectMenu ? (
+            <Fragment>
+              <div>리뷰 수 : {userFeedInfo?.length}개</div>
+              {userFeedInfo?.map((feed, index) => {
+                return (
+                  <Fragment key={feed.id}>
+                    <MyFeeds userFeeds={feed} index={index} />
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          ) : (
+            <Fragment>
+              <div>댓글 수 : {userCommentInfo?.length}개</div>
+              {userCommentInfo?.map((comment, index) => {
+                return (
+                  <Fragment key={comment.id}>
+                    <MyComments
+                      userComments={comment}
+                      index={index}
+                      setIsDeleted={setIsDeleted}
+                    />
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          )}
         </WriterFeedListContainer>
       </MainContainer>
     </Fragment>
