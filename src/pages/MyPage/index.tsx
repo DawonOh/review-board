@@ -140,6 +140,7 @@ export const MyPage = () => {
   const [isDeleted, setIsDeleted] = useState(true);
   const [currPage, setCurrPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalCommentCount, setTotalCommentCount] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
@@ -191,6 +192,9 @@ export const MyPage = () => {
           setUserCommentInfo(response.data);
         });
     }
+    setTotalCommentCount(
+      userCommentInfo.filter(comment => !comment.deleted_at).length
+    );
   }, [isDeleted]);
 
   useEffect(() => {
@@ -221,7 +225,10 @@ export const MyPage = () => {
           {userFeedInfo?.map((feed, index) => {
             return (
               <Fragment key={feed.id}>
-                <MyFeeds userFeeds={feed} index={index} />
+                <MyFeeds
+                  userFeeds={feed}
+                  index={currPage === 1 ? index : index + (currPage - 1) * 4}
+                />
               </Fragment>
             );
           })}
@@ -244,7 +251,7 @@ export const MyPage = () => {
     if (userCommentInfo?.length) {
       return (
         <Fragment>
-          <div>댓글 수 : {userCommentInfo?.length}개</div>
+          <div>댓글 수 : {totalCommentCount}개</div>
           {userCommentInfo?.map((comment, index) => {
             return (
               <Fragment key={comment.id}>
