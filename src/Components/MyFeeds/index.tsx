@@ -8,6 +8,7 @@ const WriterFeedItem = Styled.div`
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   &:hover {
     box-shadow: 1px 1px 3px 1px #f3f3f3;
@@ -41,6 +42,7 @@ const ItemContent = Styled.div`
   display: -webkit-box;
   margin-bottom: 1em;
   word-wrap: break-word;
+  word-break: break-all;
   -webkit-line-clamp: 2;
   -webkit-box-orient:vertical;
   overflow: hidden;
@@ -76,20 +78,17 @@ const Category = Styled.div`
 
 const ItemBottomInfo = Styled.div`
   display: flex;
-  width: 100%;
   justify-content: space-between;
   align-items: center;
 `;
 
-const LikeAndView = Styled.div`
+const TopInfo = Styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1em;
+  gap: 0.8em;
 `;
 
 const Icon = Styled.img`
-  width: 1em;
+  width: 0.85em;
   margin-right: 0.3em;
 `;
 
@@ -119,31 +118,32 @@ interface UserFeedsType {
 
 export const MyFeeds = ({ userFeeds, index }: UserFeedsType) => {
   return (
-    <Link to={'/feed/' + userFeeds.id}>
-      <WriterFeedItem>
-        <ItemMain>
-          <Index>{index + 1}</Index>
+    <WriterFeedItem>
+      <ItemMain>
+        <Index>{index + 1}</Index>
+        <Link to={'/feed/' + userFeeds.id}>
           <ItemInfo>
-            <Category>{userFeeds.category}</Category>
+            <TopInfo>
+              <Category>{userFeeds.category}</Category>
+              <div>
+                <Icon src={HeartIconImg} alt="좋아요 수 아이콘" />
+                {userFeeds.likeCnt}
+              </div>
+              <div>
+                <Icon src={ViewIconImg} alt="조회수 아이콘" />
+                {userFeeds.viewCnt}
+              </div>
+            </TopInfo>
+
             <ItemTitle>{userFeeds.title}</ItemTitle>
             <ItemContent>{userFeeds.content}</ItemContent>
             <ItemBottomInfo>
               <ItemDates>{userFeeds.createdAt.slice(0, -8)}</ItemDates>
-              <LikeAndView>
-                <div>
-                  <Icon src={HeartIconImg} alt="좋아요 수 아이콘" />
-                  {userFeeds.likeCnt}
-                </div>
-                <div>
-                  <Icon src={ViewIconImg} alt="조회수 아이콘" />
-                  {userFeeds.viewCnt}
-                </div>
-              </LikeAndView>
             </ItemBottomInfo>
           </ItemInfo>
-        </ItemMain>
-        {userFeeds.imgUrl && <ItemImg src={userFeeds.imgUrl} />}
-      </WriterFeedItem>
-    </Link>
+        </Link>
+      </ItemMain>
+      {userFeeds.imgUrl && <ItemImg src={userFeeds.imgUrl} />}
+    </WriterFeedItem>
   );
 };

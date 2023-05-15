@@ -64,7 +64,7 @@ const IndexAndContent = Styled.div`
 `;
 
 const Icon = Styled.img`
-  width: 1em;
+  width: 1.3em;
   margin-right: 0.3em;
 `;
 

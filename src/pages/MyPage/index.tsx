@@ -2,9 +2,10 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Header, MyComments } from 'Components';
 import axios from 'axios';
 import Styled from 'styled-components';
-import { ButtonLayout } from 'Styles/CommonStyle';
+import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
 import { MyFeeds } from 'Components';
+import { Pagination } from '@mui/material';
 
 const MainContainer = Styled.div`
   width: 80%;
@@ -73,6 +74,17 @@ const ModifyButton = Styled.button`
   cursor: pointer;
 `;
 
+const PaginationContainer = Styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const NoResult = Styled.div`
+  width: 100%;
+  height: 100%;
+  ${flexCenterAlign}
+`;
+
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -126,6 +138,8 @@ export const MyPage = () => {
     []
   );
   const [isDeleted, setIsDeleted] = useState(true);
+  const [currPage, setCurrPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
@@ -160,7 +174,7 @@ export const MyPage = () => {
           headers: { Accept: 'application/json', Authorization: token },
         }
       )
-      .then(response => setUserFeedInfo(response.data));
+      .then(response => setTotalCount(response.data.length));
   }, []);
 
   useEffect(() => {
@@ -179,8 +193,74 @@ export const MyPage = () => {
     }
   }, [isDeleted]);
 
+  useEffect(() => {
+    axios
+      .get<UserFeedType[]>(
+        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/feeds?page=${currPage}&limit=4`,
+        {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        }
+      )
+      .then(response => setUserFeedInfo(response.data));
+  }, [currPage]);
+
   const handleClickMenu = () => {
     setSelectMenu(!selectMenu);
+  };
+
+  const handlePagination = (e: React.ChangeEvent<any>) => {
+    setCurrPage(e.target.textContent);
+  };
+
+  const myReview = () => {
+    if (totalCount) {
+      return (
+        <Fragment>
+          <div>리뷰 수 : {totalCount}개</div>
+          {userFeedInfo?.map((feed, index) => {
+            return (
+              <Fragment key={feed.id}>
+                <MyFeeds userFeeds={feed} index={index} />
+              </Fragment>
+            );
+          })}
+          <PaginationContainer>
+            <Pagination
+              count={Math.ceil(totalCount / 4)}
+              page={Number(currPage)}
+              defaultPage={Number(currPage)}
+              onChange={handlePagination}
+            />
+          </PaginationContainer>
+        </Fragment>
+      );
+    } else {
+      return <NoResult>작성한 리뷰가 없습니다😢</NoResult>;
+    }
+  };
+
+  const myComments = () => {
+    if (userCommentInfo?.length) {
+      return (
+        <Fragment>
+          <div>댓글 수 : {userCommentInfo?.length}개</div>
+          {userCommentInfo?.map((comment, index) => {
+            return (
+              <Fragment key={comment.id}>
+                <MyComments
+                  userComments={comment}
+                  index={index}
+                  setIsDeleted={setIsDeleted}
+                />
+              </Fragment>
+            );
+          })}
+        </Fragment>
+      );
+    } else {
+      return <NoResult>작성한 댓글이 없습니다😢</NoResult>;
+    }
   };
 
   return (
@@ -212,33 +292,7 @@ export const MyPage = () => {
               <SelectedMenu onClick={handleClickMenu}>작성한 댓글</SelectedMenu>
             )}
           </TabMenuContainer>
-          {selectMenu ? (
-            <Fragment>
-              <div>리뷰 수 : {userFeedInfo?.length}개</div>
-              {userFeedInfo?.map((feed, index) => {
-                return (
-                  <Fragment key={feed.id}>
-                    <MyFeeds userFeeds={feed} index={index} />
-                  </Fragment>
-                );
-              })}
-            </Fragment>
-          ) : (
-            <Fragment>
-              <div>댓글 수 : {userCommentInfo?.length}개</div>
-              {userCommentInfo?.map((comment, index) => {
-                return (
-                  <Fragment key={comment.id}>
-                    <MyComments
-                      userComments={comment}
-                      index={index}
-                      setIsDeleted={setIsDeleted}
-                    />
-                  </Fragment>
-                );
-              })}
-            </Fragment>
-          )}
+          {selectMenu ? myReview() : myComments()}
         </WriterFeedListContainer>
       </MainContainer>
     </Fragment>
