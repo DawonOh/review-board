@@ -1,4 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, {
+  ForwardedRef,
+  Fragment,
+  forwardRef,
+  useEffect,
+  useState,
+} from 'react';
 import axios from 'axios';
 import Styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -6,7 +12,9 @@ import ReplyIconImg from '../../assets/images/reply.png';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { AlertModal } from 'Components/AlertModal';
 
-const CommentContainer = Styled.div`
+const CommentContainer = Styled.div<{
+  ref?: ForwardedRef<HTMLDivElement> | null;
+}>`
   display: flex;
   width: 100%;
   padding: 0.3em;
@@ -36,7 +44,7 @@ const Index = Styled.div`
 
 const ItemContent = Styled.div`
   display: -webkit-box;
-  margin-bottom: 1em;
+  margin-bottom: 0.8em;
   word-wrap: break-word;
   -webkit-line-clamp: 1;
   -webkit-box-orient:vertical;
@@ -65,7 +73,7 @@ const IndexAndContent = Styled.div`
 
 const Icon = Styled.img`
   width: 1.3em;
-  margin-right: 0.3em;
+  margin: 0 0.1em 0.8em 0;
 `;
 
 const Flex = Styled.div`
@@ -96,11 +104,10 @@ interface MessageType {
   text: string;
 }
 
-export const MyComments = ({
-  userComments,
-  index,
-  setIsDeleted,
-}: UserCommentInfoType) => {
+const MyComments = (
+  { userComments, index, setIsDeleted }: UserCommentInfoType,
+  ref: ForwardedRef<HTMLDivElement> | null
+) => {
   //AlertModal open 여부
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
@@ -134,6 +141,7 @@ export const MyComments = ({
   };
   useEffect(() => {
     if (result) {
+      setIsDeleted(false);
       axios
         .delete(`${BACK_URL}:${BACK_PORT}/comments/${userComments.id}`, {
           timeout: 5000,
@@ -163,16 +171,18 @@ export const MyComments = ({
   return (
     <Fragment>
       {userComments.deleted_at === null && (
-        <CommentContainer>
+        <CommentContainer ref={ref}>
           <Link to={'/feed/' + userComments.feed}>
             <IndexAndContent>
               <Index>{index + 1}</Index>
               <Flex>
-                {userComments.parent && (
-                  <Icon src={ReplyIconImg} alt="대댓글" />
-                )}
                 <ItemInfo>
-                  <ItemContent>{userComments.comment}</ItemContent>
+                  <Flex>
+                    {userComments.parent && (
+                      <Icon src={ReplyIconImg} alt="대댓글" />
+                    )}
+                    <ItemContent>{userComments.comment}</ItemContent>
+                  </Flex>
                   <ItemDates>{userComments.created_at.slice(0, -8)}</ItemDates>
                 </ItemInfo>
               </Flex>
@@ -181,8 +191,9 @@ export const MyComments = ({
           <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
         </CommentContainer>
       )}
-
       {openAlertModal()}
     </Fragment>
   );
 };
+
+export default forwardRef(MyComments);

@@ -1,11 +1,18 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Header, MyComments } from 'Components';
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Header } from 'Components';
 import axios from 'axios';
 import Styled from 'styled-components';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
 import { MyFeeds } from 'Components';
 import { Pagination } from '@mui/material';
+import MyComments from 'Components/MyComments';
 
 const MainContainer = Styled.div`
   width: 80%;
@@ -85,6 +92,28 @@ const NoResult = Styled.div`
   ${flexCenterAlign}
 `;
 
+const Loader = Styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2em;
+  height: 2em;
+  border: 5px solid #cddeff;
+  border-radius: 50%;
+  border-top: 5px solid #fff;
+  animation: spin 2s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -134,13 +163,15 @@ export const MyPage = () => {
   const [myPageUserInfo, setMyPageUserInfo] = useState<UserInfoType>();
   const [userFeedInfo, setUserFeedInfo] = useState<UserFeedType[]>([]);
   const [selectMenu, setSelectMenu] = useState(true);
-  const [userCommentInfo, setUserCommentInfo] = useState<UserCommentInfoType[]>(
-    []
-  );
   const [isDeleted, setIsDeleted] = useState(true);
   const [currPage, setCurrPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [totalCommentCount, setTotalCommentCount] = useState(0);
+  const [pageNum, setPageNum] = useState(1);
+  const [commentCount, setCommentCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [commentList, setCommentList] = useState<UserCommentInfoType[]>([]);
+  const [hasMore, setHasMore] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
@@ -179,6 +210,40 @@ export const MyPage = () => {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
+    const controller = new AbortController();
+    axios
+      .get<UserCommentInfoType[]>(
+        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/comments?index=${pageNum}&limit=10`,
+        {
+          timeout: 5000,
+          signal: controller.signal,
+          headers: { token: token },
+        }
+      )
+      .then(res => {
+        setCommentList(prevCommentList => {
+          return [
+            ...new Set([
+              ...prevCommentList,
+              ...res.data.filter(comment => !comment.deleted_at),
+            ]),
+          ];
+        });
+        setHasMore(res.data.length > 0);
+        setLoading(false);
+      })
+      .catch(error => {
+        if (error.name === 'AbortError') {
+          return;
+        }
+        setError(true);
+      });
+    return () => controller.abort();
+  }, [pageNum]);
+
+  useEffect(() => {
     if (isDeleted) {
       axios
         .get<UserCommentInfoType[]>(
@@ -189,13 +254,37 @@ export const MyPage = () => {
           }
         )
         .then(response => {
-          setUserCommentInfo(response.data);
+          setCommentCount(
+            response.data.filter(comment => !comment.deleted_at).length
+          );
         });
     }
-    setTotalCommentCount(
-      userCommentInfo.filter(comment => !comment.deleted_at).length
-    );
   }, [isDeleted]);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastCommentElementRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPageNum((prevPageNumber: number) => prevPageNumber + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
+  console.log(pageNum);
+
+  useEffect(() => {
+    if (error) {
+      alert('잠시 후 다시 시도해주세요.');
+    }
+  }, [error]);
 
   useEffect(() => {
     axios
@@ -248,28 +337,41 @@ export const MyPage = () => {
   };
 
   const myComments = () => {
-    if (userCommentInfo?.length) {
+    if (commentList?.length) {
       return (
         <Fragment>
-          <div>댓글 수 : {totalCommentCount}개</div>
-          {userCommentInfo?.map((comment, index) => {
-            return (
-              <Fragment key={comment.id}>
-                <MyComments
-                  userComments={comment}
-                  index={index}
-                  setIsDeleted={setIsDeleted}
-                />
-              </Fragment>
-            );
-          })}
+          <div>댓글 수 :{commentCount}개</div>
+          {commentList
+            .filter(comment => !comment.deleted_at)
+            ?.map((comment, index) => {
+              if (commentList.length === index + 1) {
+                return (
+                  <MyComments
+                    key={comment.id}
+                    ref={lastCommentElementRef}
+                    userComments={comment}
+                    index={index}
+                    setIsDeleted={setIsDeleted}
+                  />
+                );
+              } else {
+                return (
+                  <MyComments
+                    key={comment.id}
+                    userComments={comment}
+                    index={index}
+                    setIsDeleted={setIsDeleted}
+                  />
+                );
+              }
+            })}
+          {loading && <Loader />}
         </Fragment>
       );
     } else {
       return <NoResult>작성한 댓글이 없습니다😢</NoResult>;
     }
   };
-
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
