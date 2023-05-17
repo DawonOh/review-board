@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Header } from 'Components';
+import { Header, MobileMenu } from 'Components';
 import axios from 'axios';
 import Styled from 'styled-components';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
@@ -28,9 +28,16 @@ const MainContainer = Styled.div`
 `;
 
 const WriterInfoContainer = Styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
   min-width: 25%;
   height: 70vh;
   padding: 1em;
+  @media (max-width: 767px) {
+    padding: 2em;
+    height: 100%;
+  }
 `;
 
 const WriterFeedListContainer = Styled.div`
@@ -214,11 +221,9 @@ export const MyPage = () => {
     setError(false);
     let headers;
     if (token) {
-      headers = {
-        token: token,
-      };
+      headers = { Accept: 'application/json', token: token };
     } else {
-      headers = {};
+      headers = { Accept: 'application/json' };
     }
     const controller = new AbortController();
     axios
@@ -333,6 +338,7 @@ export const MyPage = () => {
               page={Number(currPage)}
               defaultPage={Number(currPage)}
               onChange={handlePagination}
+              size="small"
             />
           </PaginationContainer>
         </Fragment>
@@ -346,7 +352,7 @@ export const MyPage = () => {
     if (commentList?.length) {
       return (
         <Fragment>
-          <div>댓글 수 :{commentCount}개</div>
+          <div>댓글 수 : {commentCount}개</div>
           {commentList
             .filter(comment => !comment.deleted_at)
             ?.map((comment, index) => {
@@ -383,6 +389,11 @@ export const MyPage = () => {
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu
+        isMenuOn={isMenuOn}
+        setIsMenuOn={setIsMenuOn}
+        loginUserId={loginUserInfo?.id}
+      />
       <MainContainer>
         <WriterInfoContainer>
           <ItemTitle>{myPageUserInfo?.nickname}</ItemTitle>

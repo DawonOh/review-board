@@ -17,6 +17,10 @@ const WriterFeedItem = Styled.div`
   &:not(:hover) {
     transition-duration: 300ms;
   }
+  @media (max-width: 767px) {
+    padding: 1em;
+    flex-direction: column;
+  }
 `;
 
 const ItemInfo = Styled.div`
@@ -30,6 +34,9 @@ const Index = Styled.div`
   height: 100%;
   min-height: 8em;
   background-color: #EEF2FF;
+  @media (max-width: 767px) {
+    min-width: 1em;
+  }
 `;
 
 const ItemTitle = Styled.div`
@@ -74,6 +81,11 @@ const Category = Styled.div`
   color: #fff;
   font-size: 0.85em;
   border-radius: 5px;
+  @media (max-width: 767px) {
+    width: auto;
+    margin-bottom: 0.3em;
+    text-align: center;
+  }
 `;
 
 const ItemBottomInfo = Styled.div`
@@ -85,11 +97,21 @@ const ItemBottomInfo = Styled.div`
 const TopInfo = Styled.div`
   display: flex;
   gap: 0.8em;
+  @media (max-width: 767px) {
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0.5em;
+  }
 `;
 
 const Icon = Styled.img`
   width: 0.85em;
   margin-right: 0.3em;
+`;
+
+const Flex = Styled.div`
+  display: flex;
+  gap: 1em;
 `;
 
 interface UserFeedsType {
@@ -125,16 +147,17 @@ export const MyFeeds = ({ userFeeds, index }: UserFeedsType) => {
           <ItemInfo>
             <TopInfo>
               <Category>{userFeeds.category}</Category>
-              <div>
-                <Icon src={HeartIconImg} alt="좋아요 수 아이콘" />
-                {userFeeds.likeCnt}
-              </div>
-              <div>
-                <Icon src={ViewIconImg} alt="조회수 아이콘" />
-                {userFeeds.viewCnt}
-              </div>
+              <Flex>
+                <div>
+                  <Icon src={HeartIconImg} alt="좋아요 수 아이콘" />
+                  {userFeeds.likeCnt}
+                </div>
+                <div>
+                  <Icon src={ViewIconImg} alt="조회수 아이콘" />
+                  {userFeeds.viewCnt}
+                </div>
+              </Flex>
             </TopInfo>
-
             <ItemTitle>{userFeeds.title}</ItemTitle>
             <ItemContent>{userFeeds.content}</ItemContent>
             <ItemBottomInfo>

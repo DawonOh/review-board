@@ -388,7 +388,11 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
             )}
 
             <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-            <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+            <MobileMenu
+              isMenuOn={isMenuOn}
+              setIsMenuOn={setIsMenuOn}
+              loginUserId={loginUserId}
+            />
           </RightContents>
         </CenterContainer>
       </HeaderContainer>
