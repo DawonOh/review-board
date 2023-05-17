@@ -166,7 +166,7 @@ export const MyPage = () => {
   const [isDeleted, setIsDeleted] = useState(true);
   const [currPage, setCurrPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageNum, setPageNum] = useState(1);
+  const [pageNum, setPageNum] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -270,15 +270,13 @@ export const MyPage = () => {
 
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting && hasMore) {
-          setPageNum((prevPageNumber: number) => prevPageNumber + 1);
+          setPageNum((prevPageNumber: number) => prevPageNumber + 10);
         }
       });
       if (node) observer.current.observe(node);
     },
     [loading, hasMore]
   );
-
-  console.log(pageNum);
 
   useEffect(() => {
     if (error) {
