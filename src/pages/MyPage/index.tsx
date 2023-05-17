@@ -181,16 +181,16 @@ export const MyPage = () => {
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}`, {
         timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
+        headers: { Accept: 'application/json' },
       })
       .then(response => {
         setMyPageUserInfo(response.data);
       });
 
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}`, {
+      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -212,6 +212,14 @@ export const MyPage = () => {
   useEffect(() => {
     setLoading(true);
     setError(false);
+    let headers;
+    if (token) {
+      headers = {
+        token: token,
+      };
+    } else {
+      headers = {};
+    }
     const controller = new AbortController();
     axios
       .get<UserCommentInfoType[]>(
@@ -219,7 +227,7 @@ export const MyPage = () => {
         {
           timeout: 5000,
           signal: controller.signal,
-          headers: { token: token },
+          headers: headers,
         }
       )
       .then(res => {
@@ -350,6 +358,7 @@ export const MyPage = () => {
                     userComments={comment}
                     index={index}
                     setIsDeleted={setIsDeleted}
+                    loginUserId={loginUserInfo?.id}
                   />
                 );
               } else {
@@ -359,6 +368,7 @@ export const MyPage = () => {
                     userComments={comment}
                     index={index}
                     setIsDeleted={setIsDeleted}
+                    loginUserId={loginUserInfo?.id}
                   />
                 );
               }
@@ -380,7 +390,9 @@ export const MyPage = () => {
             <div>{myPageUserInfo?.email}</div>
           )}
           <div>가입일 : {myPageUserInfo?.created_at.slice(0, -16)}</div>
-          <ModifyButton>수정하기</ModifyButton>
+          {loginUserInfo?.id === Number(userId) && (
+            <ModifyButton>수정하기</ModifyButton>
+          )}
         </WriterInfoContainer>
         <WriterFeedListContainer>
           <TabMenuContainer>

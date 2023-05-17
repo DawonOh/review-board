@@ -7,8 +7,9 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import Styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import ReplyIconImg from '../../assets/images/reply.png';
+import LockIconImg from '../../assets/images/lock.png';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { AlertModal } from 'Components/AlertModal';
 
@@ -79,7 +80,6 @@ const Icon = Styled.img`
 const Flex = Styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
 `;
 
 interface UserCommentInfoType {
@@ -97,6 +97,7 @@ interface UserCommentInfoType {
   };
   index: number;
   setIsDeleted: Function;
+  loginUserId: number | undefined;
 }
 
 interface MessageType {
@@ -105,7 +106,7 @@ interface MessageType {
 }
 
 const MyComments = (
-  { userComments, index, setIsDeleted }: UserCommentInfoType,
+  { userComments, index, setIsDeleted, loginUserId }: UserCommentInfoType,
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   //AlertModal open 여부
@@ -119,6 +120,9 @@ const MyComments = (
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const token = localStorage.getItem('token');
+
+  const params = useParams();
+  let userId = params.id;
 
   const openAlertModal = () => {
     if (isAlertModalOpen) {
@@ -181,14 +185,23 @@ const MyComments = (
                     {userComments.parent && (
                       <Icon src={ReplyIconImg} alt="대댓글" />
                     )}
-                    <ItemContent>{userComments.comment}</ItemContent>
+                    {userComments.is_private && (
+                      <Icon src={LockIconImg} alt="비밀댓글" />
+                    )}
+                    <ItemContent>
+                      {userComments.is_private
+                        ? '비밀댓글입니다.'
+                        : userComments.comment}
+                    </ItemContent>
                   </Flex>
                   <ItemDates>{userComments.created_at.slice(0, -8)}</ItemDates>
                 </ItemInfo>
               </Flex>
             </IndexAndContent>
           </Link>
-          <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
+          {loginUserId === Number(userId) && (
+            <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
+          )}
         </CommentContainer>
       )}
       {openAlertModal()}
