@@ -82,21 +82,28 @@ const Flex = Styled.div`
   align-items: center;
 `;
 
+const DeletedCommentFont = Styled.div`
+  color: #bdbdbd;
+`;
+
 interface UserCommentInfoType {
   userComments: {
-    children: string[];
     comment: string;
     created_at: string;
-    deleted_at: string | null;
-    feed: number;
+    deleted_at: null | string;
+    feed: {
+      id: number;
+      user: {
+        id: number;
+      };
+    };
     id: number;
     is_private: boolean;
-    parent: number | null;
+    parent: { id: 65; user: { id: number } };
     updated_at: string;
-    user: number;
+    user: { id: number };
   };
   index: number;
-  setIsDeleted: Function;
   loginUserId: number | undefined;
 }
 
@@ -106,7 +113,7 @@ interface MessageType {
 }
 
 const MyComments = (
-  { userComments, index, setIsDeleted, loginUserId }: UserCommentInfoType,
+  { userComments, index, loginUserId }: UserCommentInfoType,
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   //AlertModal open 여부
@@ -117,6 +124,8 @@ const MyComments = (
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
   //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
   const [result, setResult] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDeleted, setIsDeleted] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const token = localStorage.getItem('token');
@@ -145,7 +154,6 @@ const MyComments = (
   };
   useEffect(() => {
     if (result) {
-      setIsDeleted(false);
       axios
         .delete(`${BACK_URL}:${BACK_PORT}/comments/${userComments.id}`, {
           timeout: 5000,
@@ -172,38 +180,53 @@ const MyComments = (
         });
     }
   }, [result]);
+
+  useEffect(() => {
+    if (userComments.deleted_at !== null || isDeleted) {
+      setContent('삭제된 댓글입니다.');
+      return;
+    }
+    if (userComments.is_private) {
+      setContent('비밀댓글입니다.');
+      return;
+    }
+    setContent(userComments.comment);
+  }, [isDeleted]);
+
   return (
     <Fragment>
-      {userComments.deleted_at === null && (
-        <CommentContainer ref={ref}>
-          <Link to={'/feed/' + userComments.feed}>
-            <IndexAndContent>
-              <Index>{index + 1}</Index>
-              <Flex>
-                <ItemInfo>
-                  <Flex>
-                    {userComments.parent && (
-                      <Icon src={ReplyIconImg} alt="대댓글" />
+      <CommentContainer ref={ref}>
+        <Link to={'/feed/' + userComments.feed.id}>
+          <IndexAndContent>
+            <Index>{index + 1}</Index>
+            <Flex>
+              <ItemInfo>
+                <Flex>
+                  {userComments.parent &&
+                    userComments.deleted_at === null &&
+                    !isDeleted && <Icon src={ReplyIconImg} alt="대댓글" />}
+                  {userComments.is_private &&
+                    userComments.deleted_at === null &&
+                    !isDeleted && <Icon src={LockIconImg} alt="비밀댓글" />}
+                  <ItemContent>
+                    {userComments.deleted_at !== null || isDeleted ? (
+                      <DeletedCommentFont>{content}</DeletedCommentFont>
+                    ) : (
+                      content
                     )}
-                    {userComments.is_private && (
-                      <Icon src={LockIconImg} alt="비밀댓글" />
-                    )}
-                    <ItemContent>
-                      {userComments.is_private
-                        ? '비밀댓글입니다.'
-                        : userComments.comment}
-                    </ItemContent>
-                  </Flex>
-                  <ItemDates>{userComments.created_at.slice(0, -8)}</ItemDates>
-                </ItemInfo>
-              </Flex>
-            </IndexAndContent>
-          </Link>
-          {loginUserId === Number(userId) && (
+                  </ItemContent>
+                </Flex>
+                <ItemDates>{userComments.created_at.slice(0, -8)}</ItemDates>
+              </ItemInfo>
+            </Flex>
+          </IndexAndContent>
+        </Link>
+        {loginUserId === Number(userId) &&
+          userComments.deleted_at === null &&
+          !isDeleted && (
             <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
           )}
-        </CommentContainer>
-      )}
+      </CommentContainer>
       {openAlertModal()}
     </Fragment>
   );

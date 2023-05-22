@@ -67,7 +67,7 @@ interface PropsType {
 }
 
 export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
-  const [pageNum, setPageNum] = useState(1);
+  const [pageNum, setPageNum] = useState(0);
   const { cardList, hasMore, loading, error } = useCardList(
     pageNum,
     categoryId
@@ -76,7 +76,7 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
     if (setIsNotEmpty && cardList.length !== 0) setIsNotEmpty(true);
   }, [cardList]);
   useEffect(() => {
-    setPageNum(1);
+    setPageNum(0);
   }, [categoryId]);
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -87,7 +87,7 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
 
       observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting && hasMore) {
-          setPageNum((prevPageNumber: number) => prevPageNumber + 1);
+          setPageNum((prevPageNumber: number) => prevPageNumber + 10);
         }
       });
       if (node) observer.current.observe(node);

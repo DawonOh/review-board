@@ -20,6 +20,7 @@ interface cardListType {
   postedAt: string;
   deletedAt: string | null;
   statusId: number;
+  imgCnt: string;
 }
 
 export const useCardList = (pageNumber: number, categoryId: any) => {
@@ -71,7 +72,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
       axios({
         method: 'GET',
         url: `${BACK_URL}:${BACK_PORT}/feeds/post`,
-        params: { index: pageNumber, categoryId: categoryId },
+        params: { index: pageNumber, categoryId: categoryId, limit: 10 },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
         }),

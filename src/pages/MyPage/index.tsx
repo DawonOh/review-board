@@ -121,6 +121,10 @@ const Loader = Styled.div`
   }
 `;
 
+const SmallFont = Styled.p`
+  font-size: 0.8em;
+`;
+
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -151,17 +155,33 @@ interface UserFeedType {
   viewCnt: number;
 }
 
+interface UserFeedInfoType {
+  feedCntByUserId: number;
+  feedListByUserId: UserFeedType[];
+  totalPage: number;
+}
+
 interface UserCommentInfoType {
-  children: string[];
   comment: string;
   created_at: string;
-  deleted_at: string | null;
-  feed: number;
+  deleted_at: null | string;
+  feed: {
+    id: number;
+    user: {
+      id: number;
+    };
+  };
   id: number;
   is_private: boolean;
-  parent: number | null;
+  parent: { id: 65; user: { id: number } };
   updated_at: string;
-  user: number;
+  user: { id: number };
+}
+
+interface UserCommentType {
+  commentCntByUserId: number;
+  commentListByUserId: UserCommentInfoType[];
+  totalScrollCnt: number;
 }
 
 export const MyPage = () => {
@@ -170,9 +190,9 @@ export const MyPage = () => {
   const [myPageUserInfo, setMyPageUserInfo] = useState<UserInfoType>();
   const [userFeedInfo, setUserFeedInfo] = useState<UserFeedType[]>([]);
   const [selectMenu, setSelectMenu] = useState(true);
-  const [isDeleted, setIsDeleted] = useState(true);
   const [currPage, setCurrPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
   const [pageNum, setPageNum] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -204,18 +224,7 @@ export const MyPage = () => {
       .then(response => {
         setLoginUserInfo(response.data);
       });
-
-    axios
-      .get<UserFeedType[]>(
-        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/feeds`,
-        {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        }
-      )
-      .then(response => setTotalCount(response.data.length));
   }, []);
-
   useEffect(() => {
     setLoading(true);
     setError(false);
@@ -227,7 +236,7 @@ export const MyPage = () => {
     }
     const controller = new AbortController();
     axios
-      .get<UserCommentInfoType[]>(
+      .get<UserCommentType>(
         `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/comments?index=${pageNum}&limit=10`,
         {
           timeout: 5000,
@@ -238,13 +247,11 @@ export const MyPage = () => {
       .then(res => {
         setCommentList(prevCommentList => {
           return [
-            ...new Set([
-              ...prevCommentList,
-              ...res.data.filter(comment => !comment.deleted_at),
-            ]),
+            ...new Set([...prevCommentList, ...res.data.commentListByUserId]),
           ];
         });
-        setHasMore(res.data.length > 0);
+        setCommentCount(res.data.commentCntByUserId);
+        setHasMore(res.data.commentListByUserId.length > 0);
         setLoading(false);
       })
       .catch(error => {
@@ -253,26 +260,9 @@ export const MyPage = () => {
         }
         setError(true);
       });
+
     return () => controller.abort();
   }, [pageNum]);
-
-  useEffect(() => {
-    if (isDeleted) {
-      axios
-        .get<UserCommentInfoType[]>(
-          `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/comments`,
-          {
-            timeout: 5000,
-            headers: { Accept: 'application/json', Authorization: token },
-          }
-        )
-        .then(response => {
-          setCommentCount(
-            response.data.filter(comment => !comment.deleted_at).length
-          );
-        });
-    }
-  }, [isDeleted]);
 
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -299,14 +289,18 @@ export const MyPage = () => {
 
   useEffect(() => {
     axios
-      .get<UserFeedType[]>(
+      .get<UserFeedInfoType>(
         `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/feeds?page=${currPage}&limit=4`,
         {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         }
       )
-      .then(response => setUserFeedInfo(response.data));
+      .then(response => {
+        setUserFeedInfo(response.data.feedListByUserId);
+        setTotalCount(response.data.feedCntByUserId);
+        setTotalPage(response.data.totalPage);
+      });
   }, [currPage]);
 
   const handleClickMenu = () => {
@@ -334,7 +328,7 @@ export const MyPage = () => {
           })}
           <PaginationContainer>
             <Pagination
-              count={Math.ceil(totalCount / 4)}
+              count={totalPage}
               page={Number(currPage)}
               defaultPage={Number(currPage)}
               onChange={handlePagination}
@@ -353,32 +347,28 @@ export const MyPage = () => {
       return (
         <Fragment>
           <div>댓글 수 : {commentCount}개</div>
-          {commentList
-            .filter(comment => !comment.deleted_at)
-            ?.map((comment, index) => {
-              if (commentList.length === index + 1) {
-                return (
-                  <MyComments
-                    key={comment.id}
-                    ref={lastCommentElementRef}
-                    userComments={comment}
-                    index={index}
-                    setIsDeleted={setIsDeleted}
-                    loginUserId={loginUserInfo?.id}
-                  />
-                );
-              } else {
-                return (
-                  <MyComments
-                    key={comment.id}
-                    userComments={comment}
-                    index={index}
-                    setIsDeleted={setIsDeleted}
-                    loginUserId={loginUserInfo?.id}
-                  />
-                );
-              }
-            })}
+          {commentList?.map((comment, index) => {
+            if (commentList.length === index + 1) {
+              return (
+                <MyComments
+                  key={comment.id}
+                  ref={lastCommentElementRef}
+                  userComments={comment}
+                  index={index}
+                  loginUserId={loginUserInfo?.id}
+                />
+              );
+            } else {
+              return (
+                <MyComments
+                  key={comment.id}
+                  userComments={comment}
+                  index={index}
+                  loginUserId={loginUserInfo?.id}
+                />
+              );
+            }
+          })}
           {loading && <Loader />}
         </Fragment>
       );
