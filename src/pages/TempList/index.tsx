@@ -130,6 +130,7 @@ export const TempList = () => {
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [tempFeedId, setTempFeedId] = useState(0);
+  const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const [tempData, setTempData] = useState<TempType[]>([]);
@@ -186,10 +187,25 @@ export const TempList = () => {
     }
   }, [result]);
 
+  useEffect(() => {
+    if (token) {
+      axios
+        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        })
+        .then(response => setLoginUserId(response.data.id));
+    }
+  }, [token]);
+
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu
+        isMenuOn={isMenuOn}
+        setIsMenuOn={setIsMenuOn}
+        loginUserId={loginUserId}
+      />
       <ListContainer>
         <Container>
           <Title>임시 저장 목록</Title>

@@ -5,6 +5,7 @@ import SearchIcon from '../../assets/images/search.png';
 import SearchFailIcon from '../../assets/images/searchFail.png';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ButtonLayout } from 'Styles/CommonStyle';
+import axios from 'axios';
 
 const MainContainer = Styled.div`
   width: 100%;
@@ -99,6 +100,9 @@ export const SearchPage = () => {
   const [searchValue, setSearchValue] = useState('');
   const [queryValue, setQueryValue] = useState<string>('');
   const [isNotEmpty, setIsNotEmpty] = useState(false);
+  const [loginUserId, setLoginUserId] = useState(0);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let location = useLocation();
   let params = new URLSearchParams(location.search);
   let query = params.get('query');
@@ -124,10 +128,27 @@ export const SearchPage = () => {
     }
   };
 
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    if (token) {
+      axios
+        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        })
+        .then(response => setLoginUserId(response.data.id));
+    }
+  }, [token]);
+
   return (
     <MainContainer>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu
+        isMenuOn={isMenuOn}
+        setIsMenuOn={setIsMenuOn}
+        loginUserId={loginUserId}
+      />
       <SearchContainer>
         <SearchImg />
         <SearchInput

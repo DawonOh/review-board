@@ -456,7 +456,9 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
               <ViewIcon />
               <span>{detailContent?.result.viewCnt}</span>
             </ViewCntContainer>
-            <BoldFont>by {detailContent?.result.user.nickname}</BoldFont>
+            <Link to={`/channel/${detailContent?.result.user.id}`}>
+              <BoldFont>by {detailContent?.result.user.nickname}</BoldFont>
+            </Link>
           </Buttons>
         </BothSideContainer>
       </ContentContainer>

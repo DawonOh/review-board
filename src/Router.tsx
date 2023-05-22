@@ -1,6 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Join, MainPage, Feed, WriteFeed, TempList, SearchPage } from 'pages';
+import {
+  Join,
+  MainPage,
+  Feed,
+  WriteFeed,
+  TempList,
+  SearchPage,
+  MyPage,
+} from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
 const Router = () => {
@@ -14,6 +22,7 @@ const Router = () => {
         <Route path="/writeFeed" element={<WriteFeed />} />
         <Route path="/temp/list" element={<TempList />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/channel/:id" element={<MyPage />} />
       </Routes>
     </BrowserRouter>
   );
