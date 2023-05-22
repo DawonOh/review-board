@@ -6,6 +6,7 @@ import Styled from 'styled-components';
 import ToggleImg from '../../assets/images/toggleDown.png';
 import FirstIcon from '../../assets/images/first.png';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const MainContainer = Styled.div`
   width: 100%;
@@ -165,10 +166,18 @@ export const MainPage = () => {
   const [countIdx, setCountIdx] = useState(0);
   const [isLogin, setIsLogin] = useState(false);
   const [isNotEmpty, setIsNotEmpty] = useState(false);
+  const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
+
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    token && setIsLogin(true);
+    !token && setIsLogin(false);
+  }, []);
+
   useEffect(() => {
     fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
       headers: requestHeaders,
@@ -178,11 +187,17 @@ export const MainPage = () => {
         setCategoryList([{ id: 0, category: '전체보기' }, ...json]);
       });
   }, []);
-  const token = localStorage.getItem('token');
+
   useEffect(() => {
-    token && setIsLogin(true);
-    !token && setIsLogin(false);
-  }, []);
+    if (token) {
+      axios
+        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        })
+        .then(response => setLoginUserId(response.data.id));
+    }
+  }, [token]);
 
   const toggleDown = () => {
     if (isToggleOpen === 'close' || isToggleOpen === 'none') {
@@ -197,7 +212,11 @@ export const MainPage = () => {
   return (
     <MainContainer>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu
+        isMenuOn={isMenuOn}
+        setIsMenuOn={setIsMenuOn}
+        loginUserId={loginUserId}
+      />
       <CategoryContainer>
         <div>
           <CategoryButton onClick={toggleDown}>

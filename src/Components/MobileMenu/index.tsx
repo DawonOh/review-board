@@ -4,6 +4,7 @@ import { Login } from 'Components/Login';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import PersonIcon from '../../assets/images/person.png';
 
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
   width: 100%;
@@ -65,6 +66,7 @@ const LogoutButton = Styled.button`
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
+  loginUserId: number | undefined;
 }
 
 interface MenuProps {
@@ -74,7 +76,7 @@ interface MenuProps {
   link: string;
 }
 
-export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
+export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
   const [menuList, setMenuList] = useState([]);
 
   let token = localStorage.getItem('token');
@@ -118,6 +120,12 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn }: Props) => {
             </Fragment>
           );
         })}
+        <Link to={`/channel/${loginUserId}`}>
+          <MenuItem>
+            <MenuIcon src={PersonIcon} alt="내 채널 아이콘" />
+            마이페이지
+          </MenuItem>
+        </Link>
         {token ? (
           <LogoutButton onClick={logout}>로그아웃</LogoutButton>
         ) : (
