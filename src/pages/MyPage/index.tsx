@@ -122,10 +122,6 @@ const Loader = Styled.div`
   }
 `;
 
-const SmallFont = Styled.p`
-  font-size: 0.8em;
-`;
-
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -393,7 +389,7 @@ export const MyPage = () => {
           )}
           <div>가입일 : {myPageUserInfo?.created_at.slice(0, -16)}</div>
           {loginUserInfo?.id === Number(userId) && (
-            <Link to="/changeinfo">
+            <Link to="/changeinfo" state={{ loginUserId: loginUserInfo?.id }}>
               <ModifyButton>수정하기</ModifyButton>
             </Link>
           )}
