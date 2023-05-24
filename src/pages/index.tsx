@@ -5,3 +5,4 @@ export * from './Write';
 export * from './TempList';
 export * from './Search';
 export * from './MyPage';
+export * from './ModifyInfo';
