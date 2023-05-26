@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { Header, MobileMenu } from 'Components';
+import { AlertModal, Header, MobileMenu } from 'Components';
 import axios from 'axios';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
@@ -115,12 +115,51 @@ interface UserInfoType {
   updated_at: string;
 }
 
+interface ChangeUserInfoType {
+  message: string;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    nickname: string;
+    email: string;
+  };
+}
+
+interface MessageType {
+  id: number;
+  text: string;
+}
+
 export const ModifyInfoPage = () => {
   const [isMenuOn, setIsMenuOn] = useState(false);
   const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
+  const [newNickName, setNewNickName] = useState('');
+  const [changedNickName, setChangedNickName] = useState('');
+
+  // 알림창을 위한 state
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isQuestion, setIsQuestion] = useState(false);
+  const [result, setResult] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={messages}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
+
   useEffect(() => {
     axios
       .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
@@ -131,6 +170,55 @@ export const ModifyInfoPage = () => {
         setLoginUserInfo(response.data);
       });
   }, []);
+
+  const getNickName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewNickName(e.target.value);
+  };
+
+  const changeNickName = () => {
+    setMessages([{ id: 1, text: '변경하시겠습니까?' }]);
+    setIsQuestion(true);
+    setIsAlertModalOpen(true);
+    setResult(false);
+  };
+
+  useEffect(() => {
+    if (result) {
+      axios
+        .patch<ChangeUserInfoType>(
+          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          { nickname: newNickName },
+          {
+            timeout: 5000,
+            headers: { Accept: 'application/json', Authorization: token },
+          }
+        )
+        .then(response => {
+          setChangedNickName(response.data.result.nickname);
+          setMessages([{ id: 1, text: '변경되었습니다.' }]);
+          setIsQuestion(false);
+          setIsAlertModalOpen(true);
+        })
+        .catch(error => {
+          if (error.response.status === 409) {
+            setMessages([{ id: 1, text: '이미 존재하는 닉네임입니다.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+          if (error.response.status === 400) {
+            setMessages([{ id: 1, text: '새로운 닉네임을 입력해주세요.' }]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
+            return;
+          }
+          setMessages([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
+          setIsQuestion(false);
+          setIsAlertModalOpen(true);
+          return;
+        });
+    }
+  }, [result]);
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
@@ -148,13 +236,20 @@ export const ModifyInfoPage = () => {
             <CenterDiv>
               <Item>닉네임</Item>
               <Item>
-                <Input />
+                <Input
+                  defaultValue={
+                    changedNickName ? changedNickName : loginUserInfo.nickname
+                  }
+                  onChange={getNickName}
+                />
               </Item>
               <Item>
-                <Button color="gray">변경하기</Button>
+                <Button color="gray" onClick={changeNickName}>
+                  변경하기
+                </Button>
               </Item>
               <Item>이메일</Item>
-              <Item>example@email.com</Item>
+              <Item>{loginUserInfo.email}</Item>
               <Item>비밀번호</Item>
               <Item>
                 <Button color="gray">비밀번호 수정</Button>
@@ -174,6 +269,7 @@ export const ModifyInfoPage = () => {
       ) : (
         <MainContainer>404</MainContainer>
       )}
+      {openAlertModal()}
     </Fragment>
   );
 };
