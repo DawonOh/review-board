@@ -6,3 +6,4 @@ export * from './TempList';
 export * from './Search';
 export * from './MyPage';
 export * from './ModifyInfo';
+export * from './Quit';

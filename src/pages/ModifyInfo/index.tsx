@@ -45,7 +45,6 @@ const CenterDiv = Styled.div`
 
 const Input = Styled.input`
   width: 20em;
-  height: 2em;
   margin-right: 1em;
   padding: 0.6em;
   font-size: 1em;
@@ -256,11 +255,13 @@ export const ModifyInfoPage = () => {
               </Item>
             </CenterDiv>
             <BottomDiv>
-              <Link to="/">
+              <Link to="/quit">
                 <QuitButton>탈퇴하기</QuitButton>
               </Link>
               <Flex>
-                <Button color="red">취소</Button>
+                <Link to="/">
+                  <Button color="red">취소</Button>
+                </Link>
                 <Button color="blue">변경하기</Button>
               </Flex>
             </BottomDiv>

@@ -9,3 +9,4 @@ export * from './CommentContainer';
 export * from './WriteFeed';
 export * from './MyFeeds';
 export * from './MyComments';
+export * from './CheckPassword';
