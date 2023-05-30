@@ -1,5 +1,9 @@
+import { ReactJSXElementAttributesProperty } from '@emotion/react/types/jsx-namespace';
+import { AlertModal } from '../AlertModal';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
-import React, { Fragment } from 'react';
+import axios from 'axios';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Styled from 'styled-components';
 
 const MainContainer = Styled.div`
@@ -8,27 +12,6 @@ const MainContainer = Styled.div`
   flex-direction: column;
   width: 100%;
   height: 60vh;
-`;
-
-const TitleDiv = Styled.div`
-  display: flex;
-  width: 80%;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 auto;
-  padding: 1em;
-  @media (max-width: 767px) {
-    margin-top: 2em;
-  }
-`;
-
-const Title = Styled.h1`
-  font-size: 1.5em;
-  font-weight: 700;
-  margin-bottom: 2em;
-  @media (max-width: 767px) {
-    font-size: 1.4em;
-  }
 `;
 
 const CenterDiv = Styled.div`
@@ -55,20 +38,115 @@ const CheckButton = Styled.button`
   ${ButtonLayout}
   width: 4em;
   padding: 0.6em;
+  cursor: pointer;
 `;
 
-export const CheckPassword = () => {
+interface UserInfoType {
+  created_at: string;
+  deleted_at: string | null;
+  email: string;
+  id: number;
+  nickname: string;
+  updated_at: string;
+}
+
+interface MessageType {
+  id: number;
+  text: string;
+}
+
+interface PropsType {
+  setIsPass: Function;
+  parentResult?: boolean;
+}
+
+export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isQuestion, setIsQuestion] = useState(false);
+  const [result, setResult] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
+  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        timeout: 5000,
+        headers: { Accept: 'application/json', Authorization: token },
+      })
+      .then(response => {
+        setEmail(response.data.email);
+      });
+  }, []);
+
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={messages}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
+
+  const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPw(e.target.value);
+  };
+
+  const checkPw = () => {
+    setPw('');
+    setIsPass(false);
+    axios
+      .post(
+        `${BACK_URL}:${BACK_PORT}/users/signin`,
+        {
+          email: email,
+          password: pw,
+        },
+        {
+          timeout: 5000,
+          headers: { Accept: 'application/json' },
+        }
+      )
+      .then(response => {
+        if (response.status === 200) {
+          setIsPass(true);
+        }
+      })
+      .catch(error => {
+        setMessages([{ id: 1, text: '비밀번호가 일치하지 않습니다.' }]);
+        setIsQuestion(false);
+        setIsAlertModalOpen(true);
+        setIsPass(false);
+      });
+  };
+
+  useEffect(() => {
+    if (result) {
+    }
+  }, [result]);
   return (
     <Fragment>
-      <TitleDiv>
-        <Title>탈퇴하기</Title>
-      </TitleDiv>
       <MainContainer>
         <CenterDiv>
-          <Input placeholder="현재 비밀번호를 입력해주세요." />
-          <CheckButton>확인</CheckButton>
+          <Input
+            type="password"
+            placeholder="현재 비밀번호를 입력해주세요."
+            value={pw}
+            onChange={getPw}
+          />
+          <CheckButton onClick={checkPw}>확인</CheckButton>
         </CenterDiv>
       </MainContainer>
+      {openAlertModal()}
     </Fragment>
   );
 };

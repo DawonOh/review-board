@@ -105,6 +105,10 @@ const QuitButton = Styled.div`
   font-size: 0.8em;
 `;
 
+const ErrorMessage = Styled.div`
+  margin: 0 auto;
+`;
+
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -268,7 +272,9 @@ export const ModifyInfoPage = () => {
           </MainContainer>
         </Fragment>
       ) : (
-        <MainContainer>404</MainContainer>
+        <MainContainer>
+          <ErrorMessage>로그인 후 이용해주세요.</ErrorMessage>
+        </MainContainer>
       )}
       {openAlertModal()}
     </Fragment>
