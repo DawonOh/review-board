@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
 
@@ -72,25 +72,36 @@ export const AlertModal = ({
             })}
           </AlertMessage>
           <Buttons>
-            {isQuestion && (
+            {isQuestion ? (
+              <Fragment>
+                <CloseButton
+                  onClick={() => {
+                    setIsAlertModalOpen(false);
+                    setResult && isQuestion && setResult(false);
+                  }}
+                  isCancle={true}
+                >
+                  취소
+                </CloseButton>
+                <CloseButton
+                  onClick={() => {
+                    setIsAlertModalOpen(false);
+                    setResult && setResult(true);
+                  }}
+                >
+                  확인
+                </CloseButton>
+              </Fragment>
+            ) : (
               <CloseButton
                 onClick={() => {
                   setIsAlertModalOpen(false);
-                  setResult && isQuestion && setResult(false);
+                  // setResult && setResult(true);
                 }}
-                isCancle={true}
               >
-                취소
+                확인
               </CloseButton>
             )}
-            <CloseButton
-              onClick={() => {
-                setIsAlertModalOpen(false);
-                setResult && setResult(true);
-              }}
-            >
-              확인
-            </CloseButton>
           </Buttons>
         </AlertModalContainer>
       </StyledModal>
