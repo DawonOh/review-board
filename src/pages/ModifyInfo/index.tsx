@@ -138,7 +138,7 @@ interface MessageType {
 export const ModifyInfoPage = () => {
   const [isMenuOn, setIsMenuOn] = useState(false);
   const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
-  const [newNickName, setNewNickName] = useState('');
+  const [newNickName, setNewNickName] = useState(loginUserInfo?.nickname);
   const [changedNickName, setChangedNickName] = useState('');
 
   // 알림창을 위한 state
@@ -255,7 +255,9 @@ export const ModifyInfoPage = () => {
               <Item>{loginUserInfo.email}</Item>
               <Item>비밀번호</Item>
               <Item>
-                <Button color="gray">비밀번호 수정</Button>
+                <Link to="/changepw">
+                  <Button color="gray">비밀번호 수정</Button>
+                </Link>
               </Item>
             </CenterDiv>
             <BottomDiv>
@@ -266,7 +268,6 @@ export const ModifyInfoPage = () => {
                 <Link to="/">
                   <Button color="red">취소</Button>
                 </Link>
-                <Button color="blue">변경하기</Button>
               </Flex>
             </BottomDiv>
           </MainContainer>

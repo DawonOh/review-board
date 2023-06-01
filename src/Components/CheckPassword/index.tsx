@@ -1,9 +1,7 @@
-import { ReactJSXElementAttributesProperty } from '@emotion/react/types/jsx-namespace';
 import { AlertModal } from '../AlertModal';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Styled from 'styled-components';
 
 const MainContainer = Styled.div`
@@ -70,7 +68,6 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const token = localStorage.getItem('token');
-  const navigate = useNavigate();
 
   useEffect(() => {
     axios
