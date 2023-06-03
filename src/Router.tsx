@@ -10,9 +10,10 @@ import {
   MyPage,
   ModifyInfoPage,
   Quit,
+  ModifyPw,
+  FindPw,
 } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
-import { ModifyPw } from 'pages/ModifyPw';
 
 const Router = () => {
   return (
@@ -29,6 +30,7 @@ const Router = () => {
         <Route path="/changeinfo" element={<ModifyInfoPage />} />
         <Route path="/quit" element={<Quit />} />
         <Route path="/changepw" element={<ModifyPw />} />
+        <Route path="/findpw" element={<FindPw />} />
       </Routes>
     </BrowserRouter>
   );
