@@ -2,6 +2,7 @@ import { AlertModal, CheckPassword, Header, MobileMenu } from 'Components';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import Styled from 'styled-components';
 
 const MainContainer = Styled.div`
@@ -119,19 +120,54 @@ export const ModifyPw = () => {
   const [isQuestion, setIsQuestion] = useState(false);
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [alertPath, setAlertPath] = useState('');
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
+
+  const location = useLocation();
+  let params = new URLSearchParams(location.search);
+  let query = params.get('token');
+
+  let headers = {};
+  if (token) {
+    headers = { Accept: 'application/json', Authorization: token };
+  }
+  if (query) {
+    headers = { Accept: 'application/json', Authorization: query };
+  }
+
   useEffect(() => {
-    axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
-        timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
-      })
-      .then(response => {
-        setLoginUserInfo(response.data);
-      });
+    if (query) {
+      axios
+        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: query },
+        })
+        .then(response => {
+          setLoginUserInfo(response.data);
+        })
+        .catch(error => {
+          setMessages([{ id: 1, text: '링크가 만료되었습니다.' }]);
+          setIsQuestion(false);
+          setIsAlertModalOpen(true);
+          setAlertPath('/findpw');
+        });
+    }
   }, []);
+  useEffect(() => {
+    if (token) {
+      axios
+        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: token },
+        })
+        .then(response => {
+          setLoginUserInfo(response.data);
+        });
+    }
+    if (query) setIsPass(true);
+  }, [token, query]);
 
   const openAlertModal = () => {
     if (isAlertModalOpen) {
@@ -142,6 +178,7 @@ export const ModifyPw = () => {
           contents={messages}
           isQuestion={isQuestion}
           setResult={setResult}
+          alertPath={alertPath}
         />
       );
     }
@@ -185,7 +222,7 @@ export const ModifyPw = () => {
           { password: newPw },
           {
             timeout: 5000,
-            headers: { Accept: 'application/json', Authorization: token },
+            headers: headers,
           }
         )
         .then(response => {
@@ -196,14 +233,13 @@ export const ModifyPw = () => {
           setIsQuestion(false);
           setIsAlertModalOpen(true);
           localStorage.clear();
-          setTimeout(function () {
-            window.location.href = '/';
-          }, 2000);
+          setAlertPath('/');
         })
         .catch(error => {
           setMessages([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
           setIsQuestion(false);
           setIsAlertModalOpen(true);
+          setAlertPath('/findpw');
           return;
         });
     }

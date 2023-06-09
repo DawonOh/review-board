@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import Styled from 'styled-components';
 import Modal, { ModalProvider } from 'styled-react-modal';
 
@@ -49,6 +50,7 @@ interface Props {
   contents: { id: number; text: string }[];
   isQuestion?: boolean;
   setResult?: Function;
+  alertPath?: string;
 }
 
 export const AlertModal = ({
@@ -57,7 +59,36 @@ export const AlertModal = ({
   contents,
   isQuestion,
   setResult,
+  alertPath,
 }: Props) => {
+  const linkButton = () => {
+    if (alertPath) {
+      return (
+        <Link to={alertPath}>
+          <CloseButton
+            onClick={() => {
+              setIsAlertModalOpen(false);
+              // setResult && setResult(true);
+            }}
+          >
+            확인
+          </CloseButton>
+        </Link>
+      );
+    } else {
+      return (
+        <CloseButton
+          onClick={() => {
+            setIsAlertModalOpen(false);
+            // setResult && setResult(true);
+          }}
+        >
+          확인
+        </CloseButton>
+      );
+    }
+  };
+
   return (
     <ModalProvider>
       <StyledModal
@@ -93,14 +124,7 @@ export const AlertModal = ({
                 </CloseButton>
               </Fragment>
             ) : (
-              <CloseButton
-                onClick={() => {
-                  setIsAlertModalOpen(false);
-                  // setResult && setResult(true);
-                }}
-              >
-                확인
-              </CloseButton>
+              linkButton()
             )}
           </Buttons>
         </AlertModalContainer>
