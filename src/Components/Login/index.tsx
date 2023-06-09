@@ -50,7 +50,7 @@ const Buttons = Styled.div`
   gap: 0.3rem;
 `;
 
-const GoToJoin = Styled.span`
+const GoToLink = Styled.span`
   font-size: 0.9em;
 `;
 
@@ -77,6 +77,11 @@ const LoginButton = Styled.button<{
   background-color: ${props => (props.disabled ? '#E0E0E0' : '#FF5959')};
   color: #fff;
   cursor: ${props => (props.disabled ? 'dafault' : 'pointer')};
+`;
+
+const Flex = Styled.div`
+  display: flex;
+  gap: 0.5em;
 `;
 
 interface Props {
@@ -180,9 +185,15 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
               로그인
             </LoginButton>
           </Buttons>
-          <Link to="/join">
-            <GoToJoin>회원가입</GoToJoin>
-          </Link>
+          <Flex>
+            <Link to="/join">
+              <GoToLink>회원가입</GoToLink>
+            </Link>
+            |
+            <Link to="/findpw">
+              <GoToLink>비밀번호 찾기</GoToLink>
+            </Link>
+          </Flex>
         </LoginModalContainer>
       </StyledModal>
     </ModalProvider>

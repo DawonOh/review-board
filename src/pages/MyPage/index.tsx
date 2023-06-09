@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom';
 import { MyFeeds } from 'Components';
 import { Pagination } from '@mui/material';
 import MyComments from 'Components/MyComments';
+import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`
   width: 80%;
@@ -119,10 +120,6 @@ const Loader = Styled.div`
       transform: rotate(360deg);
     }
   }
-`;
-
-const SmallFont = Styled.p`
-  font-size: 0.8em;
 `;
 
 interface UserInfoType {
@@ -392,7 +389,9 @@ export const MyPage = () => {
           )}
           <div>가입일 : {myPageUserInfo?.created_at.slice(0, -16)}</div>
           {loginUserInfo?.id === Number(userId) && (
-            <ModifyButton>수정하기</ModifyButton>
+            <Link to="/changeinfo" state={{ loginUserId: loginUserInfo?.id }}>
+              <ModifyButton>수정하기</ModifyButton>
+            </Link>
           )}
         </WriterInfoContainer>
         <WriterFeedListContainer>

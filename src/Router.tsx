@@ -8,6 +8,10 @@ import {
   TempList,
   SearchPage,
   MyPage,
+  ModifyInfoPage,
+  Quit,
+  ModifyPw,
+  FindPw,
 } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
@@ -19,10 +23,14 @@ const Router = () => {
         <Route path="/join" element={<Join />} />
         <Route path="/" element={<MainPage />} />
         <Route path="/feed/:id" element={<Feed />} />
-        <Route path="/writeFeed" element={<WriteFeed />} />
+        <Route path="/writefeed" element={<WriteFeed />} />
         <Route path="/temp/list" element={<TempList />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/channel/:id" element={<MyPage />} />
+        <Route path="/changeinfo" element={<ModifyInfoPage />} />
+        <Route path="/quit" element={<Quit />} />
+        <Route path="/changepw" element={<ModifyPw />} />
+        <Route path="/findpw" element={<FindPw />} />
       </Routes>
     </BrowserRouter>
   );
