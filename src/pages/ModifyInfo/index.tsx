@@ -60,24 +60,42 @@ const Input = Styled.input`
 `;
 
 const Item = Styled.div`
+  &:nth-child(3) {
+    grid-column: 2 / 4;
+    justify-self: start;
+  }
   &:nth-child(5) {
     grid-column: 2 / 4;
     justify-self: start;
   }
-  &:nth-child(7) {
+  &:nth-child(8) {
     grid-column: 2 / 4;
     justify-self: start;
   }
 `;
 
-const Button = Styled.button<{ color: string }>`
+const Button = Styled.button<{
+  color: string;
+  nickname?: string;
+  email?: string;
+  isEmailPass?: boolean;
+}>`
   ${ButtonLayout}
-  background-color: ${props => props.color === 'blue' && '#676FA3'};
+  background-color: ${props =>
+    props.color === 'blue' &&
+    props.email !== '' &&
+    props.nickname !== '' &&
+    props.isEmailPass
+      ? '#676FA3'
+      : '#bdbdbd'};
   background-color: ${props => props.color === 'red' && '#FF5959'};
   background-color: ${props => props.color === 'gray' && '#bdbdbd'};
   color: #fff;
   font-size: 0.8em;
-  cursor: pointer;
+  cursor: ${props =>
+    props.email !== '' && props.nickname !== '' && props.isEmailPass
+      ? 'pointer'
+      : 'default'};
 `;
 
 const BottomDiv = Styled.div`
@@ -107,6 +125,12 @@ const QuitButton = Styled.div`
 
 const ErrorMessage = Styled.div`
   margin: 0 auto;
+`;
+
+const WarningMessage = Styled.p`
+  margin-top: 0.2em;
+  color: #FF5959;
+  font-size: 0.8em;
 `;
 
 interface UserInfoType {
@@ -139,7 +163,11 @@ export const ModifyInfoPage = () => {
   const [isMenuOn, setIsMenuOn] = useState(false);
   const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
   const [newNickName, setNewNickName] = useState(loginUserInfo?.nickname);
+  const [newEmail, setNewEmail] = useState(loginUserInfo?.email);
   const [changedNickName, setChangedNickName] = useState('');
+  const [changedEmail, setChangedEmail] = useState('');
+  const [isEmailPass, setIsEmailPass] = useState(true);
+  const [warningMessage, setWarningMessage] = useState('');
 
   // 알림창을 위한 state
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
@@ -177,8 +205,19 @@ export const ModifyInfoPage = () => {
   const getNickName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewNickName(e.target.value);
   };
+  const getEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const emailRegex = /[a-zA-Z0-9._+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+/;
+    if (emailRegex.test(e.target.value)) {
+      setWarningMessage('');
+      setIsEmailPass(true);
+    } else {
+      setWarningMessage('이메일 형식을 확인해주세요.');
+      setIsEmailPass(false);
+    }
+    setNewEmail(e.target.value);
+  };
 
-  const changeNickName = () => {
+  const changeInfo = () => {
     setMessages([{ id: 1, text: '변경하시겠습니까?' }]);
     setIsQuestion(true);
     setIsAlertModalOpen(true);
@@ -190,7 +229,7 @@ export const ModifyInfoPage = () => {
       axios
         .patch<ChangeUserInfoType>(
           `${BACK_URL}:${BACK_PORT}/users/signup`,
-          { nickname: newNickName },
+          { nickname: newNickName, email: newEmail },
           {
             timeout: 5000,
             headers: { Accept: 'application/json', Authorization: token },
@@ -198,6 +237,7 @@ export const ModifyInfoPage = () => {
         )
         .then(response => {
           setChangedNickName(response.data.result.nickname);
+          setChangedEmail(response.data.result.email);
           setMessages([{ id: 1, text: '변경되었습니다.' }]);
           setIsQuestion(false);
           setIsAlertModalOpen(true);
@@ -246,13 +286,19 @@ export const ModifyInfoPage = () => {
                   onChange={getNickName}
                 />
               </Item>
-              <Item>
-                <Button color="gray" onClick={changeNickName}>
-                  변경하기
-                </Button>
-              </Item>
+              <div />
               <Item>이메일</Item>
-              <Item>{loginUserInfo.email}</Item>
+              <div>
+                <Input
+                  defaultValue={
+                    changedEmail ? changedEmail : loginUserInfo.email
+                  }
+                  onChange={getEmail}
+                />
+                <WarningMessage>{warningMessage}</WarningMessage>
+              </div>
+
+              <div />
               <Item>비밀번호</Item>
               <Item>
                 <Link to="/changepw">
@@ -265,6 +311,22 @@ export const ModifyInfoPage = () => {
                 <QuitButton>탈퇴하기</QuitButton>
               </Link>
               <Flex>
+                <Button
+                  color="blue"
+                  nickname={newNickName}
+                  email={newEmail}
+                  isEmailPass={isEmailPass}
+                  disabled={
+                    newNickName?.trim() !== '' &&
+                    newEmail?.trim() !== '' &&
+                    isEmailPass
+                      ? false
+                      : true
+                  }
+                  onClick={changeInfo}
+                >
+                  변경하기
+                </Button>
                 <Link to="/">
                   <Button color="red">취소</Button>
                 </Link>

@@ -2,7 +2,7 @@ import { AlertModal, CheckPassword, Header, MobileMenu } from 'Components';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Styled from 'styled-components';
 
 const MainContainer = Styled.div`
