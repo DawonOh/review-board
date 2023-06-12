@@ -78,6 +78,7 @@ const MainImg = Styled.img`
 const Content = Styled.div`
   width: 70%;
   white-space: pre-wrap;
+  word-wrap: break-word;
   line-height: 1.3em;
 `;
 
