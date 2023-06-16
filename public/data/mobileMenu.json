@@ -17,6 +17,12 @@
       "title": "임시저장 목록",
       "icon": "/images/temp.png",
       "link": "/temp/list"
+    },
+    {
+      "id": 4,
+      "title": "좋아요 목록",
+      "icon": "/images/heart.png",
+      "link": "/likes"
     }
   ],
   "logoutMenuList": [

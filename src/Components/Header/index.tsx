@@ -379,6 +379,9 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                     <Link to="/temp/list">
                       <HoverMenuItem>임시저장 목록</HoverMenuItem>
                     </Link>
+                    <Link to="/likes">
+                      <HoverMenuItem>좋아요 목록</HoverMenuItem>
+                    </Link>
                   </HoverMenu>
                 </div>
                 <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
