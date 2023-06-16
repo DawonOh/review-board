@@ -36,7 +36,7 @@ const MenuContainer = Styled.div`
 const CategoryButton = Styled.div`
   display: flex;
   justify-content: space-between;
-  width: 10em;
+  width: 12em;
   padding: 0.8em;
   border: 1px solid #f1f1f1;
   border-radius: 0.3em;
@@ -46,7 +46,7 @@ const CategoryButton = Styled.div`
 const CategorySelectBox = Styled.ul<{ isToggleOpen: boolean }>`
   display: ${props => (props.isToggleOpen ? 'block' : 'none')};
   position: absolute;
-  width: 10em;
+  width: 12em;
   margin-top: 18em;
   padding: 1em;
   background-color: #fff;
