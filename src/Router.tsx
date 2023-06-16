@@ -12,6 +12,7 @@ import {
   Quit,
   ModifyPw,
   FindPw,
+  LikeList,
 } from 'pages';
 import GlobalStyles from 'Styles/GlobalStyle';
 
@@ -31,6 +32,7 @@ const Router = () => {
         <Route path="/quit" element={<Quit />} />
         <Route path="/changepw" element={<ModifyPw />} />
         <Route path="/findpw" element={<FindPw />} />
+        <Route path="/likes" element={<LikeList />} />
       </Routes>
     </BrowserRouter>
   );

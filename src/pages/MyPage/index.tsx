@@ -304,8 +304,8 @@ export const MyPage = () => {
     setSelectMenu(!selectMenu);
   };
 
-  const handlePagination = (e: React.ChangeEvent<any>) => {
-    setCurrPage(e.target.textContent);
+  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrPage(value);
   };
 
   const myReview = () => {
@@ -328,7 +328,7 @@ export const MyPage = () => {
               count={totalPage}
               page={Number(currPage)}
               defaultPage={Number(currPage)}
-              onChange={handlePagination}
+              onChange={handleChange}
               size="small"
             />
           </PaginationContainer>
