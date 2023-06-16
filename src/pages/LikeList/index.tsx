@@ -108,6 +108,9 @@ export const LikeList = () => {
       })
       .then(response => {
         setLoginUserId(response.data.id);
+      })
+      .catch(error => {
+        alert('잠시 후 다시 시도해주세요.');
       });
   }, []);
 
@@ -124,12 +127,39 @@ export const LikeList = () => {
         .then(response => {
           setLikeFeedList(response.data.symbolListByUserId);
           setTotalPage(response.data.totalPage);
+        })
+        .catch(error => {
+          alert('잠시 후 다시 시도해주세요');
         });
     }
   }, [loginUserId, currPage]);
 
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setCurrPage(value);
+  };
+
+  const loginLayout = () => {
+    if (likeFeedList?.length !== 0 && token) {
+      return likeFeedList?.map(feed => {
+        return (
+          <ListItem key={feed.feed.id}>
+            <Link to={`/feed/${feed.feed.id}`}>
+              <FeedTitleDiv>{feed.feed.title}</FeedTitleDiv>
+            </Link>
+            <ButtonDiv>
+              <CreatedAtDiv>{feed.created_at.slice(0, 10)}</CreatedAtDiv>
+            </ButtonDiv>
+          </ListItem>
+        );
+      });
+    }
+    if (likeFeedList?.length === 0 && token) {
+      return <NoDataMessage>좋아요를 누른 리뷰가 없습니다.</NoDataMessage>;
+    }
+
+    if (!token) {
+      return <NoDataMessage>로그인 후 이용해주세요.</NoDataMessage>;
+    }
   };
 
   return (
@@ -143,29 +173,10 @@ export const LikeList = () => {
       <ListContainer>
         <Container>
           <Title>좋아요 목록</Title>
-          <ListItemContainer>
-            {likeFeedList?.length !== 0 ? (
-              likeFeedList?.map(feed => {
-                return (
-                  <ListItem key={feed.feed.id}>
-                    <Link to={`/feed/${feed.feed.id}`}>
-                      <FeedTitleDiv>{feed.feed.title}</FeedTitleDiv>
-                    </Link>
-                    <ButtonDiv>
-                      <CreatedAtDiv>
-                        {feed.created_at.slice(0, 10)}
-                      </CreatedAtDiv>
-                    </ButtonDiv>
-                  </ListItem>
-                );
-              })
-            ) : (
-              <NoDataMessage>좋아요를 누른 리뷰가 없습니다.</NoDataMessage>
-            )}
-          </ListItemContainer>
+          <ListItemContainer>{loginLayout()}</ListItemContainer>
         </Container>
       </ListContainer>
-      {likeFeedList?.length !== 0 && (
+      {likeFeedList?.length !== 0 && token && (
         <PaginationContainer>
           <Pagination
             count={totalPage}
