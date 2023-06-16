@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { Header } from 'Components';
+import { Header, MobileMenu } from 'Components';
 import axios from 'axios';
 import { flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
@@ -135,6 +135,11 @@ export const LikeList = () => {
   return (
     <Fragment>
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
+      <MobileMenu
+        isMenuOn={isMenuOn}
+        setIsMenuOn={setIsMenuOn}
+        loginUserId={loginUserId}
+      />
       <ListContainer>
         <Container>
           <Title>좋아요 목록</Title>
