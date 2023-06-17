@@ -162,7 +162,7 @@ export const FindPw = () => {
           `${BACK_URL}:${BACK_PORT}/users/signup/password`,
           {
             email: email,
-            resetPasswordUrl: `http://localhost:3000/changepw`,
+            resetPasswordUrl: `http://${FRONT_URL}:3000/changepw`,
           },
           {
             timeout: 5000,
