@@ -61,6 +61,8 @@ interface cardListType {
   statusId: number;
 }
 
+// categorId : 카테고리id에 따른 데이터를 보여주기 위해 받는 props로, useCardList에 전달
+// setIsNotEmpty : 카드 목록이 비었는지를 확인
 interface PropsType {
   categoryId: any;
   setIsNotEmpty: React.Dispatch<React.SetStateAction<boolean>>;
@@ -68,6 +70,7 @@ interface PropsType {
 
 export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
   const [pageNum, setPageNum] = useState(0);
+  // useCardList 커스텀 훅 : 카드 리스트, 불러올 데이터가 더 있는지 여부, 로딩 여부, 에러 여부
   const { cardList, hasMore, loading, error } = useCardList(
     pageNum,
     categoryId
@@ -78,18 +81,28 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
   useEffect(() => {
     setPageNum(0);
   }, [categoryId]);
+
+  // 무한스크롤 - Intersection Observer API 사용
+  // observer : 관찰하려는 요소
   const observer = useRef<IntersectionObserver | null>(null);
 
+  // 마지막 카드 요소를 가져오는 ref
   const lastCardElementRef = useCallback(
     (node: HTMLDivElement) => {
+      // 로딩중이라면 함수 종료
       if (loading) return;
+
+      // 이전의 observer가 있으면 해제
       if (observer.current) observer.current.disconnect();
 
+      // 새 observer.current 생성
       observer.current = new IntersectionObserver(entries => {
+        // 화면에 마지막 요소가 있고 더 불러올 데이터가 있다면 pageNumber에 10을 추가
         if (entries[0].isIntersecting && hasMore) {
           setPageNum((prevPageNumber: number) => prevPageNumber + 10);
         }
       });
+      // 마지막 요소가 있으면 관찰 대상으로 지정
       if (node) observer.current.observe(node);
     },
     [loading, hasMore]
@@ -101,6 +114,7 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
     }
   }, [error]);
 
+  // cardList의 길이가 index+1과 같아지면 마지막 Card이므로 lastCardElementRef를 Card 컴포넌트에 연결
   return (
     <CardListContainer>
       {cardList.map((card: cardListType, index) => {

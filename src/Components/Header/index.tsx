@@ -67,6 +67,7 @@ const Input = Styled.input`
   z-index: 999;
 `;
 
+// 모바일 메뉴 버튼 : isMenuOn이 true인 경우 표시
 const MenuButton = Styled.div<{ isMenuOn: boolean }>`
   display : none;
   @media all and (max-width:767px) {
@@ -97,6 +98,7 @@ const LoginButton = Styled.button`
   cursor: pointer;
 `;
 
+// 데스크탑 hover 메뉴 : isHover가 true인 경우 표시
 const HoverMenu = Styled.div<{ isHover: boolean }>`
   display: ${props => (props.isHover ? 'flex' : 'none')};
   position: absolute;
@@ -190,11 +192,18 @@ const NoResult = Styled.div`
   text-align: center;
 `;
 
+// isMenuOn : 모바일 메뉴 오픈 여부
+// setIsMenuOn : 메뉴 오픈 핸들링
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
 }
 
+// 검색창
+// id : id
+// postedAt : 작성일
+// titleSnippet : 제목
+// contentSnippet : 내용
 interface SearchListType {
   id: number;
   postedAt: string;
@@ -203,27 +212,47 @@ interface SearchListType {
 }
 
 export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
+  // 로그인 모달창 오픈 여부
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 로그인 여부
   const [isLogin, setIsLogin] = useState(false);
+
+  // hover 여부
   const [isHover, setIsHover] = useState(false);
+
+  // 검색어
   const [searchValue, setSearchValue] = useState('');
+
+  // 검색결과
   const [searchList, setSearchList] = useState<SearchListType[]>([]);
+
+  // 검색창 - 로딩 여부
   const [loading, setLoading] = useState(true);
+
+  // 로그인한 유저 id
   const [loginUserId, setLoginUserId] = useState(0);
+
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
+  // url에서 pathname 조회
   const location = useLocation();
   const pathname = location.pathname;
 
+  // 로그인 모달창 핸들러
   const handleModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };
+
+  // 모바일 메뉴 핸들러
   const handleMenuOn = () => {
     setIsMenuOn(!isMenuOn);
   };
+
   let token = localStorage.getItem('token');
 
+  // 로그인 한 경우 로그인한 유저 id 조회
   useEffect(() => {
     if (token) {
       axios
@@ -235,6 +264,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     }
   }, [token]);
 
+  // isLogin 값 변경
   useEffect(() => {
     if (token) {
       setIsLogin(true);
@@ -243,11 +273,13 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     }
   }, [token, isLogin]);
 
+  // 로그아웃 : localStorage 비운 후 메인 페이지로 이동
   const logout = () => {
     localStorage.clear();
     window.location.href = '/';
   };
 
+  // onMouseOver과 onMouseOut에 각각 할당하기 위해 MouseOver함수와 MouseOut함수로 구분
   const handleMouseOver = () => {
     setIsHover(true);
   };
@@ -256,27 +288,36 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     setIsHover(false);
   };
 
+  // 검색창에서 검색어 가져오기
   const getSearchValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
 
+  // 검색창 ref
   const SearchDivRef = useRef<HTMLDivElement>(null);
 
+  // 검색결과창 외부 클릭 시 창 닫기
   useEffect(() => {
     const closeClickOutside = (e: any) => {
+      // SearchDivRef가 존재하고 SearchDivRef의 자식요소가 아닌 경우에
       if (
+        // 이벤트 버블링에 의해 SearchDivRef의 자식요소가 아닌 경우를 판단
         SearchDivRef.current &&
         !SearchDivRef.current.contains(e.target as Node)
       ) {
+        // 검색창 내용 초기화
         setSearchValue('');
       }
     };
+    // 이벤트 리스너 할당
     document.addEventListener('click', closeClickOutside);
     return () => {
+      // 컴포넌트 언마운트 시 이벤트 리스너 제거
       document.removeEventListener('click', closeClickOutside);
     };
   }, [SearchDivRef]);
 
+  // 검색 내용이 있다면 0.5초마다 검색 api 요청
   useEffect(() => {
     if (searchValue.trim() !== '') {
       const timer = setTimeout(() => {
@@ -292,13 +333,16 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
       }, 500);
       return () => clearTimeout(timer);
     }
+    // 검색어가 없다면 검색내용 초기화 및 로딩 여부 true
     if (searchValue.trim() === '') {
       setSearchList([]);
       setLoading(true);
     }
   }, [searchValue]);
 
+  // 검색 결과창 JSX 리턴하는 함수
   const showResult = (searchList: SearchListType[]) => {
+    // 로딩중이 아니고 검색 결과가 있다면
     if (!loading && searchList.length !== 0) {
       return searchList.map(result => {
         return (
@@ -320,13 +364,16 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
         );
       });
     }
+    // 로딩중이 아니고 검색 결과가 없다면
     if (!loading && searchList.length === 0) {
       return <NoResult>검색 결과가 없습니다😥</NoResult>;
     }
   };
 
+  // 페이지 이동을 위한 navigate
   const navigate = useNavigate();
 
+  // 검색어가 있고 엔터키를 누르면 검색페이지로 이동
   const search = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (searchValue.trim() !== '' && e.key === 'Enter') {
       let url = `/search?query=${searchValue}`;
@@ -336,6 +383,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
 
   return (
     <Fragment>
+      {/* 검색결과창 노출 시 하단 카드 화면의 옅은 회색 배경 */}
       {searchValue.trim() !== '' && <SearchBackground />}
       <HeaderContainer>
         <CenterContainer>
@@ -368,6 +416,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 )}
               </div>
             )}
+            {/* 로그인한 경우 */}
             {isLogin ? (
               <Icons>
                 <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
@@ -390,7 +439,10 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
               <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
             )}
 
+            {/* 로그인 버튼 */}
             <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+
+            {/* 모바일 메뉴 */}
             <MobileMenu
               isMenuOn={isMenuOn}
               setIsMenuOn={setIsMenuOn}

@@ -13,6 +13,7 @@ import LockIconImg from '../../assets/images/lock.png';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { AlertModal } from 'Components/AlertModal';
 
+// CommentContainer에 ref속성을 사용하기 위해 ForwardedRef 사용
 const CommentContainer = Styled.div<{
   ref?: ForwardedRef<HTMLDivElement> | null;
 }>`
@@ -86,6 +87,10 @@ const DeletedCommentFont = Styled.div`
   color: #bdbdbd;
 `;
 
+// 댓글 정보 타입
+// userComments : 사용자가 작성한 댓글 정보
+// index : 인덱스
+// loginUserId : 로그인한 유저 id
 interface UserCommentInfoType {
   userComments: {
     comment: string;
@@ -99,6 +104,7 @@ interface UserCommentInfoType {
     };
     id: number;
     is_private: boolean;
+    // 부모 댓글(대댓글인 경우 존재)
     parent: { id: 65; user: { id: number } };
     updated_at: string;
     user: { id: number };
@@ -107,11 +113,13 @@ interface UserCommentInfoType {
   loginUserId: number | undefined;
 }
 
+// 알림창 모달에 들어가는 내용 타입
 interface MessageType {
   id: number;
   text: string;
 }
 
+// 내 채널에서 MyComments 컴포넌트에 ref 속성을 사용하기 위해 ForwardedRef 사용
 const MyComments = (
   { userComments, index, loginUserId }: UserCommentInfoType,
   ref: ForwardedRef<HTMLDivElement> | null
@@ -124,15 +132,24 @@ const MyComments = (
   const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
   //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
   const [result, setResult] = useState(false);
+
+  // 댓글 내용
   const [content, setContent] = useState('');
+
+  // 삭제 여부
   const [isDeleted, setIsDeleted] = useState(false);
+
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  // 로그인 확인을 위한 토큰
   const token = localStorage.getItem('token');
 
+  // url에서 userId 조회
   const params = useParams();
   let userId = params.id;
 
+  // 알림창 모달
   const openAlertModal = () => {
     if (isAlertModalOpen) {
       return (
@@ -147,11 +164,14 @@ const MyComments = (
     }
   };
 
+  // 댓글 삭제 알림창 띄우기
   const deleteComment = () => {
     setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
     setIsQuestion(true);
     setIsAlertModalOpen(true);
   };
+
+  // 댓글 삭제 알림창에서 확인을 누른 경우 댓글 삭제
   useEffect(() => {
     if (result) {
       axios
@@ -181,6 +201,7 @@ const MyComments = (
     }
   }, [result]);
 
+  // 삭제,비밀댓글 내용 변경
   useEffect(() => {
     if (userComments.deleted_at !== null || isDeleted) {
       setContent('삭제된 댓글입니다.');
@@ -202,9 +223,11 @@ const MyComments = (
             <Flex>
               <ItemInfo>
                 <Flex>
+                  {/* 부모 댓글이 있고 삭제되지 않은 경우 대댓글 아이콘 추가 */}
                   {userComments.parent &&
                     userComments.deleted_at === null &&
                     !isDeleted && <Icon src={ReplyIconImg} alt="대댓글" />}
+                  {/* is_private가 true이고 삭제되지 않은 경우 비밀댓글 아이콘 추가 */}
                   {userComments.is_private &&
                     userComments.deleted_at === null &&
                     !isDeleted && <Icon src={LockIconImg} alt="비밀댓글" />}
@@ -221,6 +244,7 @@ const MyComments = (
             </Flex>
           </IndexAndContent>
         </Link>
+        {/* 로그인 유저 본인 페이지인 경우에 삭제 버튼 표시 */}
         {loginUserId === Number(userId) &&
           userComments.deleted_at === null &&
           !isDeleted && (

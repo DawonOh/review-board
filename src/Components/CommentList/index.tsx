@@ -3,6 +3,9 @@ import { MainComment } from 'Components/MainComment';
 import { ChildrenArr } from 'Components/CommentContainer';
 import { CommentTextarea } from 'Components/CommentTextarea';
 
+// mainComment : CommentContainer에서 백에서 받은 데이터를 props로 전달
+// success,setSuccess : 댓글 작성 여부 state
+// loginUserId : 로그인한 유저의 id
 interface PropsType {
   mainComment: {
     id: number;
@@ -41,20 +44,31 @@ interface PropsType {
   success: boolean;
 }
 
+// 하나의 댓글에 여러개의 대댓글과 대댓글 입력창의 묶음
 export const CommentList = ({
   mainComment,
   setSuccess,
   loginUserId,
   success,
 }: PropsType) => {
+  // 대댓글 목록
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
+
+  // 대댓글 입력창 나타나는지 여부
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
+
+  // 대댓글 목록 저장
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);
+
+  // 댓글이 작성되면 대댓글 입력창 화면에서 제거
   useEffect(() => {
     success && setIsTextareaOpen(false);
   }, [success]);
+
+  // MainComment의 isChildren 속성으로 댓글과 대댓글 구분
+  // CommentTextarea : 대댓글 입력창
   return (
     <Fragment>
       <MainComment

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import PersonIcon from '../../assets/images/person.png';
 
+// isMenuOn : 모바일 메뉴 표시 여부
 const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
   width: 100%;
   height: 100%;
@@ -63,12 +64,19 @@ const LogoutButton = Styled.button`
   cursor: pointer;
 `;
 
+// isMenuOn : 모바일 메뉴 오픈 여부
+// setIsMenuOpen : 모바일 메뉴 오픈 여부 설정
+// loginUserId : 로그인 유저 id
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
   loginUserId: number | undefined;
 }
 
+// id : id
+// title : 메뉴 제목
+// icon : 메뉴 아이콘
+// link : 메뉴 클릭 시 이동할 링크
 interface MenuProps {
   id: number;
   title: string;
@@ -77,16 +85,21 @@ interface MenuProps {
 }
 
 export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
+  // public/data/mobileMenu.json 저장
   const [menuList, setMenuList] = useState([]);
 
+  // 로그인 확인을 위한 token
   let token = localStorage.getItem('token');
 
+  // public/data/mobileMenu.json 불러오기
   useEffect(() => {
     axios.get('/data/mobileMenu.json').then(response => {
+      // 로그인 한 경우
       if (token) {
         setMenuList(response.data.menuList);
         return;
       }
+      // 비로그인인 경우
       if (!token) {
         setMenuList(response.data.logoutMenuList);
         return;
@@ -94,11 +107,15 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
     });
   }, [token]);
 
+  // 로그인 모달 오픈 여부
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 로그인 모달 오픈 여부 설정
   const handleModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };
+
+  // 로그아웃 : localStorage clear 후 메인메뉴로 이동, 모바일 메뉴 닫기
   const logout = () => {
     localStorage.clear();
     window.location.href = '/';
@@ -120,6 +137,7 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
             </Fragment>
           );
         })}
+        {/* 내 채널 : loginUserId를 추가해야 하므로 따로 작성 */}
         <Link to={`/channel/${loginUserId}`}>
           <MenuItem>
             <MenuIcon src={PersonIcon} alt="내 채널 아이콘" />
@@ -132,6 +150,7 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
           <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
         )}
       </MenuList>
+      {/* 로그인 모달 */}
       <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </MenuContainer>
   );

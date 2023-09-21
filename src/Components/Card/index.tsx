@@ -9,6 +9,7 @@ import ViewIconImg from '../../assets/images/view.png';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+// styled-components로 만든 스타일 컴포넌트에 ref 속성을 사용하기 위해서 ForwardedRef를 사용
 const CardContainer = Styled.div<{ ref?: ForwardedRef<HTMLDivElement> | null }>`
   border: 1px solid #EBEBEB;
   border-radius: 4px;
@@ -60,6 +61,7 @@ const Category = Styled.div`
   border-radius: 5px;
 `;
 
+// 썸네일 사진의 여부에 따라 높이와 화면에 보여줄 줄 수를 다르게 설정
 const Content = Styled.div<{ isHaveThumbnail: boolean }>`
   display: -webkit-box;
   width: 100%;
@@ -106,6 +108,8 @@ const Date = Styled.span`
   margin-top: 0.2em;
   margin-right: 0.3em;
 `;
+
+// 카드에서 보여줄 데이터들을 백에서 받아서 props로 전달
 interface Props {
   id: number;
   title: string;
@@ -124,6 +128,7 @@ interface Props {
   statusId?: number;
 }
 
+// 로그인 한 유저의 좋아요 정보 타입
 interface LoginLikeType {
   checkValue: boolean;
   result: {
@@ -137,6 +142,7 @@ interface LoginLikeType {
   };
 }
 
+// CardList 컴포넌트에서 Card 컴포넌트에 ref 속성을 사용하기 위해 ForwardedRef 사용
 const Card = (
   {
     id,
@@ -170,6 +176,8 @@ const Card = (
   }, [img]);
 
   let token = localStorage.getItem('token');
+
+  // token 여부에 따라 axios로 로그인한 유저의 좋아요 정보 요청
   useEffect(() => {
     if (token) {
       axios

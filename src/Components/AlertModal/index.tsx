@@ -44,6 +44,12 @@ const CloseButton = Styled.button<{ isCancle?: boolean }>`
   cursor: pointer;
 `;
 
+// isAlertModalOpen : 모달 열렸는지 여부
+// setIsAlertModalOpen : isAlertModalOpen을 부모 컴포넌트로 전달하기 위한 함수
+// contents : 모달 내용
+// isQuestion : 모달 버튼 종류 - 확인(false) / 취소,확인(true)
+// setReuslt : 취소,확인 버튼에서 확인을 눌렀는지 여부
+// alertPath : 확인 버튼 클릭 시 이동할 페이지 링크
 interface Props {
   isAlertModalOpen: boolean;
   setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
@@ -53,6 +59,7 @@ interface Props {
   alertPath?: string;
 }
 
+// styled-react-modal 라이브러리 사용
 export const AlertModal = ({
   isAlertModalOpen,
   setIsAlertModalOpen,
@@ -61,7 +68,9 @@ export const AlertModal = ({
   setResult,
   alertPath,
 }: Props) => {
+  // 모달창 하단의 확인 버튼
   const linkButton = () => {
+    // alertPath가 있는 경우에는 Link를 이용해 alertPath로 이동
     if (alertPath) {
       return (
         <Link to={alertPath}>
@@ -76,6 +85,7 @@ export const AlertModal = ({
         </Link>
       );
     } else {
+      // alertPath가 없으면 Link 제외
       return (
         <CloseButton
           onClick={() => {

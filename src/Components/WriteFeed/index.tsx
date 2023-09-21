@@ -43,6 +43,7 @@ const CategoryButton = Styled.div`
   cursor: pointer;
 `;
 
+// isToggleOpen : 카테고리 토글 오픈 여부
 const CategorySelectBox = Styled.ul<{ isToggleOpen: boolean }>`
   display: ${props => (props.isToggleOpen ? 'block' : 'none')};
   position: absolute;
@@ -57,6 +58,7 @@ const CategorySelectBox = Styled.ul<{ isToggleOpen: boolean }>`
   }
 `;
 
+// isToggleOpen : 카테고리 토글 오픈 여부
 const ToggleButton = Styled.img<{ isToggleOpen: boolean }>`
   width: 1em;
   margin-left: 0.5em;
@@ -136,6 +138,7 @@ const FilePreviewDiv = Styled.div`
   gap: 0.5em;
 `;
 
+// isFile : 파일 존재 여부
 const ImgPreviewItem = Styled.img<{ isFile: boolean }>`
   max-width: ${props => (props.isFile ? '7em' : '12em')};
   max-height: ${props => (props.isFile ? '5em' : '8em')};
@@ -162,6 +165,7 @@ const Buttons = Styled.div`
   gap: 1em;
 `;
 
+// isSave : 임시저장 여부
 const Button = Styled.button<{ isSave: boolean }>`
   ${ButtonLayout}
   padding: 0.1em 1em;
@@ -170,6 +174,11 @@ const Button = Styled.button<{ isSave: boolean }>`
   cursor: pointer;
 `;
 
+// 작성 중 임시저장 문구
+// isSaved : 임시저장 여부
+// isNotNull : 빈 칸 여부
+// isSaveSuccess : 임시저장 성공 여부
+// categoryId : 선택한 카테고리 id
 const SaveAlertDiv = Styled.div<{
   isSaved: string;
   isNotNull: boolean;
@@ -249,6 +258,8 @@ const RadioImg = Styled.img`
   cursor: pointer;
 `;
 
+// 좋아요 설명 div
+// isQuestionOpen : ?버튼 클릭 시 안내div 오픈 여부
 const QuestionDiv = Styled.div<{ isQuestionOpen: boolean }>`
   display: ${props => (props.isQuestionOpen ? 'flex' : 'none')};
   flex-direction: column;
@@ -272,6 +283,7 @@ const InfoDiv = Styled.div`
   color: #b1b1b1;
 `;
 
+// textLength : 글자수/ maxLength : 최대 글자수 -> 같아지면 빨강으로 변경
 const Count = Styled.span<{ textLength: number; maxLength: number }>`
   color: ${props => props.textLength === props.maxLength && '#FF5959'};
   align-self: flex-end;
@@ -283,21 +295,30 @@ const WarningMessage = Styled.p`
   color: #FF5959;
 `;
 
+// 카테고리 타입
+// id : id
+// category : 카테고리
 interface CategoryType {
   id: number;
   category: string;
 }
 
+// 파일 다운로드 링크 경로를 모아놓은 배열
 interface FileLinkType {
   file_links: string[];
 }
 
+// 미리보기 타입
+// name : 파일명
 interface PreviewType {
   id: number;
   url: string;
   name: string;
 }
 
+// 백에서 api응답으로 받은 임시저장 결과
+// message : 요청 결과 메세지
+// result : 저장한 게시물 정보
 interface SaveResultType {
   message: string;
   result: {
@@ -332,12 +353,16 @@ interface SaveResultType {
   };
 }
 
+// 좋아요 타입
+// estimation : 매우 좋아요 / 좋아요 / 별로예요
+// img : extimation 아이콘
 interface EstimatioinType {
   id: number;
   estimation: string;
   img: string;
 }
 
+// 수정 api의 응답으로 받아오는 정보 타입
 interface ModifyDataType {
   result: {
     category: { id: number; category: string };
@@ -370,30 +395,72 @@ interface ModifyDataType {
   };
 }
 export const WriteContainer = () => {
+  // 카테고리 선택
   const [isToggleOpen, setIsToggleOpen] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [categoryName, setCategoryName] = useState('카테고리 선택');
   const [categoryId, setCategoryId] = useState<number | undefined>(0);
+  // 선택한 카테고리 표시를 위한 인덱스 숫자
   const [countIdx, setCountIdx] = useState(0);
+
+  // 백에 전송할 파일 배열
   const [mainFileList, setMainFileList] = useState<File[]>([]);
+
+  // 미리보기로 보여줄 파일 배열
   const [previewList, setPreviewList] = useState<PreviewType[]>([]);
+
+  // 임시저장 여부
   const [isSaved, setIsSaved] = useState('none');
+
+  // 좋아요 도움말
   const [isQuestionOpen, setIsQuestionOpen] = useState(false);
+
+  // 게시물 제목
   const [title, setTitle] = useState('');
+
+  // 게시물 제목 글자수
   const [titleLength, setTitleLength] = useState(0);
+
+  // 게시물 내용
   const [content, setContent] = useState('');
+
+  // 게시물 내용 글자수
   const [contentLength, setContentLength] = useState(0);
+
+  // 선택한 좋아요 종류 - 기본값 : 매우 좋아요(1)
   const [selectedLike, setSelectedLike] = useState<number | undefined>(1);
+
+  // 로딩 여부
   const [isLoading, setIsLoading] = useState(true);
+
+  // 파일 사이즈 체크 통과 여부
   const [isFileSizePass, setIsFileSizePass] = useState(true);
+
+  // 파일 갯수 통과 여부
   const [isFileCountPass, setIsFileCountPass] = useState(true);
+
+  // 처음 저장인지 아닌지 여부(POST, PATCH 요청 구분)
   const [isFirstSave, setIsFirstSave] = useState(true);
+
+  // s3에서 받아오는 파일 링크(미리보기)
   const [fileLink, setFileLink] = useState<string[]>([]);
+
+  // 저장 성공 여부
   const [isSaveSuccess, setIsSaveSuccess] = useState(false);
+
+  // 저장 안내 문구
   const [saveMessage, setSaveMessage] = useState('');
+
+  // 좋아요 목록 배열
   const [estimationList, setEstimationList] = useState<EstimatioinType[]>([]);
+
+  // 게시글 id
   const [feedId, setFeedId] = useState(0);
+
+  // 빈 값 체크
   const [isNotNull, setIsNotNull] = useState(false);
+
+  // 수정인 경우 불러오는 수정 데이터
   const [modifyData, setModifyData] = useState<ModifyDataType>();
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
@@ -422,6 +489,7 @@ export const WriteContainer = () => {
         setCategoryList([{ id: 0, category: '카테고리 선택' }, ...json]);
       });
 
+    // 좋아요 데이터
     axios
       .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`, {
         timeout: 5000,
@@ -438,6 +506,7 @@ export const WriteContainer = () => {
         alert('잠시 후 다시 시도해주세요.');
       });
 
+    // 게시글 수정인 경우 해당 게시글 데이터 불러오기
     if (modifyId !== 0) {
       axios
         .get<ModifyDataType>(`${BACK_URL}:${BACK_PORT}/feeds/${modifyId}`, {
@@ -480,6 +549,7 @@ export const WriteContainer = () => {
     }
   }, []);
 
+  // 제목, 내용, 카테고리 ref
   const inputValueRef = useRef<HTMLInputElement>(null);
   const textareaValueRef = useRef<HTMLTextAreaElement>(null);
   const selectRef = useRef<HTMLLIElement>(null);
@@ -509,16 +579,19 @@ export const WriteContainer = () => {
     }
   }, [title, content]);
 
+  // 카테고리 선택 토글창
   const handleToggle = () => {
     setIsToggleOpen(!isToggleOpen);
   };
 
+  // 선택한 카테고리 인덱스 저장
   const handleClickIndex = (e: React.MouseEvent, idx: number) => {
     setCountIdx(idx);
   };
 
   const input = useRef<HTMLInputElement>(null);
 
+  // 백으로 파일 전송을 위한 formData 생성
   const formData = new FormData();
 
   // input에서 파일 목록 가져오기
@@ -533,11 +606,13 @@ export const WriteContainer = () => {
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        // 파일 사이즈 체크
         if (files[i].size > maxFileSize) {
           setIsFileSizePass(false);
           continue;
         }
         passFiles.push(file);
+        // 최대 선택 가능 파일 수 체크
         if (passFiles.length > maxFileCount) {
           setIsFileCountPass(false);
         }
@@ -565,10 +640,13 @@ export const WriteContainer = () => {
 
   // 파일 업로드
   useEffect(() => {
+    // 로딩 시작
     setIsLoading(true);
+    // formData에 mainFileList 요소들(사용자가 업로드한 각 파일) 추가
     mainFileList.forEach(file => {
       formData.append('file', file);
     });
+    // 업로드할 파일이 있다면
     if (mainFileList.length !== 0) {
       axios
         .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
@@ -709,10 +787,13 @@ export const WriteContainer = () => {
     }
   };
 
+  // 좋아요 도움말 ref
   const QuestionDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 좋아요 도움말 이외의 영역 클릭 시 도움말 창 닫음 처리
     const closeClickOutside = (e: any) => {
+      // 좋아요 도움말 요소가 화면에 있고 클릭된 요소가 QuestionDivRef에 속하지 않는다면 도움말 창 닫기
       if (
         QuestionDivRef.current &&
         !QuestionDivRef.current.contains(e.target as Node)
@@ -720,23 +801,30 @@ export const WriteContainer = () => {
         setIsQuestionOpen(false);
       }
     };
+    // closeClickOutside는 클릭 이벤트
     document.addEventListener('click', closeClickOutside);
     return () => {
+      // 컴포넌트가 언마운트 될 때 클릭 이벤트리스너를 제거
       document.removeEventListener('click', closeClickOutside);
     };
   }, [QuestionDivRef]);
 
   // 파일 미리보기
   const previewFiles = () => {
+    // 파일 확장자 제한
     const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];
 
     return (
+      // 백으로 전송할 파일이 있고 미리보기할 파일이 있는 경우
       (mainFileList.length !== 0 || previewList.length !== 0) &&
+      // previewList의 각 요소(파일)을 화면에 보여줌
       previewList.map(item => {
+        // 각 파일의 확장자 추출
         const extension = item.url.split('.').pop();
         if (!extension) {
           return null;
         }
+        // 확장자가 allowExtensions에 있다면 미리보기
         return allowExtensions.includes(extension) ? (
           <ImgPreviewItem
             key={item.id}
@@ -764,19 +852,24 @@ export const WriteContainer = () => {
     );
   };
 
+  // 화면 우측 상단 임시저장 안내 토스트 문구 내용
   useEffect(() => {
+    // 제목이 없거나 내용이 없는 경우
     if (title.trim() === '' || content.trim() === '') {
       setSaveMessage('제목과 내용을 입력해주세요.');
       return;
     }
+    // 카테고리를 선택하지 않는 경우
     if (categoryId === 0) {
       setSaveMessage('카테고리를 선택해주세요.');
       return;
     }
+    // 임시저장 실패한 경우
     if (isSaveSuccess === false) {
       setSaveMessage('임시저장에 실패했습니다.');
       return;
     }
+    // 임시저장 성공한 경우
     if (isSaveSuccess) {
       setSaveMessage('임시저장되었습니다.');
       return;
@@ -801,6 +894,7 @@ export const WriteContainer = () => {
   // 게시글 등록
   const feedUpload = () => {
     let bodyObj;
+    // 수정인 경우 (게시글 id 포함)
     if (feedId !== 0) {
       bodyObj = {
         feedId: feedId,
@@ -810,6 +904,7 @@ export const WriteContainer = () => {
         category: categoryId,
         fileLinks: fileLink,
       };
+      // 수정이 아닌 경우
     } else {
       bodyObj = {
         title: title,
@@ -819,10 +914,12 @@ export const WriteContainer = () => {
         fileLinks: fileLink,
       };
     }
+    // 제목 또는 내용 또는 카테고리가 비어있는 경우
     if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
       alert('제목 / 내용 / 카테고리는 필수입니다.');
       return;
     }
+    // 제목과 내용, 카테고리가 모두 있는 경우
     if (title && content && categoryId) {
       axios
         .post<SaveResultType>(`${BACK_URL}:${BACK_PORT}/feeds/post`, bodyObj, {

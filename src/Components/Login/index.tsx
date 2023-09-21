@@ -69,6 +69,7 @@ const ErrorMessage = Styled.p`
   font-size: 0.9em;
 `;
 
+// disabled : 입력값에 따른 버튼 비활성화
 const LoginButton = Styled.button<{
   disabled?: boolean;
 }>`
@@ -84,30 +85,44 @@ const Flex = Styled.div`
   gap: 0.5em;
 `;
 
+// isModalOpen : 로그인 모달 오픈 여부
+// setIsModalOpen : isModalOpen setter함수
 interface Props {
   isModalOpen: boolean;
   setIsModalOpen: (isModalOpen: boolean) => void;
 }
 
 export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
+  // 화면에서 입력받는 이메일
   const [email, setEmail] = useState('');
+
+  // 화면에서 입력받는 비밀번호
   const [password, setPassword] = useState('');
+
+  // 버튼 비활성화 여부
   const [isDisabled, setIsDisabeld] = useState(true);
+
+  // 로그인 통과 여부
   const [isLoginPass, setIsLoginPass] = useState(false);
+
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
+  // 화면에서 사용자가 입력한 이메일 값 받아오는 함수
   const getEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
+  // 화면에서 사용자가 입력한 비밀번호 값 받아오는 함수
   const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
 
+  // api 요청시 보낼 headers 객체
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
 
+  // 이메일과 비밀번호를 둘 다 입력했을 경우에 로그인 버튼 활성화
   useEffect(() => {
     if (email && password) {
       setIsDisabeld(false);
@@ -115,14 +130,17 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
       setIsDisabeld(true);
     }
 
+    // 로그인 창이 닫히면 input 초기화
     if (isModalOpen === false) {
       setEmail('');
       setPassword('');
     }
   }, [email, password, isModalOpen]);
 
+  // 이메일 input ref
   const emailInput = useRef<HTMLInputElement>(null);
 
+  // 로그인 함수
   const login = () => {
     fetch(`${BACK_URL}:${BACK_PORT}/users/signin`, {
       method: 'POST',
@@ -134,13 +152,18 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
     })
       .then(res => res.json())
       .then(json => {
+        // 응답으로 받은 메세지 내용
         let message = String(json.message);
+
+        // 로그인 성공 시
         if (message.includes('SIGNIN_SUCCESS')) {
+          // localStorage에 토큰 추가 및 로그인 모달 닫기, 메인화면으로 이동
           localStorage.setItem('token', json.result.token);
           setIsModalOpen(false);
           setIsLoginPass(false);
           window.location.href = '/';
         } else {
+          // 로그인 실패 시 이메일과 비밀번호 초기화, 이메일 칸 focus
           setIsLoginPass(true);
           setEmail('');
           setPassword('');
@@ -150,6 +173,7 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   };
 
   return (
+    // styled-react-modal 라이브러리 사용
     <ModalProvider>
       <StyledModal
         data-testid="Login Test"

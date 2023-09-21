@@ -114,6 +114,8 @@ const Flex = Styled.div`
   gap: 1em;
 `;
 
+// userFeed : 해당 유저가 작성한 게시물 정보
+// index : 화면에 표시할 게시물 인덱스
 interface UserFeedsType {
   userFeeds: {
     category: string;
@@ -166,6 +168,7 @@ export const MyFeeds = ({ userFeeds, index }: UserFeedsType) => {
           </ItemInfo>
         </Link>
       </ItemMain>
+      {/* 이미지가 있는 경우에 이미지 표시 */}
       {userFeeds.imgUrl && <ItemImg src={userFeeds.imgUrl} />}
     </WriterFeedItem>
   );

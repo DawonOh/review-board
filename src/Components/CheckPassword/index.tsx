@@ -59,16 +59,21 @@ interface PropsType {
 }
 
 export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
+  // 현재 비밀번호 확인을 위해 백으로 보낼 이메일 값
   const [email, setEmail] = useState('');
+  // 화면에서 입력받는 현재 비밀번호 값
   const [pw, setPw] = useState('');
+  // 알림창 모달을 위한 state
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isQuestion, setIsQuestion] = useState(false);
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
+  // .env에서 가져오는 변수들(url, port)
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const token = localStorage.getItem('token');
 
+  // 페이지 렌더링 시 불러오는 사용자 정보 - 이메일 값 저장
   useEffect(() => {
     axios
       .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
@@ -80,6 +85,7 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
       });
   }, []);
 
+  // 알림창 모달 여는 함수
   const openAlertModal = () => {
     if (isAlertModalOpen) {
       return (
@@ -94,13 +100,18 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
     }
   };
 
+  // 입력받은 비밀번호 가져오는 함수
   const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPw(e.target.value);
   };
 
+  // 비밀번호 확인 및 백으로 전송
   const checkPw = () => {
+    // 확인 버튼 클릭 시 비밀번호 칸 초기화
     setPw('');
     setIsPass(false);
+
+    // 백으로 전송(로그인 로직 활용)
     axios
       .post(
         `${BACK_URL}:${BACK_PORT}/users/signin`,
