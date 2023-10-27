@@ -29,11 +29,11 @@ export const Join = () => {
   //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
   const [isQuestion, setIsQuestion] = useState(false);
 
-  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
-  const [result, setResult] = useState(false);
-
   //AlertModal 메세지 내용
   const [messages, setMessages] = useState<MessageType[]>([]);
+
+  //AlertModal에서 확인 클릭 시 이동할 링크
+  const [alertPath, setAlertPath] = useState('');
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -47,7 +47,7 @@ export const Join = () => {
           setIsAlertModalOpen={setIsAlertModalOpen}
           contents={messages}
           isQuestion={isQuestion}
-          setResult={setResult}
+          alertPath={alertPath}
         />
       );
     }
@@ -119,7 +119,9 @@ export const Join = () => {
         );
         const resultCode = response.status;
         if (resultCode === 200) {
-          alert('사용 가능한 닉네임입니다.');
+          setMessages([{ id: 1, text: '사용 가능한 닉네임입니다.' }]);
+          setIsQuestion(false);
+          setIsAlertModalOpen(true);
           setIsTryNickCheck('pass');
           setIsNickPass(true);
           setIsNickEmpty(false);
@@ -127,7 +129,12 @@ export const Join = () => {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           if (error.response?.status === 409) {
-            alert('사용중인 닉네임입니다.');
+            setMessages([
+              { id: 1, text: '사용중인 닉네임입니다.' },
+              { id: 2, text: '다른 닉네임을 입력해주세요.' },
+            ]);
+            setIsQuestion(false);
+            setIsAlertModalOpen(true);
             setIsTryNickCheck('nonPass');
             setIsNickPass(false);
             setIsNickEmpty(true);
@@ -186,10 +193,14 @@ export const Join = () => {
         (isFormNotEmpty && isFormValid && isTryNickCheck === 'notYet') ||
         isTryNickCheck === 'nonPass'
       ) {
-        alert('닉네임 중복확인을 해주세요.');
+        setMessages([{ id: 1, text: '닉네임 중복확인을 해주세요.' }]);
+        setIsQuestion(false);
+        setIsAlertModalOpen(true);
       }
       if (!isFormNotEmpty || (!isFormValid && isTryNickCheck !== 'nonPass')) {
-        alert('입력한 정보를 다시 확인해주세요.');
+        setMessages([{ id: 1, text: '입력한 정보를 다시 확인해주세요.' }]);
+        setIsQuestion(false);
+        setIsAlertModalOpen(true);
       }
       if (isFormNotEmpty && isFormValid && isTryNickCheck === 'pass') {
         const response = await axios.post(
@@ -202,13 +213,17 @@ export const Join = () => {
           { headers: { 'Content-Type': 'application/json' } }
         );
         if (response.status === 201) {
-          alert('회원가입되었습니다.');
-          window.location.href = '/';
+          setMessages([{ id: 1, text: '가입이 완료되었습니다.' }]);
+          setIsQuestion(false);
+          setIsAlertModalOpen(true);
+          setAlertPath('/');
         }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        alert('잠시후 다시 시도해주세요.');
+        setMessages([{ id: 1, text: '잠시후 다시 시도해주세요.' }]);
+        setIsQuestion(false);
+        setIsAlertModalOpen(true);
       }
     }
   };
