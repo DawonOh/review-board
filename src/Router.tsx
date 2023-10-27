@@ -14,12 +14,10 @@ import {
   FindPw,
   LikeList,
 } from 'pages';
-import GlobalStyles from 'Styles/GlobalStyle';
 
 const Router = () => {
   return (
     <BrowserRouter>
-      <GlobalStyles />
       <Routes>
         <Route path="/join" element={<Join />} />
         <Route path="/" element={<MainPage />} />

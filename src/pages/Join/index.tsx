@@ -1,116 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Styled from 'styled-components';
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
+import { AlertModal } from 'Components';
+import axios from 'axios';
 
-const Bg = Styled.div`
-  ${flexCenterAlign}
-  width: 100vw;
-  height: 100vh;
-  @media all and (max-width: 1023px) {
-    background-color: #eef2ff;
-  }
-`;
-
-const JoinContainer = Styled.div`
-  ${flexCenterAlign}
-  width: 55vw;
-  height: 100vh;
-  background-color: #eef2ff;
-`;
-
-const JoinContents = Styled.div`
-  ${flexCenterAlign}
-  flex-direction: column;
-`;
-
-const Title = Styled.h1`
-  font-family: 'Kanit', serif;
-  margin: 0.3em;
-  color: #676fa3;
-  font-size: 2.5em;
-  font-weight: 700;
-`;
-
-const WelcomeMessage = Styled.p`
-  margin-bottom: 3em;
-`;
-
-const GridContainer = Styled.div`
-  display: grid;
-  align-items: center;
-  @media all and (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @media all and (max-width: 1023px) {
-    grid-template-columns: repeat(1, 1fr);
-  }
-  gap: 1em;
-`;
-
-const SmallSizeMessage = Styled.p`
-  margin-top: 3em;
-  margin-bottom: 1em;
-  font-size: 0.8em;
-`;
-
-const InputName = Styled.span`
-  justify-self: end;
-  &::before {
-    content: '*';
-    color: #ff5959;
-  }
-  @media all and (max-width: 1023px) {
-    justify-self: start;
-  }
-`;
-const Input = Styled.input`
-  width: 25em;
-  padding: 0.6em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-`;
-const Buttons = Styled.div`
-  display: flex;
-  gap: 1em;
-`;
-
-const WarnMessage = Styled.p<{
-  isEmailPass?: boolean;
-  isPassWordPass?: boolean;
-  isPwChkPass?: boolean;
-  isEmailCanUse?: boolean;
-}>`
-  display: ${props =>
-    props.isEmailPass ||
-    props.isPassWordPass ||
-    props.isPwChkPass ||
-    props.isEmailCanUse
-      ? 'none'
-      : 'block'};
-  margin-top: 0.3em;
-  color: #ff5959;
-  font-size: 0.8em;
-`;
-
-const JoinButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.6em;
-  background-color: #FF5959;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const Button = Styled.button`
-  ${ButtonLayout}
-  padding: 0.6em;
-  background-color: #E0E0E0;
-  color: #000;
-  cursor: pointer;
-`;
+interface MessageType {
+  id: number;
+  text: string;
+}
 
 export const Join = () => {
   const [email, setEmail] = useState('');
@@ -124,14 +20,38 @@ export const Join = () => {
   const [isPwChkPass, setIsPwChkPass] = useState(true);
 
   const [nickName, setNickNameValue] = useState('');
+  const [isNickEmpty, setIsNickEmpty] = useState(false);
   const [isNickPass, setIsNickPass] = useState(true);
   const [isTryNickCheck, setIsTryNickCheck] = useState('notYet');
+  //AlertModal open 여부
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
+  //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
+  const [isQuestion, setIsQuestion] = useState(false);
+
+  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
+  const [result, setResult] = useState(false);
+
+  //AlertModal 메세지 내용
+  const [messages, setMessages] = useState<MessageType[]>([]);
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('Content-Type', 'application/json');
+  // 알림 모달창 함수
+  const openAlertModal = () => {
+    if (isAlertModalOpen) {
+      return (
+        <AlertModal
+          isAlertModalOpen={isAlertModalOpen}
+          setIsAlertModalOpen={setIsAlertModalOpen}
+          contents={messages}
+          isQuestion={isQuestion}
+          setResult={setResult}
+        />
+      );
+    }
+  };
 
   //이메일 유효성 검사
   const checkEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,19 +65,22 @@ export const Join = () => {
   };
 
   //이메일 중복 검사
-  const checkAlreadyUsedEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    fetch(`${BACK_URL}:${BACK_PORT}/users/checkemail?email=${email}`, {
-      headers: requestHeaders,
-    })
-      .then(res => res.json())
-      .then(json => {
-        let result = String(json.message);
-        if (result.includes('ALREADY_EXSITS')) {
+  const checkAlreadyUsedEmail = async () => {
+    try {
+      let response = await axios.get(
+        `${BACK_URL}:${BACK_PORT}/users/checkemail?email=${email}`,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (response.status === 200) {
+        setIsEmailCanUse(true);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 409) {
           setIsEmailCanUse(false);
-        } else {
-          setIsEmailCanUse(true);
         }
-      });
+      }
+    }
   };
 
   //비밀번호 유효성 검사
@@ -187,149 +110,228 @@ export const Join = () => {
   const getNickNameValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickNameValue(e.target.value);
   };
-  const checkNickName = () =>
-    fetch(`${BACK_URL}:${BACK_PORT}/users/checknickname?nickname=${nickName}`, {
-      headers: requestHeaders,
-    })
-      .then(res => res.json())
-      .then(json => {
-        let result = String(json.message);
-        if (result.includes('AVAILABLE_NICKNAME')) {
+  const checkNickName = async () => {
+    if (nickName.trim() !== '') {
+      setIsNickEmpty(false);
+      try {
+        const response = await axios.get(
+          `${BACK_URL}:${BACK_PORT}/users/checknickname?nickname=${nickName}`
+        );
+        const resultCode = response.status;
+        if (resultCode === 200) {
           alert('사용 가능한 닉네임입니다.');
           setIsTryNickCheck('pass');
           setIsNickPass(true);
-        } else if (nickName === '') {
-          setIsTryNickCheck('notYet');
-          setIsNickPass(false);
-          return;
-        } else {
-          alert('사용중인 닉네임입니다.');
-          setIsTryNickCheck('nonPass');
-          setIsNickPass(false);
+          setIsNickEmpty(false);
         }
-      });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 409) {
+            alert('사용중인 닉네임입니다.');
+            setIsTryNickCheck('nonPass');
+            setIsNickPass(false);
+            setIsNickEmpty(true);
+          }
+        }
+      }
+    }
+    if (nickName.trim() === '') {
+      setIsNickEmpty(true);
+    }
+  };
 
   //회원가입
-  const join = () => {
-    if (
-      email &&
-      passWord &&
-      passCheck &&
-      nickName &&
+
+  const checkEmptyValue = (
+    email: string,
+    passWord: string,
+    passCheck: string,
+    nickName: string
+  ): boolean => {
+    return !!(email && passWord && passCheck && nickName);
+  };
+
+  const checkValuePass = (
+    isEmailPass: boolean,
+    isEmailCanUse: boolean,
+    isPassWordPass: boolean,
+    isPwChkPass: boolean,
+    isNickPass: boolean
+  ): boolean => {
+    return (
       isEmailPass &&
       isEmailCanUse &&
       isPassWordPass &&
       isPwChkPass &&
-      isNickPass &&
-      isTryNickCheck === 'notYet'
-    ) {
-      alert('닉네임 중복확인을 해주세요.');
-    } else if (
-      email === '' ||
-      passWord === '' ||
-      passCheck === '' ||
-      nickName === '' ||
-      isEmailCanUse === false ||
-      isEmailPass === false ||
-      isPassWordPass === false ||
-      isPwChkPass === false ||
-      isNickPass === false
-    ) {
-      alert('입력한 정보를 다시 확인해주세요.');
-    } else {
-      fetch(`${BACK_URL}:${BACK_PORT}/users/signup`, {
-        method: 'POST',
-        headers: requestHeaders,
-        body: JSON.stringify({
-          nickname: nickName,
-          email: email,
-          password: passWord,
-        }),
-      })
-        .then(res => res.json())
-        .then(json => {
-          let result = String(json.message);
-          if (result.includes('SIGNUP_SUCCESS')) {
-            alert('회원가입되었습니다.');
-            window.location.href = '/';
-          } else {
-            alert('잠시후 다시 시도해주세요.');
-          }
-        });
+      isNickPass
+    );
+  };
+
+  const join = async () => {
+    try {
+      const isFormNotEmpty = checkEmptyValue(
+        email,
+        passWord,
+        passCheck,
+        nickName
+      );
+      const isFormValid = checkValuePass(
+        isEmailPass,
+        isEmailCanUse,
+        isPassWordPass,
+        isPwChkPass,
+        isNickPass
+      );
+      if (
+        (isFormNotEmpty && isFormValid && isTryNickCheck === 'notYet') ||
+        isTryNickCheck === 'nonPass'
+      ) {
+        alert('닉네임 중복확인을 해주세요.');
+      }
+      if (!isFormNotEmpty || (!isFormValid && isTryNickCheck !== 'nonPass')) {
+        alert('입력한 정보를 다시 확인해주세요.');
+      }
+      if (isFormNotEmpty && isFormValid && isTryNickCheck === 'pass') {
+        const response = await axios.post(
+          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          {
+            nickname: nickName,
+            email: email,
+            password: passWord,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        if (response.status === 201) {
+          alert('회원가입되었습니다.');
+          window.location.href = '/';
+        }
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        alert('잠시후 다시 시도해주세요.');
+      }
     }
   };
   return (
-    <Bg>
-      <JoinContainer>
-        <JoinContents>
-          <Title>ALLREVIEW</Title>
-          <WelcomeMessage>ALLREVIEW에 오신 여러분을 환영합니다!</WelcomeMessage>
-          <GridContainer>
-            <InputName>이메일</InputName>
-            <div>
-              <Input
-                type="text"
-                placeholder="예시)example@email.com"
-                onChange={checkEmail}
-                onBlur={checkAlreadyUsedEmail}
-              />
-              <WarnMessage isEmailPass={isEmailPass}>
-                이메일 형식에 맞지 않습니다.
-              </WarnMessage>
+    <div className="flexCenterAlign w-screen h-screen">
+      <div className="flexCenterAlign flex-col">
+        <div className="font-sans m-1.5 text-mainblue text-4xl font-bold">
+          ALLREVIEW
+        </div>
+        <p className="mb-1.5">ALLREVIEW에 오신 여러분을 환영합니다!</p>
+        <div className="grid items-center lg:grid-cols-3 md:grid-cols-1 gap-4">
+          <span className="lg:justify-self-end md:justify-self-start before:content-['*'] before:text-mainred">
+            이메일
+          </span>
+          <div>
+            <input
+              className="w-96 p-2.5 border border-solid border-mainblue rounded focus:outline-none"
+              type="text"
+              placeholder="예시)example@email.com"
+              onChange={checkEmail}
+              onBlur={checkAlreadyUsedEmail}
+            />
+            <p
+              className={`${
+                isEmailPass ? 'hidden' : 'block'
+              } mt-1.5 text-mainred text-sm`}
+            >
+              이메일 형식에 맞지 않습니다.
+            </p>
 
-              <WarnMessage isEmailCanUse={isEmailCanUse}>
-                사용중인 이메일입니다.
-              </WarnMessage>
-            </div>
-            <div />
-            <InputName>비밀번호</InputName>
-            <div>
-              <Input
-                type="password"
-                placeholder="영문, 숫자, 특수문자 포함 8자리 이상"
-                onChange={checkPw}
-              />
-              <WarnMessage isPassWordPass={isPassWordPass}>
-                영어 대문자, 소문자, 숫자, 특수문자 포함 8자리 이상으로
-                설정해주세요.
-              </WarnMessage>
-            </div>
-            <div />
-            <InputName>비밀번호 확인</InputName>
-            <div>
-              <Input
-                type="password"
-                placeholder="비밀번호를 한 번 더 입력해주세요."
-                onChange={checkchkPw}
-              />
-              <WarnMessage isPwChkPass={isPwChkPass}>
-                비밀번호와 일치하지 않습니다.
-              </WarnMessage>
-            </div>
-            <div />
-            <InputName>닉네임</InputName>
-            <div>
-              <Input
-                type="text"
-                placeholder="닉네임을 입력해주세요."
-                onChange={getNickNameValue}
-              />
-            </div>
-            <div>
-              <Button onClick={checkNickName}>중복확인</Button>
-            </div>
-          </GridContainer>
-          <SmallSizeMessage>
-            <InputName />은 필수항목입니다.
-          </SmallSizeMessage>
-          <Buttons>
-            <Link to="/">
-              <Button>취소</Button>
-            </Link>
-            <JoinButton onClick={join}>가입하기</JoinButton>
-          </Buttons>
-        </JoinContents>
-      </JoinContainer>
-    </Bg>
+            <p
+              className={`${
+                isEmailCanUse ? 'hidden' : 'block'
+              } mt-1.5 text-mainred text-sm`}
+            >
+              사용중인 이메일입니다.
+            </p>
+          </div>
+          <div />
+          <span className="lg:justify-self-end md:justify-self-start before:content-['*'] before:text-mainred">
+            비밀번호
+          </span>
+          <div>
+            <input
+              className="w-96 p-2.5 border border-solid border-mainblue rounded focus:outline-none"
+              type="password"
+              placeholder="영문, 숫자, 특수문자 포함 8자리 이상"
+              onChange={checkPw}
+            />
+            <p
+              className={`${
+                isPassWordPass ? 'hidden' : 'block'
+              } mt-1.5 text-mainred text-sm`}
+            >
+              비밀번호 조건을 확인해 주세요.
+            </p>
+          </div>
+          <div />
+          <span className="lg:justify-self-end md:justify-self-start before:content-['*'] before:text-mainred">
+            비밀번호 확인
+          </span>
+          <div>
+            <input
+              className="w-96 p-2.5 border border-solid border-mainblue rounded focus:outline-none"
+              type="password"
+              placeholder="비밀번호를 한 번 더 입력해주세요."
+              onChange={checkchkPw}
+            />
+            <p
+              className={`${
+                isPwChkPass ? 'hidden' : 'block'
+              } mt-1.5 text-mainred text-sm`}
+            >
+              비밀번호와 일치하지 않습니다.
+            </p>
+          </div>
+          <div />
+          <span className="lg:justify-self-end md:justify-self-start before:content-['*'] before:text-mainred">
+            닉네임
+          </span>
+          <div>
+            <input
+              className={`${
+                isNickEmpty ? 'bg-mainred/[.08]' : 'bg-inherit'
+              } w-96 p-2.5 border border-solid border-mainblue rounded focus:outline-none`}
+              type="text"
+              placeholder="닉네임을 입력해주세요."
+              onChange={getNickNameValue}
+            />
+          </div>
+          <div>
+            <button
+              className="buttonLayout p-2.5 bg-buttongray"
+              onClick={checkNickName}
+            >
+              중복확인
+            </button>
+          </div>
+        </div>
+        <ul className="list-disc text-sm mt-12 mb-4 text-sm">
+          <li className="before:content-['*'] before:text-mainred">
+            은 필수항목입니다.
+          </li>
+          <li>
+            비밀번호는 영어 대문자, 소문자, 숫자, 특수문자 포함 8자리 이상으로
+            설정해주세요.
+          </li>
+        </ul>
+        <div>
+          <Link to="/">
+            <button className="buttonLayout p-2.5 bg-buttongray mr-4">
+              취소
+            </button>
+          </Link>
+          <button
+            className="buttonLayout p-2.5 bg-mainred text-white"
+            onClick={join}
+          >
+            가입하기
+          </button>
+        </div>
+      </div>
+      {openAlertModal()}
+    </div>
   );
 };
