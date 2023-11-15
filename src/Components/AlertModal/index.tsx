@@ -1,48 +1,5 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import Styled from 'styled-components';
-import Modal, { ModalProvider } from 'styled-react-modal';
-
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
-
-const AlertModalContainer = Styled.div`
-  width: 100%;
-  height: 100%;
-  ${flexCenterAlign}
-  flex-direction: column;
-`;
-
-const AlertMessage = Styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  gap: 0.3rem;
-`;
-
-const StyledModal = Modal.styled`
-  width: 20em;
-  height: 12em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 4px;
-`;
-
-const Buttons = Styled.div`
-  display: flex;
-  gap: 1em;
-`;
-
-const CloseButton = Styled.button<{ isCancle?: boolean }>`
-  ${ButtonLayout}
-  padding: 0.4em 0.6em;
-  background-color: ${props => (props.isCancle ? '#C1C1C1' : '#676FA3')};
-  color: #fff;
-  cursor: pointer;
-`;
 
 interface Props {
   isAlertModalOpen: boolean;
@@ -61,74 +18,91 @@ export const AlertModal = ({
   setResult,
   alertPath,
 }: Props) => {
+  const AlertDivRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeClickOutside = (e: any) => {
+      if (
+        AlertDivRef.current &&
+        !AlertDivRef.current.contains(e.target as Node)
+      ) {
+        setIsAlertModalOpen(false);
+      }
+    };
+    document.addEventListener('click', closeClickOutside);
+    return () => {
+      document.removeEventListener('click', closeClickOutside);
+    };
+  }, [setIsAlertModalOpen]);
+
   const linkButton = () => {
     if (alertPath) {
       return (
         <Link to={alertPath}>
-          <CloseButton
+          <button
+            className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
             onClick={() => {
               setIsAlertModalOpen(false);
-              // setResult && setResult(true);
             }}
           >
             확인
-          </CloseButton>
+          </button>
         </Link>
       );
     } else {
       return (
-        <CloseButton
+        <button
+          className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
           onClick={() => {
             setIsAlertModalOpen(false);
-            // setResult && setResult(true);
           }}
         >
           확인
-        </CloseButton>
+        </button>
       );
     }
   };
 
   return (
-    <ModalProvider>
-      <StyledModal
-        isOpen={isAlertModalOpen}
-        onBackgroundClick={() => setIsAlertModalOpen(false)}
-        onEscapeKeydown={() => setIsAlertModalOpen(false)}
+    <div className="flexCenterAlign fixed inset-x-0 inset-y-0 bg-black/50">
+      <div
+        className="w-80 h-48 flexCenterAlign p-4 bg-white rounded"
+        ref={AlertDivRef}
       >
-        <AlertModalContainer>
-          <AlertMessage>
+        <div className="w-full h-full flexCenterAlign flex-col">
+          <div className="flexCenterAlign flex-col h-full gap-1.5">
             {contents.map(content => {
               return <p key={content.id}>{content.text}</p>;
             })}
-          </AlertMessage>
-          <Buttons>
+          </div>
+          <div className="flex gap-1.5">
             {isQuestion ? (
               <Fragment>
-                <CloseButton
+                <button
+                  className="buttonLayout py-1.5 px-2.5 bg-buttongray text-white"
                   onClick={() => {
                     setIsAlertModalOpen(false);
                     setResult && isQuestion && setResult(false);
                   }}
-                  isCancle={true}
                 >
                   취소
-                </CloseButton>
-                <CloseButton
+                </button>
+                <button
+                  className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
                   onClick={() => {
                     setIsAlertModalOpen(false);
                     setResult && setResult(true);
                   }}
                 >
                   확인
-                </CloseButton>
+                </button>
               </Fragment>
             ) : (
               linkButton()
             )}
-          </Buttons>
-        </AlertModalContainer>
-      </StyledModal>
-    </ModalProvider>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
