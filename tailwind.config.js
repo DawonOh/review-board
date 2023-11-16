@@ -12,6 +12,7 @@ module.exports = {
       mainred: '#ff5959',
       buttongray: '#e0e0e0',
       white: '#fff',
+      black: '#000',
     },
   },
   plugins: [],

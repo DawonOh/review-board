@@ -126,19 +126,19 @@ export const FindPw = () => {
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const FRONT_URL = process.env.REACT_APP_BASE_URL;
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   //이메일 유효성 검사
   const checkEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +230,7 @@ export const FindPw = () => {
           </Fragment>
         )}
       </CenterContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </MainContainer>
   );
 };
