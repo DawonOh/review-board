@@ -13,7 +13,12 @@ export const AlertModal = () => {
     if (alertModal.alertPath) {
       return (
         <Link to={alertModal.alertPath}>
-          <button className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white">
+          <button
+            className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
+            onClick={() => {
+              dispatch(alertActions.closeModal());
+            }}
+          >
             확인
           </button>
         </Link>
