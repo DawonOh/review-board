@@ -1,88 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Styled from 'styled-components';
-import Modal, { ModalProvider } from 'styled-react-modal';
-
-import closeButtonImg from '../../assets/images/close.png';
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
-
-const LoginModalContainer = Styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  ${flexCenterAlign}
-  flex-direction: column;
-  gap: 1.2rem;
-`;
-
-const CloseButton = Styled.div`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 1rem;
-  height: 1rem;
-  background: url(${closeButtonImg});
-	background-repeat: no-repeat;
-	background-size: cover;
-  cursor: pointer;
-`;
-
-const Title = Styled.h1`
-  font-family: 'Kanit', serif;
-  font-size: 2em;
-  font-weight: 700;
-  color: #676FA3;
-`;
-
-const Input = Styled.input`
-width: 20em;
-padding: 0.6em;
-font-size: 1em;
-border: 1px solid #e0e0e0;
-border-radius: 0.3em;
-&:focus {
-  outline: none;
-}
-`;
-
-const Buttons = Styled.div`
-  ${flexCenterAlign}
-  gap: 0.3rem;
-`;
-
-const GoToLink = Styled.span`
-  font-size: 0.9em;
-`;
-
-const StyledModal = Modal.styled`
-  width: 32em;
-  height: 20em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  border-radius: 4px;
-`;
-
-const ErrorMessage = Styled.p`
-  color: #FF5959;
-  font-size: 0.9em;
-`;
-
-const LoginButton = Styled.button<{
-  disabled?: boolean;
-}>`
-  ${ButtonLayout}
-  padding: 0.6em;
-  background-color: ${props => (props.disabled ? '#E0E0E0' : '#FF5959')};
-  color: #fff;
-  cursor: ${props => (props.disabled ? 'dafault' : 'pointer')};
-`;
-
-const Flex = Styled.div`
-  display: flex;
-  gap: 0.5em;
-`;
 
 interface Props {
   isModalOpen: boolean;
@@ -96,6 +13,23 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   const [isLoginPass, setIsLoginPass] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const loginDivRef = useRef<HTMLDivElement>(null);
+
+  // useEffect(() => {
+  //   const closeClickOutside = (e: any) => {
+  //     if (
+  //       loginDivRef.current &&
+  //       !loginDivRef.current.contains(e.target as Node)
+  //     ) {
+  //       setIsModalOpen(false);
+  //     }
+  //   };
+  //   document.addEventListener('click', closeClickOutside);
+  //   return () => {
+  //     document.removeEventListener('click', closeClickOutside);
+  //   };
+  // }, [setIsModalOpen]);
 
   const getEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -150,52 +84,63 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   };
 
   return (
-    <ModalProvider>
-      <StyledModal
-        data-testid="Login Test"
-        isOpen={isModalOpen}
-        onBackgroundClick={() => setIsModalOpen(false)}
-        onEscapeKeydown={() => setIsModalOpen(false)}
+    <div className="flexCenterAlign fixed inset-x-0 inset-y-0 bg-black/50">
+      <div
+        className="w-132 h-80 flexCenterAlign bg-white rounded"
+        ref={loginDivRef}
       >
-        <LoginModalContainer>
-          <CloseButton
+        <div className="w-full h-full relative flexCenterAlign flex-col gap-5">
+          <div
+            className="w-4 h-4 absolute top-8 right-8 bg-[url('./assets/images/close.png')] bg-no-repeat bg-cover cursor-pointer"
             onClick={() => setIsModalOpen(false)}
             data-testid="close button"
           />
-          <Title>ALLREVIEW</Title>
-          <Input
+          <h1 className="font-sans text-mainblue text-3xl font-bold">
+            ALLREVIEW
+          </h1>
+          <input
+            className="w-80 p-2.5 text-base border border-buttongray rounded-md focus:outline-none"
             type="text"
             placeholder="이메일을 입력해주세요."
             onChange={getEmail}
             value={email}
             ref={emailInput}
           />
-          <Input
+          <input
+            className="w-80 p-2.5 text-base border border-buttongray rounded-md focus:outline-none"
             type="password"
             placeholder="비밀번호를 입력해주세요."
             onChange={getPw}
             value={password}
           />
           {isLoginPass && (
-            <ErrorMessage>이메일/비밀번호가 일치하지 않습니다.</ErrorMessage>
+            <p className="text-mainred text-sm">
+              이메일/비밀번호가 일치하지 않습니다.
+            </p>
           )}
 
-          <Buttons>
-            <LoginButton onClick={login} disabled={isDisabled}>
+          <div className="flexCenterAlign gap-1.5">
+            <button
+              className={`buttonLayout p-2 ${
+                isDisabled ? 'bg-buttongray' : 'bg-mainblue'
+              } text-white ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+              onClick={login}
+              disabled={isDisabled}
+            >
               로그인
-            </LoginButton>
-          </Buttons>
-          <Flex>
+            </button>
+          </div>
+          <div className="flex gap-2">
             <Link to="/join">
-              <GoToLink>회원가입</GoToLink>
+              <span className="text-sm">회원가입</span>
             </Link>
             |
             <Link to="/findpw">
-              <GoToLink>비밀번호 찾기</GoToLink>
+              <span className="text-sm">비밀번호 찾기</span>
             </Link>
-          </Flex>
-        </LoginModalContainer>
-      </StyledModal>
-    </ModalProvider>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
