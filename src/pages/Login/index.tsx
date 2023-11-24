@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 export const Login = () => {
   return (
     <div className="flex">
-      <div className="w-1/2 h-screen bg-mainsky flex flexCenterAlign">
+      <div className="md:flexCenterAlign hidden w-1/2 h-screen bg-mainsky ">
         <Link to="/">
           <div className="w-6 h-6 absolute top-8 left-8 bg-[url('./assets/images/back.png')] bg-no-repeat bg-cover cursor-pointer" />
         </Link>
@@ -20,9 +20,12 @@ export const Login = () => {
         </div>
       </div>
 
-      <div className="w-1/2 h-screen flex flexCenterAlign flex-col">
+      <div className="md:w-1/2 w-full h-screen flexCenterAlign flex-col">
+        <Link to="/">
+          <div className="w-6 h-6 absolute top-8 left-8 bg-[url('./assets/images/back.png')] bg-no-repeat bg-cover cursor-pointer" />
+        </Link>
         <form className="w-full h-1/2 flex flex-col items-center justify-between">
-          <div className="flex flexCenterAlign flex-col gap-7">
+          <div className="flexCenterAlign flex-col md:gap-7 gap-3">
             <h1 className="mb-10 font-sans text-mainblue text-3xl font-bold">
               ALLREVIEW
             </h1>
@@ -42,12 +45,22 @@ export const Login = () => {
           </div>
 
           <div className="flexCenterAlign gap-1.5">
-            <button className="w-60 h-20 bg-mainblue text-2xl text-white rounded-full">
+            <button className="w-40 md:w-60 h-12 md:h-20 bg-mainblue text-2xl text-white rounded-full">
               SIGN IN
             </button>
           </div>
         </form>
-        <Link to="/findpw" className="fixed bottom-40">
+
+        <span className="flex gap-2 mt-5 md:hidden">
+          <Link to="/join">
+            <span className="text-sm">회원가입</span>
+          </Link>
+          |
+          <Link to="/findpw" className="md:fixed md:bottom-40">
+            <span className="text-sm">비밀번호 찾기</span>
+          </Link>
+        </span>
+        <Link to="/findpw" className="hidden md:block md:fixed md:bottom-40">
           <span className="text-sm">비밀번호 찾기</span>
         </Link>
       </div>
