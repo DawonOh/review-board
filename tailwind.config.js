@@ -14,6 +14,7 @@ module.exports = {
         mainblue: '#676fa3',
         mainred: '#ff5959',
         buttongray: '#e0e0e0',
+        mainsky: '#EEF2FF',
         white: '#fff',
         black: '#000',
       },

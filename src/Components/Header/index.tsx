@@ -1,4 +1,6 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginActions } from 'redux/slice/login-slice';
 import Styled from 'styled-components';
 
 import { Login, MobileMenu } from 'Components';
@@ -203,8 +205,8 @@ interface SearchListType {
 }
 
 export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isLogin, setIsLogin] = useState(false);
   const [isHover, setIsHover] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchList, setSearchList] = useState<SearchListType[]>([]);
@@ -216,12 +218,9 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const handleModalOpen = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-  const handleMenuOn = () => {
-    setIsMenuOn(!isMenuOn);
-  };
+  const dispatch = useDispatch<any>();
+  const isLogin = useSelector((state: any) => state.login.isLogin);
+
   let token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -235,13 +234,13 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     }
   }, [token]);
 
-  useEffect(() => {
-    if (token) {
-      setIsLogin(true);
-    } else {
-      setIsLogin(false);
-    }
-  }, [token, isLogin]);
+  // useEffect(() => {
+  //   if (token) {
+  //     setIsLogin(true);
+  //   } else {
+  //     setIsLogin(false);
+  //   }
+  // }, [token, isLogin]);
 
   const logout = () => {
     localStorage.clear();
@@ -342,7 +341,12 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
           <Link to="/">
             <Logo>ALLREVIEW</Logo>
           </Link>
-          <MenuButton onClick={handleMenuOn} isMenuOn={isMenuOn} />
+          <MenuButton
+            onClick={() => {
+              dispatch();
+            }}
+            isMenuOn={isMenuOn}
+          />
           <RightContents>
             {pathname !== '/search' && (
               <div ref={SearchDivRef}>
@@ -387,10 +391,12 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
               </Icons>
             ) : (
-              <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
+              <Link to="/login">
+                <LoginButton>로그인</LoginButton>
+              </Link>
             )}
 
-            <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+            <Login />
             <MobileMenu
               isMenuOn={isMenuOn}
               setIsMenuOn={setIsMenuOn}
