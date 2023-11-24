@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { Login } from 'Components/Login';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -132,7 +131,7 @@ export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
           <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
         )}
       </MenuList>
-      <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      {/* <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} /> */}
     </MenuContainer>
   );
 };

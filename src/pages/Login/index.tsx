@@ -1,6 +1,22 @@
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { login, loginActions } from 'redux/slice/login-slice';
 
 export const Login = () => {
+  const dispatch = useDispatch<any>();
+  const userInfo = useSelector((state: any) => state.login.user);
+  const isLogin = useSelector((state: any) => state.login.isLogin);
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(login(userInfo));
+  };
+
+  const handleUserInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    dispatch(loginActions.getLoginInfo({ ...userInfo, [id]: value }));
+  };
   return (
     <div className="flex">
       <div className="md:flexCenterAlign hidden w-1/2 h-screen bg-mainsky/[.4]">
@@ -24,7 +40,10 @@ export const Login = () => {
         <Link to="/">
           <div className="w-6 h-6 absolute top-8 left-8 bg-[url('./assets/images/back.png')] bg-no-repeat bg-cover cursor-pointer" />
         </Link>
-        <form className="w-full h-1/2 flex flex-col items-center justify-between animate-fade-in">
+        <form
+          className="w-full h-1/2 flex flex-col items-center justify-between animate-fade-in"
+          onSubmit={submit}
+        >
           <div className="flexCenterAlign flex-col md:gap-7 gap-3">
             <h1 className="mb-10 font-sans text-mainblue text-3xl font-bold">
               ALLREVIEW
@@ -33,19 +52,39 @@ export const Login = () => {
               className="w-80 p-2.5 text-base border border-buttongray rounded-md focus:outline-none"
               type="text"
               placeholder="이메일을 입력해주세요."
+              id="email"
+              onChange={handleUserInfo}
             />
             <input
               className="w-80 p-2.5 text-base border border-buttongray rounded-md focus:outline-none"
               type="password"
               placeholder="비밀번호를 입력해주세요."
+              id="password"
+              onChange={handleUserInfo}
             />
-            <p className="text-mainred text-sm">
-              이메일/비밀번호가 일치하지 않습니다.
-            </p>
+            {isLogin === false && (
+              <p className="text-mainred text-sm">
+                이메일/비밀번호가 일치하지 않습니다.
+              </p>
+            )}
           </div>
 
           <div className="flexCenterAlign gap-1.5">
-            <button className="w-40 md:w-60 h-12 md:h-20 bg-mainblue text-2xl text-white rounded-full opacity-0 animate-fade-in-slow">
+            <button
+              className={`w-40 md:w-60 h-12 md:h-20 ${
+                userInfo.email?.trim() === '' ||
+                userInfo.password?.trim() === ''
+                  ? 'bg-buttongray text-black'
+                  : 'bg-mainblue text-white'
+              } text-2xl  rounded-full opacity-0 animate-fade-in-slow`}
+              type="submit"
+              disabled={
+                userInfo.email?.trim() === '' ||
+                userInfo.password?.trim() === ''
+                  ? true
+                  : false
+              }
+            >
               SIGN IN
             </button>
           </div>

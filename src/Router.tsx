@@ -12,9 +12,11 @@ import {
   FindPw,
   LikeList,
   Join,
+  Login,
 } from 'pages';
 
 const router = createBrowserRouter([
+  { path: '/login', element: <Login /> },
   { path: '/join', element: <Join /> },
   { path: '/', element: <MainPage /> },
   { path: '/feed/:id', element: <Feed /> },

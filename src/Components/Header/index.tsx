@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginActions } from 'redux/slice/login-slice';
 import Styled from 'styled-components';
 
-import { Login, MobileMenu } from 'Components';
+import { MobileMenu } from 'Components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MenuIcon from '../../assets/images/menu.png';
@@ -395,8 +395,6 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 <LoginButton>로그인</LoginButton>
               </Link>
             )}
-
-            <Login />
             <MobileMenu
               isMenuOn={isMenuOn}
               setIsMenuOn={setIsMenuOn}
