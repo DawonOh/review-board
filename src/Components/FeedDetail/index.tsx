@@ -233,19 +233,19 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   let token = localStorage.getItem('token');
 
@@ -463,7 +463,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
           </Buttons>
         </BothSideContainer>
       </ContentContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

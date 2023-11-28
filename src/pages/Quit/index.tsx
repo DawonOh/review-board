@@ -63,19 +63,19 @@ export const Quit = () => {
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   useEffect(() => {
     if (isPass) {
@@ -135,7 +135,7 @@ export const Quit = () => {
       ) : (
         <CheckPassword setIsPass={setIsPass} parentResult={isPass} />
       )}
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

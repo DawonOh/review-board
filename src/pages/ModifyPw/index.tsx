@@ -169,20 +169,20 @@ export const ModifyPw = () => {
     if (query) setIsPass(true);
   }, [token, query]);
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-          alertPath={alertPath}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //         alertPath={alertPath}
+  //       />
+  //     );
+  //   }
+  // };
 
   const getNewPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passWordRegex =
@@ -299,7 +299,7 @@ export const ModifyPw = () => {
       ) : (
         <CheckPassword setIsPass={setIsPass} parentResult={isPass} />
       )}
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

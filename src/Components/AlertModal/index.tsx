@@ -1,134 +1,82 @@
-import React, { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import Styled from 'styled-components';
-import Modal, { ModalProvider } from 'styled-react-modal';
+import { alertActions } from 'redux/slice/alert-slice';
 
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
+export const AlertModal = () => {
+  const dispatch = useDispatch<any>();
+  const alertModal = useSelector((state: any) => state.alert);
+  const AlertDivRef = useRef<HTMLDivElement>(null);
+  let alertMessage = alertModal.contents.match(/[^.]+[.]/g);
 
-const AlertModalContainer = Styled.div`
-  width: 100%;
-  height: 100%;
-  ${flexCenterAlign}
-  flex-direction: column;
-`;
-
-const AlertMessage = Styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  gap: 0.3rem;
-`;
-
-const StyledModal = Modal.styled`
-  width: 20em;
-  height: 12em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 4px;
-`;
-
-const Buttons = Styled.div`
-  display: flex;
-  gap: 1em;
-`;
-
-const CloseButton = Styled.button<{ isCancle?: boolean }>`
-  ${ButtonLayout}
-  padding: 0.4em 0.6em;
-  background-color: ${props => (props.isCancle ? '#C1C1C1' : '#676FA3')};
-  color: #fff;
-  cursor: pointer;
-`;
-
-interface Props {
-  isAlertModalOpen: boolean;
-  setIsAlertModalOpen: (isAlertModalOpen: boolean) => void;
-  contents: { id: number; text: string }[];
-  isQuestion?: boolean;
-  setResult?: Function;
-  alertPath?: string;
-}
-
-export const AlertModal = ({
-  isAlertModalOpen,
-  setIsAlertModalOpen,
-  contents,
-  isQuestion,
-  setResult,
-  alertPath,
-}: Props) => {
   const linkButton = () => {
-    if (alertPath) {
+    if (alertModal.alertPath) {
       return (
-        <Link to={alertPath}>
-          <CloseButton
+        <Link to={alertModal.alertPath}>
+          <button
+            className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
             onClick={() => {
-              setIsAlertModalOpen(false);
-              // setResult && setResult(true);
+              dispatch(alertActions.closeModal());
             }}
           >
             확인
-          </CloseButton>
+          </button>
         </Link>
       );
-    } else {
-      return (
-        <CloseButton
-          onClick={() => {
-            setIsAlertModalOpen(false);
-            // setResult && setResult(true);
-          }}
-        >
-          확인
-        </CloseButton>
-      );
     }
+    return (
+      <button
+        className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
+        onClick={() => {
+          dispatch(alertActions.closeModal());
+        }}
+      >
+        확인
+      </button>
+    );
   };
 
   return (
-    <ModalProvider>
-      <StyledModal
-        isOpen={isAlertModalOpen}
-        onBackgroundClick={() => setIsAlertModalOpen(false)}
-        onEscapeKeydown={() => setIsAlertModalOpen(false)}
-      >
-        <AlertModalContainer>
-          <AlertMessage>
-            {contents.map(content => {
-              return <p key={content.id}>{content.text}</p>;
-            })}
-          </AlertMessage>
-          <Buttons>
-            {isQuestion ? (
-              <Fragment>
-                <CloseButton
-                  onClick={() => {
-                    setIsAlertModalOpen(false);
-                    setResult && isQuestion && setResult(false);
-                  }}
-                  isCancle={true}
-                >
-                  취소
-                </CloseButton>
-                <CloseButton
-                  onClick={() => {
-                    setIsAlertModalOpen(false);
-                    setResult && setResult(true);
-                  }}
-                >
-                  확인
-                </CloseButton>
-              </Fragment>
-            ) : (
-              linkButton()
-            )}
-          </Buttons>
-        </AlertModalContainer>
-      </StyledModal>
-    </ModalProvider>
+    alertModal.isModalOpen && (
+      <div className="flexCenterAlign fixed inset-x-0 inset-y-0 bg-black/50">
+        <div
+          className="w-80 h-48 flexCenterAlign p-4 bg-white rounded"
+          ref={AlertDivRef}
+        >
+          <div className="w-full h-full flexCenterAlign flex-col">
+            <div className="flex justify-center items-start flex-col h-full gap-1.5">
+              {alertMessage?.map((message: string, idx: number) => {
+                return <p key={idx}>{message}</p>;
+              })}
+            </div>
+            <div className="flex gap-1.5">
+              {alertModal.isQuestion ? (
+                <Fragment>
+                  <button
+                    className="buttonLayout py-1.5 px-2.5 bg-buttongray text-white"
+                    onClick={() => {
+                      dispatch(alertActions.closeModal());
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className="buttonLayout py-1.5 px-2.5 bg-mainblue text-white"
+                    onClick={() => {
+                      dispatch(alertActions.closeModal());
+                      dispatch(alertActions.setIsClickOk());
+                    }}
+                  >
+                    확인
+                  </button>
+                </Fragment>
+              ) : (
+                linkButton()
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   );
 };

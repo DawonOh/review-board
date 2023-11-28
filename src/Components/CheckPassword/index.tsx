@@ -80,19 +80,19 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
       });
   }, []);
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPw(e.target.value);
@@ -143,7 +143,7 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
           <CheckButton onClick={checkPw}>확인</CheckButton>
         </CenterDiv>
       </MainContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

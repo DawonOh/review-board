@@ -133,19 +133,19 @@ export const MainComment = ({
   const modifyNestedReply = () => {
     setIsModify(!isModify);
   };
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={alertMessage}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   const deleteComment = () => {
     setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
@@ -230,7 +230,7 @@ export const MainComment = ({
           <Content>{specificComment}</Content>
         )}
       </MainCommentContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

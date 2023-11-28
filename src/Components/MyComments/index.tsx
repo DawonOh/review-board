@@ -133,19 +133,19 @@ const MyComments = (
   const params = useParams();
   let userId = params.id;
 
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={alertMessage}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   const deleteComment = () => {
     setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
@@ -227,7 +227,7 @@ const MyComments = (
             <DeleteButton onClick={deleteComment}>삭제</DeleteButton>
           )}
       </CommentContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

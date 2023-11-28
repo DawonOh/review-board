@@ -116,19 +116,19 @@ export const CommentTextarea = ({
   const [successModify, setSuccessModify] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={alertMessage}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  // const openAlertModal = () => {
+  //   if (isAlertModalOpen) {
+  //     return (
+  //       <AlertModal
+  //         isAlertModalOpen={isAlertModalOpen}
+  //         setIsAlertModalOpen={setIsAlertModalOpen}
+  //         contents=""
+  //         isQuestion={isQuestion}
+  //         setResult={setResult}
+  //       />
+  //     );
+  //   }
+  // };
 
   const textareaFocus = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -378,7 +378,7 @@ export const CommentTextarea = ({
           </ApplyButton>
         </Buttons>
       </WriteReplyContainer>
-      {openAlertModal()}
+      {/* {openAlertModal()} */}
     </Fragment>
   );
 };
