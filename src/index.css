@@ -7,7 +7,7 @@
   }
   * {
     box-sizing: border-box;
-    font-family: 'IBM Plex Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
   }
 
   @media all and (min-width: 1024px) {
@@ -41,4 +41,10 @@
   .buttonLayout {
     @apply text-base border-none rounded-md;
   }
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
+    format('woff');
 }
