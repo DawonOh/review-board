@@ -1,197 +1,11 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginActions } from 'redux/slice/login-slice';
-import Styled from 'styled-components';
-
 import { MobileMenu } from 'Components';
-import { ButtonLayout } from 'Styles/CommonStyle';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import MenuIcon from '../../assets/images/menu.png';
-import CloseIcon from '../../assets/images/close.png';
 import PersonIcon from '../../assets/images/person.png';
 import LogoutIcon from '../../assets/images/logout.png';
+
 import axios from 'axios';
-
-const HeaderContainer = Styled.header`
-  position: sticky;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  margin-bottom: 2em;
-  background-color: #fff;
-  box-shadow: 1px 1px 5px 1px #f7f7f7;
-  z-index: 999;
-  @media (max-width: 767px) {
-    margin: 0em;
-  }
-`;
-
-const CenterContainer = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 80%;
-  height: 100%;
-  padding: 2em;
-  margin: 0 auto;
-  background-color: #fff;
-  @media all and (max-width: 1023px) {
-    width: 80%;
-  }
-`;
-
-const Logo = Styled.h1`
-  font-family: 'Kanit', serif;
-  color: #676FA3;
-  font-size: 2em;
-  font-weight: 700;
-`;
-
-const RightContents = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  @media all and (max-width:767px) {
-    display: none;
-  }
-`;
-
-const Input = Styled.input`
-  width: 20em;
-  margin-right: 1em;
-  padding: 0.6em;
-  font-size: 1em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-  z-index: 999;
-`;
-
-const MenuButton = Styled.div<{ isMenuOn: boolean }>`
-  display : none;
-  @media all and (max-width:767px) {
-    display: block;
-    width: 1.3em;
-    height: 1.3em;
-    background: url(${props => (props.isMenuOn ? CloseIcon : MenuIcon)});
-    background-repeat: no-repeat;
-    background-size: cover;
-    cursor: pointer;
-  }
-`;
-const Icons = Styled.div`
-  display: flex;
-  position: relatve;
-  gap: 1.3em;
-`;
-const Icon = Styled.img`
-  width: 1.3em;
-  cursor: pointer;
-`;
-
-const LoginButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.8em 1.5em;
-  background-color: #676FA3;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const HoverMenu = Styled.div<{ isHover: boolean }>`
-  display: ${props => (props.isHover ? 'flex' : 'none')};
-  position: absolute;
-  width: 9em;
-  flex-direction: column;
-  padding: 1em;
-  gap: 1em;
-  background-color: #fff;
-  border: 1px solid #BDBDBD;
-  border-radius: 0.3em;
-`;
-
-const HoverMenuItem = Styled.span`
-  cursor: pointer;
-  &:hover {
-    color: #676FA3;
-  }
-`;
-
-const SearchListContainer = Styled.div`
-  position: absolute;
-  width: 20em;
-  padding: 1em;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  z-index: 999;
-`;
-
-const ContentContainer = Styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-height: 23em;
-  padding: 1em;
-  gap: 1em;
-  background-color: #fff;
-  overflow-y: auto;
-  z-index: 999;
-`;
-
-const SearchListItemTitle = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1em;
-`;
-
-const SearchTitle = Styled.div`
-  width: 8em;
-  font-weight: 700;
-`;
-
-const SearchDate = Styled.div`
-  width: 6em;
-  font-size: 0.8em;
-  color: #BDBDBD;
-`;
-
-const SearchContent = Styled.div`
-  width: 12em;
-  min-height: 2.5em;
-`;
-
-const SearchBackground = Styled.div`
-  position: fixed;
-  width: 100%;
-  height: 100vh;
-  background-color: #000;
-  opacity: 0.1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  z-index: 999;
-`;
-
-const GotoSearchPage = Styled.div`
-  positioin: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 1em;
-  margin-top: 0.3em;
-  text-align: center;
-  cursor: pointer;
-`;
-
-const NoResult = Styled.div`
-  text-align: center;
-`;
-
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -303,24 +117,24 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
         return (
           <Link key={result.id} to={'/feed/' + result.id}>
             <div>
-              <SearchListItemTitle>
-                <SearchTitle>
+              <div className="flex justify-between items-center mb-4">
+                <div className="w-32 font-bold">
                   {result.titleSnippet ? result.titleSnippet : '-'}
-                </SearchTitle>
-                <SearchDate>
+                </div>
+                <div className="w-24 text-sm text-buttongray">
                   {result.postedAt && result.postedAt.slice(0, -8)}
-                </SearchDate>
-              </SearchListItemTitle>
-              <SearchContent>
+                </div>
+              </div>
+              <div className="w-48 min-h-[2.5rem]">
                 {result.contentSnippet ? result.contentSnippet : '-'}
-              </SearchContent>
+              </div>
             </div>
           </Link>
         );
       });
     }
     if (!loading && searchList.length === 0) {
-      return <NoResult>검색 결과가 없습니다😥</NoResult>;
+      return <div className="text-center">검색 결과가 없습니다😥</div>;
     }
   };
 
@@ -335,64 +149,96 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
 
   return (
     <Fragment>
-      {searchValue.trim() !== '' && <SearchBackground />}
-      <HeaderContainer>
-        <CenterContainer>
+      {searchValue.trim() !== '' && (
+        <div className="fixed w-full h-screen bg-black/[.1] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 overflow-hidden z-50" />
+      )}
+      <header className="sticky w-full h-full top-0 m-0 md:mb-8 bg-white shadow-[1px_1px_5px_1px_#f7f7f7] z-50">
+        <div className="flex justify-between items-center w-4/5 h-full p-8 my-0 mx-auto bg-white">
           <Link to="/">
-            <Logo>ALLREVIEW</Logo>
+            <h1 className="font-sans text-mainblue text-3xl font-bold">
+              ALLREVIEW
+            </h1>
           </Link>
-          <MenuButton
+          <div
+            className={`md:hidden block w-5 h-5 ${
+              isMenuOn
+                ? "bg-[url('./assets/images/close.png')]"
+                : "bg-[url('./assets/images/menu.png')]"
+            } bg-no-repeat bg-cover cursor-pointer`}
             onClick={() => {
               dispatch();
             }}
-            isMenuOn={isMenuOn}
           />
-          <RightContents>
+          <div className="md:flex hidden justify-between items-center hidden">
             {pathname !== '/search' && (
               <div ref={SearchDivRef}>
-                <Input
+                <input
+                  className="w-80 mr-4 p-2.5 border border-buttongray rounded-md focus:outline-none z-50"
                   type="search"
                   placeholder="검색어를 입력해주세요"
                   onChange={e => getSearchValue(e)}
                   onKeyUp={search}
                 />
                 {searchValue && (
-                  <SearchListContainer>
-                    <ContentContainer>
+                  <div className="absolute w-80 p-4 bg-white border border-buttongray rounded-md z-50">
+                    <div className="flex flex-col w-full max-h-96 p-4 gap-4 bg-white overflow-y-auto z-50">
                       {loading ? (
-                        <NoResult>Loading...</NoResult>
+                        <div className="text-center">Loading...</div>
                       ) : (
                         showResult(searchList)
                       )}
-                    </ContentContainer>
+                    </div>
                     <Link to={'/search?query=' + searchValue}>
-                      <GotoSearchPage>더보기</GotoSearchPage>
+                      <div className="w-full h-4 mt-1.5 text-center cursor-pointer">
+                        더보기
+                      </div>
                     </Link>
-                  </SearchListContainer>
+                  </div>
                 )}
               </div>
             )}
             {isLogin ? (
-              <Icons>
+              <div className="flex relative gap-6">
                 <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                  <Icon src={PersonIcon} alt="마이페이지" />
-                  <HoverMenu isHover={isHover}>
+                  <img
+                    className="w-6 cursor-pointer"
+                    src={PersonIcon}
+                    alt="마이페이지"
+                  />
+                  <div
+                    className={`${
+                      isHover ? 'flex' : 'hidden'
+                    } absolute w-36 flex-col p-4 gap-4 bg-white border border-buttongray rounded-md`}
+                  >
                     <Link to={'/channel/' + loginUserId}>
-                      <HoverMenuItem>내 채널</HoverMenuItem>
+                      <span className="cursor-pointer hover:text-mainblue">
+                        내 채널
+                      </span>
                     </Link>
                     <Link to="/temp/list">
-                      <HoverMenuItem>임시저장 목록</HoverMenuItem>
+                      <span className="cursor-pointer hover:text-mainblue">
+                        임시저장 목록
+                      </span>
                     </Link>
                     <Link to="/likes">
-                      <HoverMenuItem>좋아요 목록</HoverMenuItem>
+                      <span className="cursor-pointer hover:text-mainblue">
+                        좋아요 목록
+                      </span>
                     </Link>
-                  </HoverMenu>
+                  </div>
                 </div>
-                <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
-              </Icons>
+                <img
+                  className="w-6 cursor-pointer"
+                  src={LogoutIcon}
+                  alt="로그아웃"
+                  onClick={logout}
+                />
+              </div>
             ) : (
               <Link to="/login">
-                <LoginButton>로그인</LoginButton>
+                <button className="buttonLayout py-3 px-6 text-white bg-mainblue cursor-pointer">
+                  로그인
+                </button>
               </Link>
             )}
             <MobileMenu
@@ -400,9 +246,9 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
               setIsMenuOn={setIsMenuOn}
               loginUserId={loginUserId}
             />
-          </RightContents>
-        </CenterContainer>
-      </HeaderContainer>
+          </div>
+        </div>
+      </header>
     </Fragment>
   );
 };

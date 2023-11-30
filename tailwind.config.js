@@ -17,6 +17,7 @@ module.exports = {
         mainsky: '#EEF2FF',
         white: '#fff',
         black: '#000',
+        'bg-gray': '#f5f5f5',
       },
       keyframes: {
         'fade-in': {
@@ -27,6 +28,9 @@ module.exports = {
       animation: {
         'fade-in': 'fade-in 1s ease-in forwards',
         'fade-in-slow': 'fade-in 1s ease-in 1s forwards',
+      },
+      minHeight: {
+        '2.5rem': '2.5rem',
       },
     },
   },
