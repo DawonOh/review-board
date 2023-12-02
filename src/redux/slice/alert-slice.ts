@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface AlertType {
   isModalOpen: boolean;
@@ -6,6 +6,13 @@ interface AlertType {
   isQuestion: boolean;
   alertPath: string;
   isClickOk: boolean;
+}
+
+interface ModalActionType {
+  isModalOpen: boolean;
+  contents: string;
+  isQuestion: boolean;
+  alertPath: string;
 }
 
 const initialAlertState: AlertType = {
@@ -20,7 +27,7 @@ const alertSlice = createSlice({
   name: 'alert',
   initialState: initialAlertState,
   reducers: {
-    setModal: (state, action) => {
+    setModal: (state, action: PayloadAction<ModalActionType>) => {
       state.isModalOpen = true;
       state.contents = action.payload.contents;
       state.isQuestion = action.payload.isQuestion;

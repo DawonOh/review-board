@@ -1,12 +1,12 @@
+import { useAppDispatch, useAppSelector } from 'hooks';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { login, loginActions } from 'redux/slice/login-slice';
 
 export const Login = () => {
-  const dispatch = useDispatch<any>();
-  const userInfo = useSelector((state: any) => state.login.user);
-  const isLogin = useSelector((state: any) => state.login.isLogin);
+  const dispatch = useAppDispatch();
+  const userInfo = useAppSelector(state => state.login.user);
+  const isLogin = useAppSelector(state => state.login.isLogin);
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

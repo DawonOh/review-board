@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { MobileMenu } from 'Components';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PersonIcon from '../../assets/images/person.png';
 import LogoutIcon from '../../assets/images/logout.png';
 
 import axios from 'axios';
+import { useAppSelector } from 'hooks';
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -19,8 +19,6 @@ interface SearchListType {
 }
 
 export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [isLogin, setIsLogin] = useState(false);
   const [isHover, setIsHover] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchList, setSearchList] = useState<SearchListType[]>([]);
@@ -32,8 +30,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const dispatch = useDispatch<any>();
-  const isLogin = useSelector((state: any) => state.login.isLogin);
+  const isLogin = useAppSelector(state => state.login.isLogin);
 
   let token = localStorage.getItem('token');
 
@@ -47,14 +44,6 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
         .then(response => setLoginUserId(response.data.id));
     }
   }, [token]);
-
-  // useEffect(() => {
-  //   if (token) {
-  //     setIsLogin(true);
-  //   } else {
-  //     setIsLogin(false);
-  //   }
-  // }, [token, isLogin]);
 
   const logout = () => {
     localStorage.clear();
@@ -165,9 +154,6 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 ? "bg-[url('./assets/images/close.png')]"
                 : "bg-[url('./assets/images/menu.png')]"
             } bg-no-repeat bg-cover cursor-pointer`}
-            onClick={() => {
-              dispatch();
-            }}
           />
           <div className="md:flex hidden justify-between items-center hidden">
             {pathname !== '/search' && (
