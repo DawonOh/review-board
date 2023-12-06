@@ -5,7 +5,7 @@ import PersonIcon from '../../assets/images/person.png';
 import LogoutIcon from '../../assets/images/logout.png';
 
 import axios from 'axios';
-import { useAppDispatch, useAppSelector } from 'hooks';
+import { useAppSelector } from 'hooks';
 import { persistor } from 'index';
 interface Props {
   isMenuOn: boolean;
@@ -35,7 +35,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
 
   const handleLogout = async () => {
     persistor.purge();
-    window.location.href = '/';
+    sessionStorage.removeItem('token');
   };
 
   const handleMouseOver = () => {

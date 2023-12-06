@@ -1,11 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { getUserInfo } from './user-slice';
 import { PURGE } from 'redux-persist';
+import axios from 'axios';
 
 interface LoginType {
   isLogin: boolean | null;
-  token: string;
 }
 
 interface LoginResultType {
@@ -17,7 +16,6 @@ interface LoginResultType {
 
 const initialLoginState: LoginType = {
   isLogin: null,
-  token: '',
 };
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
@@ -34,13 +32,11 @@ export const login = createAsyncThunk(
         `${BACK_URL}:${BACK_PORT}/users/signin`,
         { email: user.email, password: user.password }
       );
-      if (user.isLogin) {
-        await dispatch(getUserInfo(response.data.result?.token));
-      }
-      if (response.status === 200) {
+      if (response.status === 200 && response.data.result) {
+        sessionStorage.setItem('token', response.data.result?.token);
+        await dispatch(getUserInfo());
         window.location.href = '/';
       }
-
       return response.data;
     } catch (error) {
       throw new Error('로그인 오류 발생');
@@ -53,11 +49,8 @@ const loginSlice = createSlice({
   initialState: initialLoginState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(login.fulfilled, (state, action) => {
+    builder.addCase(login.fulfilled, state => {
       state.isLogin = true;
-      if (action.payload.result?.token) {
-        state.token = action.payload.result?.token;
-      }
     });
     builder.addCase(login.rejected, state => {
       state.isLogin = false;

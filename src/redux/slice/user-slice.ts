@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { PURGE } from 'redux-persist';
-
-const BACK_URL = process.env.REACT_APP_BACK_URL;
-const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+import instance from '../../api';
 
 interface UserInfoType {
   created_at: string;
@@ -23,19 +20,10 @@ const initialUserState: UserInfoType = {
   updated_at: '',
 };
 
-export const getUserInfo = createAsyncThunk(
-  'loginSlice/user',
-  async (token: string | undefined) => {
-    const response = axios.get<UserInfoType>(
-      `${BACK_URL}:${BACK_PORT}/users/userinfo`,
-      {
-        timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
-      }
-    );
-    return (await response).data;
-  }
-);
+export const getUserInfo = createAsyncThunk('loginSlice/user', async () => {
+  const response = await instance.get<UserInfoType>('/users/userinfo');
+  return response.data;
+});
 
 const userSlice = createSlice({
   name: 'user',
