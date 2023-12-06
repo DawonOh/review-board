@@ -5,7 +5,8 @@ import PersonIcon from '../../assets/images/person.png';
 import LogoutIcon from '../../assets/images/logout.png';
 
 import axios from 'axios';
-import { useAppSelector } from 'hooks';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { persistor } from 'index';
 interface Props {
   isMenuOn: boolean;
   setIsMenuOn: (isModalOpen: boolean) => void;
@@ -18,7 +19,6 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   const isLogin = useAppSelector(state => state.login.isLogin);
-  console.log(isLogin);
 
   let token = localStorage.getItem('token');
 
@@ -33,8 +33,8 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     }
   }, [token]);
 
-  const logout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    persistor.purge();
     window.location.href = '/';
   };
 
@@ -96,7 +96,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                 className="w-6 cursor-pointer"
                 src={LogoutIcon}
                 alt="로그아웃"
-                onClick={logout}
+                onClick={handleLogout}
               />
             </div>
           ) : (
