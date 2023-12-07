@@ -89,6 +89,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
             return;
           }
           setError(true);
+          setLoading(false);
         });
       return () => cancel();
     }

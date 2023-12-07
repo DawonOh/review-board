@@ -1,156 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
 import { Header, MobileMenu, CardList } from 'Components';
-import { ButtonLayout } from 'Styles/CommonStyle';
-import Styled from 'styled-components';
 import ToggleImg from '../../assets/images/toggleDown.png';
-import FirstIcon from '../../assets/images/first.png';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-
-const MainContainer = Styled.div`
-  width: 100%;
-  height: 100%;
-  position: relate;
-`;
-const CategoryContainer = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 80%;
-  padding: 0 2em;
-  margin: 0 auto;
-  margin-top: 1em;
-`;
-
-const CategoryButton = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 0.2em;
-  cursor: pointer;
-`;
-const ToggleButton = Styled.img<{ isToggleOpen: string }>`
-  width: 1em;
-  margin-left: 0.5em;
-  transform: ${props => props.isToggleOpen === 'open' && 'rotateZ(-60deg)'};
-  transition: transform 0.5s;
-`;
-
-const CategorySelectBox = Styled.ul<{ isToggleOpen: string }>`
-  visibility: ${props =>
-    props.isToggleOpen === 'open' ? 'visible' : 'hidden'};
-  position: absolute;
-  margin-top: 1em;
-  padding: 1em;
-  background-color: #fff;
-  border: 1px solid #EDEDED;
-  animation-name: ${props =>
-    props.isToggleOpen === 'open'
-      ? 'slide-modal-open'
-      : props.isToggleOpen === 'close'
-      ? 'slide-modal-close'
-      : 'slide-modal-default'};
-  animation-duration: 500ms;
-
-  @keyframes slide-modal-open {
-    from {
-      visibility: hidden;
-      margin-top: 0;
-      opacity: 0;
-    }
-    50% {
-      visibility:visible;
-    }
-    to{
-      visibility: visible;
-      margin-top: 1em;
-      opacity: 1;
-    }
-  }
-
-  @keyframes slide-modal-close {
-    from {
-      visibility: visible;
-      margin-top: 1em;
-      opacity: 1;
-    }
-    50% {
-      visibility:visible;
-    }
-    to{
-      visibility: hidden;
-      margin-top: 0;
-      opacity: 0;
-    }
-  }
-
-  @keyframes slide-modal-default {
-    0% {
-      display: none;
-    }
-    100% {
-      display: none;
-    }
-  }
-  z-index: 999;
-`;
-
-const CategoryItem = Styled.li`
-  padding: 0.5em;
-  cursor: pointer;
-  &:hover {
-    font-weight: 700;
-  }
-`;
-
-const ActiveItem = Styled.li`
-  padding: 0.5em;
-  color: #fff;
-  background-color: #CDDEFF;
-  border-radius: 8px;
-`;
-
-const GotoWriteButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.5em;
-  background-color: #fff;
-  color: #676FA3;
-  border: 1px solid #676FA3;
-  cursor: pointer;
-`;
-
-const NoResults = Styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-`;
-
-const NoDataImg = Styled.div`
-  width: 5em;
-  height: 5em;
-  margin-bottom: 1em;
-  background: url(${FirstIcon});
-  background-repeat: no-repeat;
-  background-size: cover;
-  animation-name: move;
-  animation-duration: 1s;
-  animation-direction: alternate-reverse;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-  @keyframes move {
-    0% {
-      transform: translateY(0px);
-    }
-    100% {
-      transform: translateY(0.5em);
-    }
-    0% {
-      transform: translateY(0px);
-    }
-`;
 
 interface CategoryType {
   id: number;
@@ -209,28 +62,51 @@ export const MainPage = () => {
   const handleClickIndex = (e: React.MouseEvent, idx: number) => {
     setCountIdx(idx);
   };
+
+  const categoryModalClass = () => {
+    if (isToggleOpen === 'open') {
+      return 'slide-modal-open';
+    }
+
+    if (isToggleOpen === 'close') {
+      return 'slide-modal-close';
+    }
+
+    return 'slide-modal-default';
+  };
+
   return (
-    <MainContainer>
+    <div className="w-full h-full relative bg-bg-gray">
       <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <MobileMenu
         isMenuOn={isMenuOn}
         setIsMenuOn={setIsMenuOn}
         loginUserId={loginUserId}
       />
-      <CategoryContainer>
+      <div className="flex justify-between w-4/5 py-0 px-8 my-0 mx-auto mt-4">
         <div>
-          <CategoryButton onClick={toggleDown}>
+          <div
+            className="flex justify-between items-center p-1 cursor-pointer"
+            onClick={toggleDown}
+          >
             {categoryName}
-            <ToggleButton
+            <img
+              className={`w-4 h-4 ml-2 ${
+                isToggleOpen === 'open' && '-rotate-90'
+              } duration-500`}
               src={ToggleImg}
               alt="토글버튼"
-              isToggleOpen={isToggleOpen}
             />
-          </CategoryButton>
-          <CategorySelectBox isToggleOpen={isToggleOpen}>
+          </div>
+          <ul
+            className={`${
+              isToggleOpen === 'open' ? 'visible' : 'invisible'
+            } absolute mt-4 p-4 bg-white border border-buttongray animate-${categoryModalClass()} z-50`}
+          >
             {categoryList.map((category: CategoryType, idx: number) => {
               return idx !== countIdx ? (
-                <CategoryItem
+                <li
+                  className="p-2 cursor-pointer hover:font-bold"
                   key={category.id}
                   value={category.id}
                   onClick={e => {
@@ -241,9 +117,10 @@ export const MainPage = () => {
                   }}
                 >
                   {category.category}
-                </CategoryItem>
+                </li>
               ) : (
-                <ActiveItem
+                <li
+                  className="p-2 text-white bg-mainsky rounded-lg"
                   key={category.id}
                   value={category.id}
                   onClick={e => {
@@ -254,27 +131,29 @@ export const MainPage = () => {
                   }}
                 >
                   {category.category}
-                </ActiveItem>
+                </li>
               );
             })}
-          </CategorySelectBox>
+          </ul>
         </div>
         {isLogin && (
           <Link
             to="/writefeed"
             state={{ feedId: 0, isModify: false, isTemp: true }}
           >
-            <GotoWriteButton>리뷰쓰기</GotoWriteButton>
+            <button className="buttonLayout bg-white text-mainblue border-mainblue cursor-pointer">
+              리뷰쓰기
+            </button>
           </Link>
         )}
-      </CategoryContainer>
+      </div>
       <CardList categoryId={categoryId} setIsNotEmpty={setIsNotEmpty} />
       {!isNotEmpty && (
-        <NoResults>
-          <NoDataImg />
+        <div className="w-full h-80 flex flex-col items-center justify-center">
+          <div className="w-20 h-20 mb-4 bg-[url('./assets/images/first.png')] bg-no-repeat bg-cover animate-move" />
           <div>리뷰가 없습니다! 첫 리뷰를 작성해주세요😎</div>
-        </NoResults>
+        </div>
       )}
-    </MainContainer>
+    </div>
   );
 };

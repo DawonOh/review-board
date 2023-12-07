@@ -47,10 +47,10 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   };
 
   return (
-    <header className="sticky h-12 top-0 m-0 md:mb-8 bg-white z-50">
-      <div className="flex justify-between items-center w-4/5 h-full p-8 my-0 mx-auto bg-white">
+    <header className="flexCenterAlign sticky h-12 top-0 mb-20 bg-white z-50">
+      <div className="flex justify-between items-center w-4/5 h-full p-8">
         <Link to="/">
-          <h1 className="font-sans text-mainblue text-3xl font-bold">
+          <h1 className="font-sans text-mainblue text-2xl font-bold">
             ALLREVIEW
           </h1>
         </Link>
@@ -63,13 +63,13 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
         />
         <div className="md:flex hidden justify-between items-center hidden">
           {isLogin ? (
-            <div className="flex relative gap-6">
+            <div className="flex items-center relative gap-6">
+              <button className="flexCenterAlign gap-2 buttonLayout bg-mainblue text-white px-2 py-1">
+                검색
+                <div className="w-4 h-4 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover cursor-pointer" />
+              </button>
               <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                <img
-                  className="w-6 cursor-pointer"
-                  src={PersonIcon}
-                  alt="마이페이지"
-                />
+                <span className="cursor-pointer">메뉴</span>
                 <div
                   className={`${
                     isHover ? 'flex' : 'hidden'
@@ -92,18 +92,13 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
                   </Link>
                 </div>
               </div>
-              <img
-                className="w-6 cursor-pointer"
-                src={LogoutIcon}
-                alt="로그아웃"
-                onClick={handleLogout}
-              />
+              <span className="cursor-pointer" onClick={handleLogout}>
+                로그아웃
+              </span>
             </div>
           ) : (
             <Link to="/login">
-              <button className="buttonLayout py-3 px-6 text-white bg-mainblue cursor-pointer">
-                로그인
-              </button>
+              <button className="cursor-pointer">로그인</button>
             </Link>
           )}
           <MobileMenu
