@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import alertReducer from '../slice/alert-slice';
 import loginReducer from '../slice/login-slice';
 import userReducer from '../slice/user-slice';
+import mobileMenuReducer from '../slice/mobileMenu-slice';
 import {
   FLUSH,
   PAUSE,
@@ -17,6 +18,7 @@ const rootReducers = combineReducers({
   alert: alertReducer,
   login: loginReducer,
   user: userReducer,
+  mobileMenu: mobileMenuReducer,
 });
 
 const persistConfig = {

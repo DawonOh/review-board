@@ -143,12 +143,7 @@ export const SearchPage = () => {
 
   return (
     <MainContainer>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+      <MobileMenu />
       <SearchContainer>
         <SearchImg />
         <SearchInput

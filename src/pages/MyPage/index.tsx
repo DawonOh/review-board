@@ -375,12 +375,7 @@ export const MyPage = () => {
   };
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserInfo?.id}
-      />
+      <MobileMenu />
       <MainContainer>
         <WriterInfoContainer>
           <ItemTitle>{myPageUserInfo?.nickname}</ItemTitle>

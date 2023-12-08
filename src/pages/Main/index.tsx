@@ -76,13 +76,8 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="w-full h-full relative bg-bg-gray">
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+    <div className="w-full h-full pt-12 relative bg-bg-gray">
+      <MobileMenu />
       <div className="flex justify-between w-4/5 py-0 px-8 my-0 mx-auto mt-4">
         <div>
           <div

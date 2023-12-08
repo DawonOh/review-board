@@ -10,7 +10,7 @@
       "id": 2,
       "title": "리뷰쓰기",
       "icon": "/images/write.png",
-      "link": "/upload"
+      "link": "/writefeed"
     },
     {
       "id": 3,
@@ -26,6 +26,11 @@
     }
   ],
   "logoutMenuList": [
-    { "id": 1, "title": "검색", "icon": "images/search.png", "link": "/search" }
+    {
+      "id": 1,
+      "title": "검색",
+      "icon": "/images/search.png",
+      "link": "/search"
+    }
   ]
 }
