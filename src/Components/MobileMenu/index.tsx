@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import PersonIcon from '../../assets/images/person.png';
 import { persistor } from 'index';
-import { useAppSelector } from 'hooks';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
 
 interface MenuProps {
   id: number;
@@ -17,6 +18,7 @@ export const MobileMenu = () => {
   const isMenuOn = useAppSelector(state => state.mobileMenu.isMenuOn);
   const isLogin = useAppSelector(state => state.login.isLogin);
   const loginUserId = useAppSelector(state => state.user.id);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     axios.get('/data/mobileMenu.json').then(response => {
@@ -30,6 +32,10 @@ export const MobileMenu = () => {
       }
     });
   }, [isLogin]);
+
+  const closeMenu = () => {
+    dispatch(mobileMenuActions.handleMenuOn());
+  };
 
   const handleLogout = async () => {
     persistor.purge();
@@ -47,7 +53,10 @@ export const MobileMenu = () => {
           return (
             <Fragment key={menuItem.id}>
               <Link to={menuItem.link}>
-                <li className="flexCenterAlign gap-4 text-xl cursor-pointer">
+                <li
+                  className="flexCenterAlign gap-4 text-xl cursor-pointer"
+                  onClick={closeMenu}
+                >
                   <img
                     className="w-4 h-4"
                     src={menuItem.icon}
