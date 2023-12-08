@@ -16,7 +16,6 @@ export const MainPage = () => {
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
-  const [isNotEmpty, setIsNotEmpty] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -118,13 +117,7 @@ export const MainPage = () => {
           )}
         </div>
       </div>
-      <CardList categoryId={categoryId} setIsNotEmpty={setIsNotEmpty} />
-      {!isNotEmpty && (
-        <div className="w-full h-80 flex flex-col items-center justify-center">
-          <div className="w-20 h-20 mb-4 bg-[url('./assets/images/first.png')] bg-no-repeat bg-cover animate-move" />
-          <div>리뷰가 없습니다! 첫 리뷰를 작성해주세요😎</div>
-        </div>
-      )}
+      <CardList categoryId={categoryId} />
     </div>
   );
 };

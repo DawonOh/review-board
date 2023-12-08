@@ -28,20 +28,20 @@ module.exports = {
           '100%': { opacity: 1 },
         },
         'category-open': {
-          from: { visibility: 'hidden', marginTop: 0, opacity: 0 },
+          from: { visibility: 'hidden', 'margin-top': 0, opacity: 0 },
           '50%': { visibility: 'visible' },
           to: {
             visibility: 'visible',
             'margin-top': '1em',
-            opacity: '1',
+            opacity: 1,
           },
         },
         'category-close': {
-          from: { visibility: 'visible', marginTop: '1em', opacity: 1 },
+          from: { visibility: 'visible', 'margin-top': '1em', opacity: 1 },
           '50%': { visibility: 'visible' },
           to: {
             visibility: 'hidden',
-            marginTop: 0,
+            'margin-top': 0,
             opacity: 0,
           },
         },
@@ -63,6 +63,9 @@ module.exports = {
       },
       minHeight: {
         '2.5rem': '2.5rem',
+      },
+      gridTemplateColumns: {
+        card: 'repeat(auto-fill, minmax(300px, 1fr))',
       },
     },
   },

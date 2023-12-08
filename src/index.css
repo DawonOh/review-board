@@ -1,12 +1,7 @@
 @tailwind base;
 
 @layer base {
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
   * {
-    box-sizing: border-box;
     font-family: 'Pretendard', sans-serif;
   }
 
