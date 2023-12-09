@@ -32,12 +32,12 @@ module.exports = {
           '50%': { visibility: 'visible' },
           to: {
             visibility: 'visible',
-            'margin-top': '1em',
+            'margin-top': '3em',
             opacity: 1,
           },
         },
         'category-close': {
-          from: { visibility: 'visible', 'margin-top': '1em', opacity: 1 },
+          from: { visibility: 'visible', 'margin-top': '3em', opacity: 1 },
           '50%': { visibility: 'visible' },
           to: {
             visibility: 'hidden',
@@ -56,9 +56,9 @@ module.exports = {
       animation: {
         'fade-in': 'fade-in 1s ease-in forwards',
         'fade-in-slow': 'fade-in 1s ease-in 1s forwards',
-        'category-open': 'category-open 1s 500ms ease-in',
-        'category-close': 'category-close 1s 500ms ease-in',
-        'category-default': 'category-default 1s ease-in',
+        'category-open': 'category-open 500ms ease-in',
+        'category-close': 'category-close 500ms ease-in',
+        'category-default': 'category-default',
         move: 'move 2s ease-in-out infinite',
       },
       minHeight: {

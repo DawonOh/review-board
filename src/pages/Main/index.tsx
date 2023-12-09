@@ -12,12 +12,14 @@ interface CategoryType {
 
 export const MainPage = () => {
   const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
-  const [isToggleOpen, setIsToggleOpen] = useState('none');
+  const [isToggleOpen, setIsToggleOpen] = useState<boolean | null>(null);
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  console.log(isToggleOpen);
 
   const isLogin = useAppSelector(state => state.login.isLogin);
 
@@ -27,11 +29,11 @@ export const MainPage = () => {
     });
   }, [BACK_URL, BACK_PORT]);
 
-  const toggleDown = () => {
-    if (isToggleOpen === 'close' || isToggleOpen === 'none') {
-      setIsToggleOpen('open');
-    } else if (isToggleOpen === 'open') {
-      setIsToggleOpen('close');
+  const handleToggle = () => {
+    if (isToggleOpen === false || isToggleOpen === null) {
+      setIsToggleOpen(true);
+    } else if (isToggleOpen === true) {
+      setIsToggleOpen(false);
     }
   };
   const handleClickIndex = (e: React.MouseEvent, idx: number) => {
@@ -39,15 +41,15 @@ export const MainPage = () => {
   };
 
   const categoryModalClass = () => {
-    if (isToggleOpen === 'open') {
-      return 'slide-modal-open';
+    if (isToggleOpen === null) {
+      return 'invisible animate-category-default';
     }
-
-    if (isToggleOpen === 'close') {
-      return 'slide-modal-close';
+    if (isToggleOpen) {
+      return 'visible animate-category-open';
     }
-
-    return 'slide-modal-default';
+    if (isToggleOpen === false) {
+      return 'invisible animate-category-close';
+    }
   };
 
   return (
@@ -57,21 +59,19 @@ export const MainPage = () => {
         <div className="flex gap-4">
           <div
             className="flex justify-between items-center p-1 cursor-pointer"
-            onClick={toggleDown}
+            onClick={handleToggle}
           >
             {categoryName}
             <img
               className={`w-4 h-4 ml-2 ${
-                isToggleOpen === 'open' && '-rotate-90'
+                isToggleOpen && '-rotate-90'
               } duration-500`}
               src={ToggleImg}
               alt="토글버튼"
             />
           </div>
           <ul
-            className={`${
-              isToggleOpen === 'open' ? 'visible' : 'invisible'
-            } absolute mt-12 p-4 bg-white border border-buttongray animate-${categoryModalClass()} z-50`}
+            className={`${categoryModalClass()} absolute mt-12 p-4 bg-white border border-buttongray z-50`}
           >
             {categoryList.map((category: CategoryType, idx: number) => {
               return idx !== countIdx ? (
@@ -81,7 +81,7 @@ export const MainPage = () => {
                   value={category.id}
                   onClick={e => {
                     setCategoryName(category.category);
-                    setIsToggleOpen('close');
+                    setIsToggleOpen(false);
                     setCategoryId(category.id);
                     handleClickIndex(e, idx);
                   }}
@@ -95,7 +95,7 @@ export const MainPage = () => {
                   value={category.id}
                   onClick={e => {
                     setCategoryName(category.category);
-                    setIsToggleOpen('open');
+                    setIsToggleOpen(true);
                     setCategoryId(category.id);
                     handleClickIndex(e, idx);
                   }}
