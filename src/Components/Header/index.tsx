@@ -4,6 +4,8 @@ import { Link, Outlet } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { persistor } from 'index';
 import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
+import { SearchModal } from 'Components/SearchModal/SearchModal';
+import { searchModalActions } from 'redux/slice/searchModal-slice';
 
 export const Header = () => {
   const [isHover, setIsHover] = useState(false);
@@ -28,6 +30,8 @@ export const Header = () => {
     setIsHover(false);
   };
 
+  const handleSearchModal = searchModalActions.handleModal;
+
   return (
     <>
       <header className="flexCenterAlign sticky h-12 top-0 bg-white z-50">
@@ -46,49 +50,60 @@ export const Header = () => {
             onClick={handleMobileMenu}
           />
           <div className="md:flex hidden justify-between items-center hidden">
-            {isLogin ? (
-              <div className="flex items-center relative gap-6">
-                <button className="flexCenterAlign gap-2 buttonLayout bg-mainblue text-white px-2 py-1">
-                  검색
-                  <div className="w-4 h-4 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover cursor-pointer" />
-                </button>
-                <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                  <span className="cursor-pointer">메뉴</span>
+            <div className="flex items-center relative gap-6">
+              <button
+                className="flexCenterAlign gap-2 buttonLayout bg-mainblue text-white px-2 py-1"
+                onClick={() => {
+                  dispatch(handleSearchModal());
+                }}
+              >
+                검색
+                <div className="w-4 h-4 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover cursor-pointer" />
+              </button>
+              {isLogin ? (
+                <>
                   <div
-                    className={`${
-                      isHover ? 'flex' : 'hidden'
-                    } absolute w-36 flex-col p-4 gap-4 bg-white border border-buttongray rounded-md`}
+                    onMouseOver={handleMouseOver}
+                    onMouseOut={handleMouseOut}
                   >
-                    <Link to={'/channel/' + loginUserId}>
-                      <span className="cursor-pointer hover:text-mainblue">
-                        내 채널
-                      </span>
-                    </Link>
-                    <Link to="/temp/list">
-                      <span className="cursor-pointer hover:text-mainblue">
-                        임시저장 목록
-                      </span>
-                    </Link>
-                    <Link to="/likes">
-                      <span className="cursor-pointer hover:text-mainblue">
-                        좋아요 목록
-                      </span>
-                    </Link>
+                    <span className="cursor-pointer">메뉴</span>
+                    <div
+                      className={`${
+                        isHover ? 'flex' : 'hidden'
+                      } absolute w-36 flex-col p-4 gap-4 bg-white border border-buttongray rounded-md`}
+                    >
+                      <Link to={'/channel/' + loginUserId}>
+                        <span className="cursor-pointer hover:text-mainblue">
+                          내 채널
+                        </span>
+                      </Link>
+                      <Link to="/temp/list">
+                        <span className="cursor-pointer hover:text-mainblue">
+                          임시저장 목록
+                        </span>
+                      </Link>
+                      <Link to="/likes">
+                        <span className="cursor-pointer hover:text-mainblue">
+                          좋아요 목록
+                        </span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <span className="cursor-pointer" onClick={handleLogout}>
-                  로그아웃
-                </span>
-              </div>
-            ) : (
-              <Link to="/login">
-                <button className="cursor-pointer">로그인</button>
-              </Link>
-            )}
+                  <span className="cursor-pointer" onClick={handleLogout}>
+                    로그아웃
+                  </span>
+                </>
+              ) : (
+                <Link to="/login">
+                  <button className="cursor-pointer">로그인</button>
+                </Link>
+              )}
+            </div>
             <MobileMenu />
           </div>
         </div>
       </header>
+      <SearchModal />
       <Outlet />
     </>
   );

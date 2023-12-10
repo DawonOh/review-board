@@ -3,6 +3,7 @@ import alertReducer from '../slice/alert-slice';
 import loginReducer from '../slice/login-slice';
 import userReducer from '../slice/user-slice';
 import mobileMenuReducer from '../slice/mobileMenu-slice';
+import searchReducer from '../slice/searchModal-slice';
 import {
   FLUSH,
   PAUSE,
@@ -19,6 +20,7 @@ const rootReducers = combineReducers({
   login: loginReducer,
   user: userReducer,
   mobileMenu: mobileMenuReducer,
+  search: searchReducer,
 });
 
 const persistConfig = {
