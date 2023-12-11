@@ -25,10 +25,10 @@ const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
 export const search = createAsyncThunk(
   'searchModalSlice/search',
-  async (searchValue: string) => {
+  async (searchWord: string) => {
     try {
       const response = await axios.get<searchResultType[]>(
-        `${BACK_URL}:${BACK_PORT}/search?query=${searchValue}`,
+        `${BACK_URL}:${BACK_PORT}/search?query=${searchWord}`,
         { timeout: 5000 }
       );
       return response.data;
@@ -45,6 +45,9 @@ const searchModalSlice = createSlice({
     },
     getSearchWord: (state, action: PayloadAction<string>) => {
       state.searchWord = action.payload;
+    },
+    resetSearchModal: state => {
+      state.searchResult = [];
     },
   },
   extraReducers: builder => {
