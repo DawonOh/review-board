@@ -19,8 +19,6 @@ export const MainPage = () => {
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
-  console.log(isToggleOpen);
-
   const isLogin = useAppSelector(state => state.login.isLogin);
 
   useEffect(() => {

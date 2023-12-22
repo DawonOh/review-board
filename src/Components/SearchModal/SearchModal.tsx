@@ -42,7 +42,11 @@ export const SearchModal = () => {
 
   const searchResult = () => {
     if (searchData.searchResult?.length === 0 && !loading) {
-      return <div>검색 결과가 없습니다😥</div>;
+      return (
+        <div className="justify-selt-center self-center">
+          검색 결과가 없습니다😥
+        </div>
+      );
     }
 
     if (error) {
@@ -55,11 +59,11 @@ export const SearchModal = () => {
       {isSearchModalOpen && (
         <div className="hidden md:block">
           <div className="fixed w-full h-screen bg-black/[.1] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 overflow-hidden z-50" />
-          <div className="absolute top-40 left-1/2 -translate-x-1/2 z-50 w-2/5 h-1/2 bg-white flex flex-col rounded-md p-8">
+          <div className="absolute top-40 left-1/2 -translate-x-1/2 z-50 w-2/5 h-1/2 bg-white flex flex-col rounded-md py-8 px-12">
             <div className="flexCenterAlign w-full mt-4">
               <div className="w-4 h-4 mr-2 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover" />
               <input
-                className="w-4/5 mr-4 p-2.5 border-b focus:outline-none z-50"
+                className="w-full mr-4 p-2.5 border-b focus:outline-none z-50"
                 type="search"
                 placeholder="검색어를 입력해주세요"
                 onChange={e => setSearchWord(e)}
@@ -71,17 +75,23 @@ export const SearchModal = () => {
                 dispatch(handleModal());
               }}
             />
-            <div className="w-full h-80 bg-white">
-              <div className="flexCenterAlign flex-col w-full h-full p-4 gap-4 bg-white overflow-y-auto z-50">
+            <div className="w-full h-80 bg-white p-4">
+              <div className="flex flex-col items-start w-full h-full p-4 gap-4 bg-white overflow-y-auto z-50 border-b">
                 {loading && (
-                  <div className="w-8 h-8 bg-[url('./assets/images/loader.png')] bg-no-repeat bg-cover animate-spin" />
+                  <div className="w-8 h-8 justify-selt-center self-center bg-[url('./assets/images/loader.png')] bg-no-repeat bg-cover animate-spin" />
                 )}
                 {searchData.searchResult?.map(item => (
-                  <div key={item.id}>
-                    <span>{item.titleSnippet}</span>
-                    <span>{item.postedAt}</span>
-                    <span>{item.contentSnippet}</span>
-                  </div>
+                  <Link key={item.id} to={`/feed/${item.id}`}>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-4">
+                        <span className="font-bold">{item.titleSnippet}</span>
+                        <span className="text-sm text-buttongray">
+                          {item.postedAt.slice(0, 10)}
+                        </span>
+                      </div>
+                      <span>{item.contentSnippet}</span>
+                    </div>
+                  </Link>
                 ))}
                 {searchResult()}
               </div>
