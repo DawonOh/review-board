@@ -1,45 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Styled from 'styled-components';
-
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Card from '../Card';
 import { useCardList } from '../../hooks/useCardList';
-
-const CardListContainer = Styled.main`
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(300px, 1fr));
-  justify-content: space-around;
-  align-items: center;
-  width: 80%;
-  height: 100%;
-  padding: 2em;
-  margin: 0 auto;
-  gap: 2em;
-  @media all and (max-width: 1023px) {
-    width: 80%;
-  }
-`;
-
-const Loader = Styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 2em;
-  height: 2em;
-  border: 5px solid #cddeff;
-  border-radius: 50%;
-  border-top: 5px solid #fff;
-  animation: spin 2s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
 
 interface cardListType {
   category: string;
@@ -63,18 +24,14 @@ interface cardListType {
 
 interface PropsType {
   categoryId: any;
-  setIsNotEmpty: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
+export const CardList = ({ categoryId }: PropsType) => {
   const [pageNum, setPageNum] = useState(0);
-  const { cardList, hasMore, loading, error } = useCardList(
+  const { cardList, hasMore, loading, error, isEmpty } = useCardList(
     pageNum,
     categoryId
   );
-  useEffect(() => {
-    if (setIsNotEmpty && cardList.length !== 0) setIsNotEmpty(true);
-  }, [cardList]);
   useEffect(() => {
     setPageNum(0);
   }, [categoryId]);
@@ -95,53 +52,70 @@ export const CardList = ({ categoryId, setIsNotEmpty }: PropsType) => {
     [loading, hasMore]
   );
 
-  useEffect(() => {
-    if (error) {
-      alert('잠시 후 다시 시도해주세요.');
+  const cardListReturnJsx = () => {
+    if (isEmpty === true) {
+      return (
+        <div className="w-full h-[calc(100vh-6rem-58px)] flex flex-col items-center justify-center z-50">
+          <div className="w-20 h-20 mb-4 bg-[url('./assets/images/first.png')] bg-no-repeat bg-cover animate-move" />
+          <div>리뷰가 없습니다! 첫 리뷰를 작성해주세요😎</div>
+        </div>
+      );
     }
-  }, [error]);
+    if (isEmpty === false) {
+      return (
+        <main className="grid grid-cols-card justify-around items-center w-4/5 h-full p-8 mx-auto my-0 gap-8">
+          {cardList.map((card: cardListType, index) => {
+            if (cardList.length === index + 1) {
+              return (
+                <Card
+                  ref={lastCardElementRef}
+                  key={card.id}
+                  id={card.id}
+                  title={card.title}
+                  category={card.category}
+                  file={card.filesCnt}
+                  img={card.imgUrl}
+                  content={card.content}
+                  likeCount={card.likeCnt}
+                  commentCount={card.commentCnt}
+                  nickName={card.userNickname}
+                  createdAt={card.createdAt}
+                  viewCnt={card.viewCnt}
+                />
+              );
+            } else {
+              return (
+                <Card
+                  key={card.id}
+                  id={card.id}
+                  title={card.title}
+                  category={card.category}
+                  file={card.filesCnt}
+                  img={card.imgUrl}
+                  content={card.content}
+                  likeCount={card.likeCnt}
+                  commentCount={card.commentCnt}
+                  nickName={card.userNickname}
+                  createdAt={card.createdAt}
+                  viewCnt={card.viewCnt}
+                />
+              );
+            }
+          })}
+          {loading && (
+            <div className=" absolute top-1/2 left-1/2  w-8 h-8 bg-[url('./assets/images/loader.png')] bg-no-repeat bg-cover animate-spin" />
+          )}
+        </main>
+      );
+    }
+    if (isEmpty === null && error) {
+      return (
+        <div className="w-full h-[calc(100vh-6rem-58px)] flex flex-col items-center justify-center z-50">
+          <div>정보를 불러오지 못했어요. 잠시 후 다시 시도해주세요.</div>
+        </div>
+      );
+    }
+  };
 
-  return (
-    <CardListContainer>
-      {cardList.map((card: cardListType, index) => {
-        if (cardList.length === index + 1) {
-          return (
-            <Card
-              ref={lastCardElementRef}
-              key={card.id}
-              id={card.id}
-              title={card.title}
-              category={card.category}
-              file={card.filesCnt}
-              img={card.imgUrl}
-              content={card.content}
-              likeCount={card.likeCnt}
-              commentCount={card.commentCnt}
-              nickName={card.userNickname}
-              createdAt={card.createdAt}
-              viewCnt={card.viewCnt}
-            />
-          );
-        } else {
-          return (
-            <Card
-              key={card.id}
-              id={card.id}
-              title={card.title}
-              category={card.category}
-              file={card.filesCnt}
-              img={card.imgUrl}
-              content={card.content}
-              likeCount={card.likeCnt}
-              commentCount={card.commentCnt}
-              nickName={card.userNickname}
-              createdAt={card.createdAt}
-              viewCnt={card.viewCnt}
-            />
-          );
-        }
-      })}
-      {loading && <Loader />}
-    </CardListContainer>
-  );
+  return <Fragment>{cardListReturnJsx()}</Fragment>;
 };

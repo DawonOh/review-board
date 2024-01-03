@@ -143,12 +143,7 @@ export const SearchPage = () => {
 
   return (
     <MainContainer>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+      <MobileMenu />
       <SearchContainer>
         <SearchImg />
         <SearchInput
@@ -160,7 +155,7 @@ export const SearchPage = () => {
         />
         <SearchButton onClick={() => searchClick()}>검색</SearchButton>
       </SearchContainer>
-      <CardList setIsNotEmpty={setIsNotEmpty} categoryId={0} />
+      <CardList categoryId={0} />
       {!isNotEmpty && (
         <NoResults>
           <SearchFail />

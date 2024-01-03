@@ -126,7 +126,6 @@ export const Quit = () => {
 
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
       <TitleDiv>
         <Title>탈퇴하기</Title>
       </TitleDiv>
@@ -135,7 +134,6 @@ export const Quit = () => {
       ) : (
         <CheckPassword setIsPass={setIsPass} parentResult={isPass} />
       )}
-      {/* {openAlertModal()} */}
     </Fragment>
   );
 };

@@ -33,12 +33,7 @@ export const Feed = () => {
   }, []);
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+      <MobileMenu />
       <MainContainer>
         <FeedDetail loginUserId={loginUserId} />
         <CommentContainer loginUserId={loginUserId} />

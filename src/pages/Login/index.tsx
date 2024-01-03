@@ -1,21 +1,27 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { login, loginActions } from 'redux/slice/login-slice';
+import { login } from 'redux/slice/login-slice';
 
 export const Login = () => {
-  const dispatch = useDispatch<any>();
-  const userInfo = useSelector((state: any) => state.login.user);
-  const isLogin = useSelector((state: any) => state.login.isLogin);
+  const [userInfo, setUserInfo] = useState({ email: '', password: '' });
+  const dispatch = useAppDispatch();
+  const isLogin = useAppSelector((state: any) => state.login.isLogin);
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(login(userInfo));
+    dispatch(
+      login({
+        email: userInfo.email,
+        password: userInfo.password,
+        isLogin: true,
+      })
+    );
   };
 
   const handleUserInfo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    dispatch(loginActions.getLoginInfo({ ...userInfo, [id]: value }));
+    setUserInfo({ ...userInfo, [id]: value });
   };
   return (
     <div className="flex">

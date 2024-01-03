@@ -1,250 +1,25 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginActions } from 'redux/slice/login-slice';
-import Styled from 'styled-components';
-
+import { useState } from 'react';
 import { MobileMenu } from 'Components';
-import { ButtonLayout } from 'Styles/CommonStyle';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import MenuIcon from '../../assets/images/menu.png';
-import CloseIcon from '../../assets/images/close.png';
-import PersonIcon from '../../assets/images/person.png';
-import LogoutIcon from '../../assets/images/logout.png';
-import axios from 'axios';
+import { Link, Outlet } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { persistor } from 'index';
+import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
+import { SearchModal } from 'Components';
+import { searchModalActions } from 'redux/slice/searchModal-slice';
 
-const HeaderContainer = Styled.header`
-  position: sticky;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  margin-bottom: 2em;
-  background-color: #fff;
-  box-shadow: 1px 1px 5px 1px #f7f7f7;
-  z-index: 999;
-  @media (max-width: 767px) {
-    margin: 0em;
-  }
-`;
-
-const CenterContainer = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 80%;
-  height: 100%;
-  padding: 2em;
-  margin: 0 auto;
-  background-color: #fff;
-  @media all and (max-width: 1023px) {
-    width: 80%;
-  }
-`;
-
-const Logo = Styled.h1`
-  font-family: 'Kanit', serif;
-  color: #676FA3;
-  font-size: 2em;
-  font-weight: 700;
-`;
-
-const RightContents = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  @media all and (max-width:767px) {
-    display: none;
-  }
-`;
-
-const Input = Styled.input`
-  width: 20em;
-  margin-right: 1em;
-  padding: 0.6em;
-  font-size: 1em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-  z-index: 999;
-`;
-
-const MenuButton = Styled.div<{ isMenuOn: boolean }>`
-  display : none;
-  @media all and (max-width:767px) {
-    display: block;
-    width: 1.3em;
-    height: 1.3em;
-    background: url(${props => (props.isMenuOn ? CloseIcon : MenuIcon)});
-    background-repeat: no-repeat;
-    background-size: cover;
-    cursor: pointer;
-  }
-`;
-const Icons = Styled.div`
-  display: flex;
-  position: relatve;
-  gap: 1.3em;
-`;
-const Icon = Styled.img`
-  width: 1.3em;
-  cursor: pointer;
-`;
-
-const LoginButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.8em 1.5em;
-  background-color: #676FA3;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const HoverMenu = Styled.div<{ isHover: boolean }>`
-  display: ${props => (props.isHover ? 'flex' : 'none')};
-  position: absolute;
-  width: 9em;
-  flex-direction: column;
-  padding: 1em;
-  gap: 1em;
-  background-color: #fff;
-  border: 1px solid #BDBDBD;
-  border-radius: 0.3em;
-`;
-
-const HoverMenuItem = Styled.span`
-  cursor: pointer;
-  &:hover {
-    color: #676FA3;
-  }
-`;
-
-const SearchListContainer = Styled.div`
-  position: absolute;
-  width: 20em;
-  padding: 1em;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  z-index: 999;
-`;
-
-const ContentContainer = Styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-height: 23em;
-  padding: 1em;
-  gap: 1em;
-  background-color: #fff;
-  overflow-y: auto;
-  z-index: 999;
-`;
-
-const SearchListItemTitle = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1em;
-`;
-
-const SearchTitle = Styled.div`
-  width: 8em;
-  font-weight: 700;
-`;
-
-const SearchDate = Styled.div`
-  width: 6em;
-  font-size: 0.8em;
-  color: #BDBDBD;
-`;
-
-const SearchContent = Styled.div`
-  width: 12em;
-  min-height: 2.5em;
-`;
-
-const SearchBackground = Styled.div`
-  position: fixed;
-  width: 100%;
-  height: 100vh;
-  background-color: #000;
-  opacity: 0.1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  z-index: 999;
-`;
-
-const GotoSearchPage = Styled.div`
-  positioin: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 1em;
-  margin-top: 0.3em;
-  text-align: center;
-  cursor: pointer;
-`;
-
-const NoResult = Styled.div`
-  text-align: center;
-`;
-
-interface Props {
-  isMenuOn: boolean;
-  setIsMenuOn: (isModalOpen: boolean) => void;
-}
-
-interface SearchListType {
-  id: number;
-  postedAt: string;
-  titleSnippet: string;
-  contentSnippet: string;
-}
-
-export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [isLogin, setIsLogin] = useState(false);
+export const Header = () => {
   const [isHover, setIsHover] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const [searchList, setSearchList] = useState<SearchListType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loginUserId, setLoginUserId] = useState(0);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+  const isMenuOn = useAppSelector(state => state.mobileMenu.isMenuOn);
+  const isLogin = useAppSelector(state => state.login.isLogin);
+  const loginUserId = useAppSelector(state => state.user.id);
+  const dispatch = useAppDispatch();
+  const handleMobileMenu = () => {
+    dispatch(mobileMenuActions.handleMenuOn());
+  };
 
-  const location = useLocation();
-  const pathname = location.pathname;
-
-  const dispatch = useDispatch<any>();
-  const isLogin = useSelector((state: any) => state.login.isLogin);
-
-  let token = localStorage.getItem('token');
-
-  useEffect(() => {
-    if (token) {
-      axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        })
-        .then(response => setLoginUserId(response.data.id));
-    }
-  }, [token]);
-
-  // useEffect(() => {
-  //   if (token) {
-  //     setIsLogin(true);
-  //   } else {
-  //     setIsLogin(false);
-  //   }
-  // }, [token, isLogin]);
-
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = '/';
+  const handleLogout = async () => {
+    persistor.purge();
+    sessionStorage.removeItem('token');
   };
 
   const handleMouseOver = () => {
@@ -255,154 +30,81 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     setIsHover(false);
   };
 
-  const getSearchValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-
-  const SearchDivRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const closeClickOutside = (e: any) => {
-      if (
-        SearchDivRef.current &&
-        !SearchDivRef.current.contains(e.target as Node)
-      ) {
-        setSearchValue('');
-      }
-    };
-    document.addEventListener('click', closeClickOutside);
-    return () => {
-      document.removeEventListener('click', closeClickOutside);
-    };
-  }, [SearchDivRef]);
-
-  useEffect(() => {
-    if (searchValue.trim() !== '') {
-      const timer = setTimeout(() => {
-        axios
-          .get<SearchListType[]>(
-            `${BACK_URL}:${BACK_PORT}/search?query=${searchValue}`,
-            { timeout: 5000 }
-          )
-          .then(response => {
-            setSearchList(response.data);
-            setLoading(false);
-          });
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-    if (searchValue.trim() === '') {
-      setSearchList([]);
-      setLoading(true);
-    }
-  }, [searchValue]);
-
-  const showResult = (searchList: SearchListType[]) => {
-    if (!loading && searchList.length !== 0) {
-      return searchList.map(result => {
-        return (
-          <Link key={result.id} to={'/feed/' + result.id}>
-            <div>
-              <SearchListItemTitle>
-                <SearchTitle>
-                  {result.titleSnippet ? result.titleSnippet : '-'}
-                </SearchTitle>
-                <SearchDate>
-                  {result.postedAt && result.postedAt.slice(0, -8)}
-                </SearchDate>
-              </SearchListItemTitle>
-              <SearchContent>
-                {result.contentSnippet ? result.contentSnippet : '-'}
-              </SearchContent>
-            </div>
-          </Link>
-        );
-      });
-    }
-    if (!loading && searchList.length === 0) {
-      return <NoResult>검색 결과가 없습니다😥</NoResult>;
-    }
-  };
-
-  const navigate = useNavigate();
-
-  const search = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (searchValue.trim() !== '' && e.key === 'Enter') {
-      let url = `/search?query=${searchValue}`;
-      navigate(url);
-    }
-  };
+  const handleSearchModal = searchModalActions.handleModal;
 
   return (
-    <Fragment>
-      {searchValue.trim() !== '' && <SearchBackground />}
-      <HeaderContainer>
-        <CenterContainer>
+    <>
+      <header className="flexCenterAlign sticky h-12 top-0 bg-white z-50">
+        <div className="flex justify-between items-center w-4/5 h-full p-8">
           <Link to="/">
-            <Logo>ALLREVIEW</Logo>
+            <h1 className="font-sans text-mainblue text-2xl font-bold">
+              ALLREVIEW
+            </h1>
           </Link>
-          <MenuButton
-            onClick={() => {
-              dispatch();
-            }}
-            isMenuOn={isMenuOn}
+          <div
+            className={`md:hidden block w-5 h-5 ${
+              isMenuOn
+                ? "bg-[url('./assets/images/close.png')]"
+                : "bg-[url('./assets/images/menu.png')]"
+            } bg-no-repeat bg-cover cursor-pointer`}
+            onClick={handleMobileMenu}
           />
-          <RightContents>
-            {pathname !== '/search' && (
-              <div ref={SearchDivRef}>
-                <Input
-                  type="search"
-                  placeholder="검색어를 입력해주세요"
-                  onChange={e => getSearchValue(e)}
-                  onKeyUp={search}
-                />
-                {searchValue && (
-                  <SearchListContainer>
-                    <ContentContainer>
-                      {loading ? (
-                        <NoResult>Loading...</NoResult>
-                      ) : (
-                        showResult(searchList)
-                      )}
-                    </ContentContainer>
-                    <Link to={'/search?query=' + searchValue}>
-                      <GotoSearchPage>더보기</GotoSearchPage>
-                    </Link>
-                  </SearchListContainer>
-                )}
-              </div>
-            )}
-            {isLogin ? (
-              <Icons>
-                <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                  <Icon src={PersonIcon} alt="마이페이지" />
-                  <HoverMenu isHover={isHover}>
-                    <Link to={'/channel/' + loginUserId}>
-                      <HoverMenuItem>내 채널</HoverMenuItem>
-                    </Link>
-                    <Link to="/temp/list">
-                      <HoverMenuItem>임시저장 목록</HoverMenuItem>
-                    </Link>
-                    <Link to="/likes">
-                      <HoverMenuItem>좋아요 목록</HoverMenuItem>
-                    </Link>
-                  </HoverMenu>
-                </div>
-                <Icon src={LogoutIcon} alt="로그아웃" onClick={logout} />
-              </Icons>
-            ) : (
-              <Link to="/login">
-                <LoginButton>로그인</LoginButton>
-              </Link>
-            )}
-            <MobileMenu
-              isMenuOn={isMenuOn}
-              setIsMenuOn={setIsMenuOn}
-              loginUserId={loginUserId}
-            />
-          </RightContents>
-        </CenterContainer>
-      </HeaderContainer>
-    </Fragment>
+          <div className="md:flex hidden justify-between items-center hidden">
+            <div className="flex items-center relative gap-6">
+              <button
+                className="flexCenterAlign gap-2 buttonLayout bg-mainblue text-white px-2 py-1"
+                onClick={() => {
+                  dispatch(handleSearchModal());
+                }}
+              >
+                검색
+                <div className="w-4 h-4 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover cursor-pointer" />
+              </button>
+              {isLogin ? (
+                <>
+                  <div
+                    onMouseOver={handleMouseOver}
+                    onMouseOut={handleMouseOut}
+                  >
+                    <span className="cursor-pointer">메뉴</span>
+                    <div
+                      className={`${
+                        isHover ? 'flex' : 'hidden'
+                      } absolute w-36 flex-col p-4 gap-4 bg-white border border-buttongray rounded-md`}
+                    >
+                      <Link to={'/channel/' + loginUserId}>
+                        <span className="cursor-pointer hover:text-mainblue">
+                          내 채널
+                        </span>
+                      </Link>
+                      <Link to="/temp/list">
+                        <span className="cursor-pointer hover:text-mainblue">
+                          임시저장 목록
+                        </span>
+                      </Link>
+                      <Link to="/likes">
+                        <span className="cursor-pointer hover:text-mainblue">
+                          좋아요 목록
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                  <span className="cursor-pointer" onClick={handleLogout}>
+                    로그아웃
+                  </span>
+                </>
+              ) : (
+                <Link to="/login">
+                  <button className="cursor-pointer">로그인</button>
+                </Link>
+              )}
+            </div>
+            <MobileMenu />
+          </div>
+        </div>
+      </header>
+      <SearchModal />
+      <Outlet />
+    </>
   );
 };

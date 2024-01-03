@@ -247,12 +247,7 @@ export const ModifyPw = () => {
 
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        loginUserId={loginUserInfo?.id}
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-      />
+      <MobileMenu />
       <TitleDiv>
         <Title>비밀번호 변경</Title>
       </TitleDiv>

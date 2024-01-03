@@ -264,12 +264,7 @@ export const ModifyInfoPage = () => {
   }, [result]);
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserInfo?.id}
-      />
+      <MobileMenu />
       {loginUserInfo ? (
         <Fragment>
           <TitleDiv>

@@ -1,11 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { getUserInfo } from './user-slice';
+import { PURGE } from 'redux-persist';
 import axios from 'axios';
 
 interface LoginType {
-  user: {
-    email: string;
-    password: string;
-  };
   isLogin: boolean | null;
 }
 
@@ -17,10 +15,6 @@ interface LoginResultType {
 }
 
 const initialLoginState: LoginType = {
-  user: {
-    email: '',
-    password: '',
-  },
   isLogin: null,
 };
 
@@ -29,35 +23,39 @@ const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
 export const login = createAsyncThunk(
   'loginSlice/login',
-  async (user: { email: string; password: string }) => {
-    const response = axios.post<LoginResultType>(
-      `${BACK_URL}:${BACK_PORT}/users/signin`,
-      { email: user.email, password: user.password }
-    );
-
-    return (await response).data;
+  async (
+    user: { email: string; password: string; isLogin: boolean },
+    { dispatch }
+  ) => {
+    try {
+      const response = await axios.post<LoginResultType>(
+        `${BACK_URL}:${BACK_PORT}/users/signin`,
+        { email: user.email, password: user.password }
+      );
+      if (response.status === 200 && response.data.result) {
+        sessionStorage.setItem('token', response.data.result?.token);
+        await dispatch(getUserInfo());
+        window.location.href = '/';
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error('로그인 오류 발생');
+    }
   }
 );
 
 const loginSlice = createSlice({
   name: 'login',
   initialState: initialLoginState,
-  reducers: {
-    getLoginInfo: (state, action) => {
-      state.user.email = action.payload.email;
-      state.user.password = action.payload.password;
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
-    builder.addCase(login.fulfilled, (state, action) => {
+    builder.addCase(login.fulfilled, state => {
       state.isLogin = true;
-      action.payload.result &&
-        localStorage.setItem('token', action.payload.result.token);
-      window.location.href = '/';
     });
     builder.addCase(login.rejected, state => {
       state.isLogin = false;
     });
+    builder.addCase(PURGE, () => initialLoginState);
   },
 });
 

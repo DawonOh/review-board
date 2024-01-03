@@ -6,13 +6,19 @@ import { Provider } from 'react-redux';
 import store from 'redux/store';
 
 import './index.css';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistStore } from 'redux-persist';
+
+export const persistor = persistStore(store);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <Provider store={store}>
-    <Router />
+    <PersistGate loading={null} persistor={persistor}>
+      <Router />
+    </PersistGate>
   </Provider>
 );
 

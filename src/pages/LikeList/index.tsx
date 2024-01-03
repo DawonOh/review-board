@@ -164,12 +164,7 @@ export const LikeList = () => {
 
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+      <MobileMenu />
       <ListContainer>
         <Container>
           <Title>좋아요 목록</Title>

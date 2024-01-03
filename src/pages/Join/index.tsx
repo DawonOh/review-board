@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import useJoinInput from 'hooks/useJoinInput';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { alertActions } from 'redux/slice/alert-slice';
 import { AlertModal } from 'Components';
+import { useAppDispatch } from 'hooks';
 
 // 이메일 유효성 검사
 const emailRegex = /[a-zA-Z0-9._+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+/;
@@ -23,8 +23,7 @@ export const Join = () => {
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
-  // 알림창 state
-  const dispatch = useDispatch<any>();
+  const dispatch = useAppDispatch();
 
   // 이메일 input
   const {

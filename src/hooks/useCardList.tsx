@@ -28,6 +28,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
   const [error, setError] = useState(false);
   const [cardList, setCardList] = useState<cardListType[]>([]);
   const [hasMore, setHasMore] = useState(false);
+  const [isEmpty, setIsEmpty] = useState<boolean | null>(null);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -81,6 +82,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
           setCardList(prevCardList => {
             return [...new Set([...prevCardList, ...res.data])];
           });
+          setIsEmpty(pageNumber === 0 && res.data.length === 0);
           setHasMore(res.data.length > 0);
           setLoading(false);
         })
@@ -89,9 +91,11 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
             return;
           }
           setError(true);
+          setIsEmpty(null);
+          setLoading(false);
         });
       return () => cancel();
     }
-  }, [categoryId, pageNumber]);
-  return { loading, error, cardList, hasMore };
+  }, [BACK_PORT, BACK_URL, query, categoryId, pageNumber]);
+  return { loading, error, cardList, hasMore, isEmpty };
 };

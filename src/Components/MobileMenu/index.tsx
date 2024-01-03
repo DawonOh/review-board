@@ -1,72 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
-import { ButtonLayout } from 'Styles/CommonStyle';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import PersonIcon from '../../assets/images/person.png';
-
-const MenuContainer = Styled.div<{ isMenuOn: boolean }>`
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  padding: 3em;
-  transform: ${props =>
-    props.isMenuOn ? 'translateX(0)' : 'translateX(-100%)'};
-  transition: transform 0.5s;
-  background-color: #fff;
-  border: 1px solid #EBEBEB;
-  z-index: 999;
-  @media all and (min-width:767px) {
-    display: none;
-  }
-`;
-
-const MenuTitle = Styled.h1`
-  margin-bottom: 2em;
-  font-size: 2em;
-  font-weight: 600;
-`;
-
-const MenuList = Styled.ul`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2em;
-  width: 90%;
-`;
-
-const MenuIcon = Styled.img`
-  width: 1em;
-  margin-right: 1em;
-`;
-
-const MenuItem = Styled.li`
-  font-size: 1.3em;
-  cursor: pointer;
-`;
-
-const LoginButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.8em 1.5em;
-  background-color: #676FA3;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const LogoutButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.3em;
-  background-color: #EBEBEB;
-  color: #000;
-  cursor: pointer;
-`;
-
-interface Props {
-  isMenuOn: boolean;
-  setIsMenuOn: (isModalOpen: boolean) => void;
-  loginUserId: number | undefined;
-}
+import { persistor } from 'index';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
 
 interface MenuProps {
   id: number;
@@ -75,63 +13,88 @@ interface MenuProps {
   link: string;
 }
 
-export const MobileMenu = ({ isMenuOn, setIsMenuOn, loginUserId }: Props) => {
+export const MobileMenu = () => {
   const [menuList, setMenuList] = useState([]);
-
-  let token = localStorage.getItem('token');
+  const isMenuOn = useAppSelector(state => state.mobileMenu.isMenuOn);
+  const isLogin = useAppSelector(state => state.login.isLogin);
+  const loginUserId = useAppSelector(state => state.user.id);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     axios.get('/data/mobileMenu.json').then(response => {
-      if (token) {
+      if (isLogin) {
         setMenuList(response.data.menuList);
         return;
       }
-      if (!token) {
+      if (!isLogin || isLogin === null) {
         setMenuList(response.data.logoutMenuList);
         return;
       }
     });
-  }, [token]);
+  }, [isLogin]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleModalOpen = () => {
-    setIsModalOpen(!isModalOpen);
+  const closeMenu = () => {
+    dispatch(mobileMenuActions.handleMenuOn());
   };
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = '/';
-    setIsMenuOn(false);
+
+  const handleLogout = async () => {
+    persistor.purge();
+    sessionStorage.removeItem('token');
   };
   return (
-    <MenuContainer isMenuOn={isMenuOn}>
-      <MenuTitle>메뉴</MenuTitle>
-      <MenuList>
+    <div
+      className={`w-full h-full fixed p-12 ${
+        isMenuOn ? 'translate-x-0' : '-translate-x-full'
+      } duration-500 bg-white border border-buttongray z-50 md:hidden`}
+    >
+      <h1 className="mb-8 text-xl font-bold">메뉴</h1>
+      <ul className="flex flex-col justify-center items-start gap-8 w-11/12">
         {menuList.map((menuItem: MenuProps) => {
           return (
             <Fragment key={menuItem.id}>
               <Link to={menuItem.link}>
-                <MenuItem>
-                  <MenuIcon src={menuItem.icon} alt={menuItem.title} />
+                <li
+                  className="flexCenterAlign gap-4 text-xl cursor-pointer"
+                  onClick={closeMenu}
+                >
+                  <img
+                    className="w-4 h-4"
+                    src={menuItem.icon}
+                    alt={menuItem.title}
+                  />
                   {menuItem.title}
-                </MenuItem>
+                </li>
               </Link>
             </Fragment>
           );
         })}
-        <Link to={`/channel/${loginUserId}`}>
-          <MenuItem>
-            <MenuIcon src={PersonIcon} alt="내 채널 아이콘" />
-            마이페이지
-          </MenuItem>
-        </Link>
-        {token ? (
-          <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+        {isLogin ? (
+          <>
+            <Link to={`/channel/${loginUserId}`}>
+              <li className="flexCenterAlign gap-4 text-xl cursor-pointer">
+                <img
+                  className="w-4 h-4"
+                  src={PersonIcon}
+                  alt="내 채널 아이콘"
+                />
+                마이페이지
+              </li>
+            </Link>
+            <button
+              className="buttonLayout px-3 py-2 bg-buttongray cursor-pointer"
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
+          </>
         ) : (
-          <LoginButton onClick={handleModalOpen}>로그인</LoginButton>
+          <Link to="/login">
+            <button className="buttonLayout px-3 py-2 bg-mainblue text-white cursor-pointer">
+              로그인
+            </button>
+          </Link>
         )}
-      </MenuList>
-      {/* <Login isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} /> */}
-    </MenuContainer>
+      </ul>
+    </div>
   );
 };

@@ -1,6 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { AlertModal, Header, MobileMenu } from 'Components';
+import { Header, MobileMenu } from 'Components';
 import axios from 'axios';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
@@ -200,12 +200,7 @@ export const TempList = () => {
 
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
+      <MobileMenu />
       <ListContainer>
         <Container>
           <Title>임시 저장 목록</Title>
