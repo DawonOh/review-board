@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from 'hooks';
 import React, { Fragment, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { search, searchModalActions } from 'redux/slice/searchModal-slice';
 
 export const SearchModal = () => {
@@ -54,6 +54,33 @@ export const SearchModal = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const goToSearchPage = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (searchData.searchWord.trim() !== '' && e.key === 'Enter') {
+      let url = `/search?query=${searchData.searchWord}`;
+      dispatch(searchModalActions.handleModal());
+      navigate(url);
+    }
+  };
+
+  const highlightedText = (text: string) => {
+    const strs = text.split(new RegExp(`(${searchData.searchWord})`, 'gi'));
+    return (
+      <>
+        {strs.map((str, idx) =>
+          str.toLowerCase() === searchData.searchWord.toLowerCase() ? (
+            <span key={idx} className="text-mainblue underline">
+              {str}
+            </span>
+          ) : (
+            str
+          )
+        )}
+      </>
+    );
+  };
+
   return (
     <Fragment>
       {isSearchModalOpen && (
@@ -67,6 +94,7 @@ export const SearchModal = () => {
                 type="search"
                 placeholder="검색어를 입력해주세요"
                 onChange={e => setSearchWord(e)}
+                onKeyUp={goToSearchPage}
               />
             </div>
             <div
@@ -82,14 +110,19 @@ export const SearchModal = () => {
                 )}
                 {searchData.searchResult?.map(item => (
                   <Link key={item.id} to={`/feed/${item.id}`}>
-                    <div className="flex flex-col gap-2">
+                    <div
+                      className="flex flex-col gap-2"
+                      onClick={() => dispatch(searchModalActions.handleModal())}
+                    >
                       <div className="flex gap-4">
-                        <span className="font-bold">{item.titleSnippet}</span>
+                        <span className="font-bold">
+                          {highlightedText(item.titleSnippet)}
+                        </span>
                         <span className="text-sm text-buttongray">
                           {item.postedAt.slice(0, 10)}
                         </span>
                       </div>
-                      <span>{item.contentSnippet}</span>
+                      <span>{highlightedText(item.contentSnippet)}</span>
                     </div>
                   </Link>
                 ))}
