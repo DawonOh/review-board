@@ -52,6 +52,16 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(0.5rem)' },
         },
+        'searchModal-open': {
+          '0%': {
+            opacity: 0,
+            transform: 'translateY(-0.5rem)',
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'translateY(0px)',
+          },
+        },
       },
       animation: {
         'fade-in': 'fade-in 1s ease-in forwards',
@@ -60,6 +70,7 @@ module.exports = {
         'category-close': 'category-close 500ms ease-in',
         'category-default': 'category-default',
         move: 'move 2s ease-in-out infinite',
+        'search-open': 'searchModal-open 500ms ease-in',
       },
       minHeight: {
         '2.5rem': '2.5rem',

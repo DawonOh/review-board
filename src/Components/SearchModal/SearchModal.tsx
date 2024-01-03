@@ -86,7 +86,7 @@ export const SearchModal = () => {
       {isSearchModalOpen && (
         <div className="hidden md:block">
           <div className="fixed w-full h-screen bg-black/[.1] top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 overflow-hidden z-50" />
-          <div className="absolute top-40 left-1/2 -translate-x-1/2 z-50 w-2/5 h-1/2 bg-white flex flex-col rounded-md py-8 px-12">
+          <div className="absolute top-40 m-auto left-0 right-0 z-50 w-2/5 h-1/2 bg-white flex flex-col rounded-md py-8 px-12 animate-search-open">
             <div className="flexCenterAlign w-full mt-4">
               <div className="w-4 h-4 mr-2 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover" />
               <input
