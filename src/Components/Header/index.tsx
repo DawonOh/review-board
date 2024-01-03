@@ -4,7 +4,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { persistor } from 'index';
 import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
-import { SearchModal } from 'Components/SearchModal/SearchModal';
+import { SearchModal } from 'Components';
 import { searchModalActions } from 'redux/slice/searchModal-slice';
 
 export const Header = () => {
