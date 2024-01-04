@@ -1,23 +1,13 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
-import { Header, MobileMenu, FeedDetail, CommentContainer } from 'Components';
+import { Fragment, useEffect, useState } from 'react';
+import { MobileMenu, FeedDetail, CommentContainer } from 'Components';
 import axios from 'axios';
 
-const MainContainer = Styled.div`
-  width: 80%;
-  height: 100%;
-  position: relate;
-  margin: 0 auto;
-  padding: 2em;
-`;
-
 export const Feed = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
   //로그인 한 유저 Id
   const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-  let token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token');
 
   useEffect(() => {
     if (token) {
@@ -30,14 +20,14 @@ export const Feed = () => {
           setLoginUserId(response.data.id);
         });
     }
-  }, []);
+  }, [BACK_PORT, BACK_URL, token]);
   return (
     <Fragment>
       <MobileMenu />
-      <MainContainer>
+      <div className="w-full h-screen relate my-0 mx-auto pt-8 bg-bg-gray">
         <FeedDetail loginUserId={loginUserId} />
         <CommentContainer loginUserId={loginUserId} />
-      </MainContainer>
+      </div>
     </Fragment>
   );
 };

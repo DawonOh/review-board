@@ -1,159 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Styled from 'styled-components';
-import DoubleLikeImg from '../../assets/images/double-like.png';
-import HeartIconImg from '../../assets/images/heart.png';
-import LikeIconImg from '../../assets/images/like.png';
-import DisLikeImg from '../../assets/images/dislike.png';
-import ThumbsUpImg from '../../assets/images/thumbsUp.png';
-import ViewIconImg from '../../assets/images/view.png';
-import DownloadIconImg from '../../assets/images/download.png';
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
-import { AlertModal } from '../AlertModal';
 import { Link } from 'react-router-dom';
-
-const TitleContainer = Styled.div`
-  display: flex;
-  align-items: center;
-  width: 70%;
-  margin: 0 auto;
-  padding: 0.3em;
-  gap: 1em;
-  border-bottom: 2px solid #f1f1f1;
-`;
-
-const LikeByWriter = Styled.div<{ type: number | undefined }>`
-  width: 1.5em;
-  height: 1.5em;
-  min-width: 1.5em;
-  min-height: 1.5em;
-  background: url(${props =>
-    props.type === 1
-      ? DoubleLikeImg
-      : props.type === 2
-      ? ThumbsUpImg
-      : DisLikeImg});
-  background-repeat: no-repeat;
-	background-size: cover;
-`;
-
-const Title = Styled.h1`
-  font-size: 1.5em;
-  font-weight: 700;
-`;
-
-const ContentContainer = Styled.div`
-  ${flexCenterAlign}
-  flex-direction: column;
-  margin-top: 1em;
-  gap: 1em;
-`;
-
-const BothSideContainer = Styled.div`
-  display: flex;
-  width: 70%;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2em;
-  @media (max-width: 767px) {
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 1em;
-  }
-`;
-
-const MainImgA = Styled.a`
-  ${flexCenterAlign}
-  width: 50%;
-  @media (max-width: 767px) {
-    width: 70%;
-  }
-`;
-const MainImg = Styled.img`
-  width: 100%;
-`;
-
-const Content = Styled.div`
-  width: 70%;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  line-height: 1.3em;
-`;
-
-const LikeContainer = Styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-`;
-const LikeIcon = Styled.div<{ isLike: boolean }>`
-  min-width: 2em;
-  min-height: 2em;
-  background: url(${props => (props.isLike ? LikeIconImg : HeartIconImg)});
-  background-repeat: no-repeat;
-  background-size: cover;
-  cursor: pointer;
-`;
-
-const ViewIcon = Styled.div<{ isDownload?: boolean }>`
-  min-width: 1em;
-  min-height: 1em;
-  margin-right: 0.3em;
-  background: url(${props =>
-    props.isDownload ? DownloadIconImg : ViewIconImg});
-  background-repeat: no-repeat;
-  background-size: cover;
-`;
-
-const BoldFont = Styled.span`
-  font-weight: 700;
-`;
-
-const Dates = Styled.div`
-  font-size: 0.8em;
-`;
-const Buttons = Styled.div`
-  ${flexCenterAlign}
-  gap: 0.5em;
-
-`;
-const ModifyDeleteButton = Styled.button<{ text: string }>`
-  ${ButtonLayout}
-  font-size: 0.8em;
-  color: #fff;
-  background-color: ${props => (props.text === '수정' ? '#676FA3' : '#FF5959')};
-  cursor: pointer;
-`;
-
-const ViewCntContainer = Styled.div`
-  ${flexCenterAlign}
-  margin-right: 0.5em;
-`;
-
-const FileTitleDiv = Styled.div`
-  width: 70%;
-  margin-top: 3em;
-  padding: 1em;
-  font-weight: 700;
-  font-size: 1.1em;
-  color: #676FA3;
-  border-bottom: 1px solid #dbdbdb;
-`;
-const FileLink = Styled.a`
-  display: flex;
-  justify-content: space-between;
-  gap: 1em;
-  width: 70%;
-  padding: 1em;
-  cursor: pointer;
-`;
-
-const SmallFont = Styled.span`
-  color: #BDBDBD;
-  font-size: 0.8em;
-  margin-left: 1em;
-`;
 
 interface DataType {
   result: {
@@ -233,21 +81,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //       />
-  //     );
-  //   }
-  // };
-
-  let token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token');
 
   const handleClickLike = () => {
     if (
@@ -389,81 +223,142 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
 
   const createDate = detailContent?.result.created_at.slice(0, -8);
   const updateDate = detailContent?.result.updated_at.slice(0, -8);
+  const estimateIcon = () => {
+    let id = detailContent?.result.estimation.id;
+    if (id === 1) {
+      return "bg-[url('./assets/images/double-like.png')]";
+    }
+
+    if (id === 2) {
+      return "bg-[url('./assets/images/thumbsUp.png')]";
+    }
+
+    if (id === 3) {
+      return "bg-[url('./assets/images/dislike.png')]";
+    }
+  };
+
   return (
-    <Fragment>
-      <TitleContainer>
-        <LikeByWriter type={detailContent?.result.estimation.id} />
-        <Title>{detailContent?.result.title}</Title>
-      </TitleContainer>
-      <ContentContainer>
-        <BothSideContainer>
-          <div>
-            <Dates>{createDate} 작성</Dates>
-            <Dates>{updateDate} 편집</Dates>
+    <div className="w-full p-8">
+      <div className="w-4/5 my-0 mx-auto p-4 bg-white rounded-md">
+        <div className="flex items-center gap-4 mb-4">
+          {/* 카테고리 */}
+          <div className="inline-block px-4 bg-bg-gray rounded-md">
+            {detailContent?.result.category.category}
           </div>
-          {detailContent?.result.user.id === loginUserId && (
-            <Buttons>
-              <Link
-                to="/writeFeed"
-                state={{ feedId: feedId, isModify: true, isTemp: false }}
-              >
-                <ModifyDeleteButton text="수정">수정</ModifyDeleteButton>
-              </Link>
-
-              <ModifyDeleteButton text="삭제" onClick={deleteFeed}>
-                삭제
-              </ModifyDeleteButton>
-            </Buttons>
+          {/* 조회수 */}
+          <div className="flexCenterAlign mr-2">
+            <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/view.png')] bg-no-repeat bg-cover" />
+            <span>{detailContent?.result.viewCnt}</span>
+          </div>
+        </div>
+        {/* 제목 */}
+        <div className="flex gap-4">
+          <div
+            className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
+          />
+          <h1 className="text-xl font-bold">{detailContent?.result.title}</h1>
+        </div>
+        <div className="flex justify-center items-center flex-col w-full mt-4 gap-4">
+          <div className="flex justify-between items-center w-full md:mt-8">
+            <div className="flex justify-between items-center w-full">
+              {/* 작성일 | 편집일 */}
+              <div className="text-sm text-buttongray">
+                {createDate} 작성 | {updateDate} 편집
+              </div>
+              <div className="flex align-center gap-8">
+                {/* 작성자 이름 */}
+                <Link to={`/channel/${detailContent?.result.user.id}`}>
+                  <span className="font-bold">
+                    {detailContent?.result.user.nickname}
+                  </span>
+                </Link>
+                {/* 수정 | 삭제 버튼 */}
+                {detailContent?.result.user.id === loginUserId && (
+                  <div className="flexCenterAlign gap-2">
+                    <Link
+                      to="/writeFeed"
+                      state={{ feedId: feedId, isModify: true, isTemp: false }}
+                    >
+                      <button className="buttonLayout text-sm">수정</button>
+                    </Link>
+                    |
+                    <button
+                      className="buttonLayout text-sm"
+                      onClick={deleteFeed}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* 이미지 */}
+          {detailContent?.result.uploadFiles.map((file, index) => {
+            return (
+              file.is_img && (
+                <a
+                  className="w-full"
+                  href={file.file_link}
+                  target="_blank"
+                  rel="noreferrer"
+                  key={file.id}
+                >
+                  <img
+                    className="w-full"
+                    src={file.file_link}
+                    alt={index + 1 + '번 째 사진'}
+                  />
+                </a>
+              )
+            );
+          })}
+          {/* 내용 */}
+          <div className="w-full whitespace-pre-wrap break-words leading-5 pt-4 border-t">
+            {detailContent?.result.content}
+          </div>
+          {/* 첨부파일 */}
+          {haveFile && (
+            <div className="w-full mt-12 font-bold text-lg">첨부파일</div>
           )}
-        </BothSideContainer>
+          {detailContent?.result.uploadFiles.map((file, index) => {
+            return (
+              file.is_img === false && (
+                <a
+                  className="flex justify-between gap-4 w-full p-4 cursor-pointer"
+                  href={file.file_link}
+                  key={file.id}
+                  download
+                >
+                  <div>
+                    <span>{file.file_name}</span>
+                    <span className="text-buttongray text-sm ml-4">
+                      {file.file_size}
+                    </span>
+                  </div>
 
-        {detailContent?.result.uploadFiles.map((file, index) => {
-          return (
-            file.is_img && (
-              <MainImgA
-                href={file.file_link}
-                target="_blank"
-                rel="noreferrer"
-                key={file.id}
-              >
-                <MainImg src={file.file_link} alt={index + 1 + '번 째 사진'} />
-              </MainImgA>
-            )
-          );
-        })}
-        <Content>{detailContent?.result.content}</Content>
-        {haveFile && <FileTitleDiv>첨부파일</FileTitleDiv>}
-        {detailContent?.result.uploadFiles.map((file, index) => {
-          return (
-            file.is_img === false && (
-              <FileLink href={file.file_link} key={file.id} download>
-                <div>
-                  <span>{file.file_name}</span>
-                  <SmallFont>{file.file_size}</SmallFont>
-                </div>
-
-                <ViewIcon isDownload={true} />
-              </FileLink>
-            )
-          );
-        })}
-        <BothSideContainer>
-          <LikeContainer>
-            <LikeIcon isLike={isLike} onClick={handleClickLike} />
+                  <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/download.png')] bg-no-repeat bg-cover" />
+                </a>
+              )
+            );
+          })}
+          {/* 좋아요 */}
+          <div
+            className="flex justify-end items-center w-full gap-2 cursor-pointer"
+            onClick={handleClickLike}
+          >
+            <div
+              className={`w-6 h-6 min-w-6 min-h-6 ${
+                isLike
+                  ? "bg-[url('./assets/images/likeCountClick.png')]"
+                  : "bg-[url('./assets/images/likeCount.png')]"
+              } bg-no-repeat bg-cover`}
+            />
             <span>{likeCount}</span>
-          </LikeContainer>
-          <Buttons>
-            <ViewCntContainer>
-              <ViewIcon />
-              <span>{detailContent?.result.viewCnt}</span>
-            </ViewCntContainer>
-            <Link to={`/channel/${detailContent?.result.user.id}`}>
-              <BoldFont>by {detailContent?.result.user.nickname}</BoldFont>
-            </Link>
-          </Buttons>
-        </BothSideContainer>
-      </ContentContainer>
-      {/* {openAlertModal()} */}
-    </Fragment>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
