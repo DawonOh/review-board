@@ -1,13 +1,13 @@
 import { useEffect, useState, forwardRef, ForwardedRef } from 'react';
-import Styled from 'styled-components';
 
-import HeartIconImg from '../../assets/images/heart.png';
-import LikeIconImg from '../../assets/images/like.png';
+import LikeIconImg from '../../assets/images/likeCountBlack.png';
+import LikeClickIconImg from '../../assets/images/likeCountClick.png';
 import CommentIconImg from '../../assets/images/comment.png';
 import Clip from '../../assets/images/clip.png';
 import ViewIconImg from '../../assets/images/view.png';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useAppSelector } from 'hooks';
+import instance from 'api';
 
 interface Props {
   id: number;
@@ -53,17 +53,11 @@ const Card = (
     nickName,
     createdAt,
     viewCnt,
-    updatedAt,
-    postedAt,
-    deletedAt,
-    statusId,
   }: Props,
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
   const [isLike, setIsLike] = useState(false);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   useEffect(() => {
     if (img) {
       setIsHaveThumbnail(true);
@@ -72,14 +66,11 @@ const Card = (
     }
   }, [img]);
 
-  let token = localStorage.getItem('token');
+  let isLogin = useAppSelector(state => state.login.isLogin);
   useEffect(() => {
-    if (token) {
-      axios
-        .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
-          timeout: 5000,
-          headers: { Accept: `application/json`, Authorization: token },
-        })
+    if (isLogin) {
+      instance
+        .get<LoginLikeType>(`/symbols/check/${id}`)
         .then(response => {
           setIsLike(response.data.checkValue);
         })
@@ -87,7 +78,7 @@ const Card = (
           alert('잠시 후 다시 시도해주세요.');
         });
     }
-  }, []);
+  }, [id, isLogin]);
 
   const createAtDate = createdAt.slice(0, -8);
   return (
@@ -123,7 +114,7 @@ const Card = (
           <div className="flex items-center h-10 mt-2 absolute bottom-8">
             <img
               className="w-5"
-              src={isLike ? LikeIconImg : HeartIconImg}
+              src={isLike ? LikeClickIconImg : LikeIconImg}
               alt="좋아요 아이콘"
             />
             <span className="mx-0 ml-1 mr-4">{likeCount}</span>
