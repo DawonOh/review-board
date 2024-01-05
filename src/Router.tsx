@@ -15,6 +15,9 @@ import {
   Login,
 } from 'pages';
 import { Header } from 'Components';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from 'util/http';
+import { loader as feedDetailLoader } from './Components/FeedDetail/feedDetail.loader';
 
 const router = createBrowserRouter([
   {
@@ -30,7 +33,7 @@ const router = createBrowserRouter([
       { path: '/changepw', element: <ModifyPw /> },
       { path: '/changeinfo', element: <ModifyInfoPage /> },
       { path: '/likes', element: <LikeList /> },
-      { path: '/feed/:id', element: <Feed /> },
+      { path: '/feed/:id', element: <Feed />, loader: feedDetailLoader },
     ],
   },
   { path: '/login', element: <Login /> },
@@ -39,7 +42,11 @@ const router = createBrowserRouter([
 ]);
 
 const Router = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 };
 
 export default Router;

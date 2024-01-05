@@ -1,6 +1,9 @@
 import { Fragment, useEffect, useState } from 'react';
 import { MobileMenu, FeedDetail, CommentContainer } from 'Components';
 import axios from 'axios';
+import { LoaderFunctionArgs, useLoaderData, useParams } from 'react-router-dom';
+import { DataType, feedDetailData, queryClient } from 'util/http';
+import { useQuery } from '@tanstack/react-query';
 
 export const Feed = () => {
   //로그인 한 유저 Id
@@ -21,11 +24,14 @@ export const Feed = () => {
         });
     }
   }, [BACK_PORT, BACK_URL, token]);
+
+  let detailData = useLoaderData() as DataType['result'];
+
   return (
     <Fragment>
       <MobileMenu />
       <div className="w-full h-screen relate my-0 mx-auto pt-8 bg-bg-gray">
-        <FeedDetail loginUserId={loginUserId} />
+        <FeedDetail detailData={detailData} />
         <CommentContainer loginUserId={loginUserId} />
       </div>
     </Fragment>
