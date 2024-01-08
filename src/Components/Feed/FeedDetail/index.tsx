@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, Link, LoaderFunctionArgs } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import instance from 'api';
-import { DataType } from 'util/http';
+import { feedDetailData, queryClient, sendLike } from 'util/feed-http';
+import { AlertModal } from 'Components/Modal/AlertModal';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 interface LikeType {
   count: number;
@@ -32,11 +33,14 @@ interface LoginLikeType {
   };
 }
 
-export const FeedDetail = ({
-  detailData,
-}: {
-  detailData: DataType['result'] | undefined;
-}) => {
+const feedDetailQuery = (feedId: string | undefined) => ({
+  queryKey: ['feed', { feedId }],
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    feedDetailData({ feedId, signal }),
+  staleTime: 1000 * 60 * 2,
+});
+
+export const FeedDetail = () => {
   const [isLike, setIsLike] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [haveFile, setHaveFile] = useState(false);
@@ -48,7 +52,9 @@ export const FeedDetail = ({
   const params = useParams();
   let feedId = params.id;
 
-  detailData?.uploadFiles.forEach(file => {
+  const { data, isError, error } = useQuery(feedDetailQuery(feedId));
+
+  data?.uploadFiles.forEach(file => {
     if (file.is_img === false) {
       setHaveFile(true);
       return;
@@ -57,14 +63,31 @@ export const FeedDetail = ({
 
   const dispatch = useAppDispatch();
 
-  const handleClickLike = async () => {
-    if (isLike === false && isLogin && loginUserId !== detailData?.user.id) {
-      const response = await instance.post<SymbolType>(`/symbols/${feedId}`, {
-        symbolId: 1,
+  const { mutate } = useMutation({
+    mutationFn: sendLike,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['feed', { feedId }],
+        refetchType: 'none',
       });
-      let data = response.data.result;
       setIsLike(true);
-      setLikeCount(data.length);
+    },
+  });
+
+  const handleClickLike = async () => {
+    if (isLogin === null || isLogin === false) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '로그인 후 이용해주세요.',
+          isQuestion: false,
+          alertPath: '/login',
+        })
+      );
+      return;
+    }
+    if (isLike === false && isLogin && loginUserId !== data?.user.id) {
+      mutate({ feedId });
       return;
     }
     if (isLike) {
@@ -87,6 +110,7 @@ export const FeedDetail = ({
     }
   };
 
+  // 좋아요 수
   useEffect(() => {
     axios
       .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
@@ -117,6 +141,7 @@ export const FeedDetail = ({
     }
   }, [BACK_PORT, BACK_URL, isLogin, feedId]);
 
+  // 게시물 삭제
   const deleteFeed = () => {
     dispatch(
       alertActions.setModal({
@@ -147,10 +172,10 @@ export const FeedDetail = ({
   //   }
   // }, [result]);
 
-  const createDate = detailData?.created_at.slice(0, -8);
-  const updateDate = detailData?.updated_at.slice(0, -8);
+  const createDate = data?.created_at.slice(0, -8);
+  const updateDate = data?.updated_at.slice(0, -8);
   const estimateIcon = () => {
-    let id = detailData?.estimation.id;
+    let id = data?.estimation.id;
     if (id === 1) {
       return "bg-[url('./assets/images/double-like.png')]";
     }
@@ -169,18 +194,18 @@ export const FeedDetail = ({
       <div className="w-4/5 my-0 mx-auto bg-white rounded-md md:px-20 px-8 pt-12 pb-8">
         <div className="flex items-center gap-4 mb-4">
           <div className="inline-block px-4 bg-bg-gray rounded-md">
-            {detailData?.category.category}
+            {data?.category.category}
           </div>
           <div className="flexCenterAlign mr-2">
             <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/view.png')] bg-no-repeat bg-cover" />
-            <span>{detailData?.viewCnt}</span>
+            <span>{data?.viewCnt}</span>
           </div>
         </div>
         <div className="flex gap-4">
           <div
             className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
           />
-          <h1 className="text-xl font-bold">{detailData?.title}</h1>
+          <h1 className="text-xl font-bold">{data?.title}</h1>
         </div>
         <div className="flex justify-center items-center flex-col w-full mt-4 gap-4">
           <div className="flex justify-between items-center w-full md:mt-8">
@@ -189,10 +214,10 @@ export const FeedDetail = ({
                 {createDate} 작성 | {updateDate} 편집
               </div>
               <div className="flex align-center gap-8">
-                <Link to={`/channel/${detailData?.user.id}`}>
-                  <span className="font-bold">{detailData?.user.nickname}</span>
+                <Link to={`/channel/${data?.user.id}`}>
+                  <span className="font-bold">{data?.user.nickname}</span>
                 </Link>
-                {detailData?.user.id === loginUserId && (
+                {data?.user.id === loginUserId && (
                   <div className="flexCenterAlign gap-2">
                     <Link
                       to="/writeFeed"
@@ -212,7 +237,7 @@ export const FeedDetail = ({
               </div>
             </div>
           </div>
-          {detailData?.uploadFiles.map((file, index) => {
+          {data?.uploadFiles.map((file, index) => {
             return (
               file.is_img && (
                 <a
@@ -232,12 +257,12 @@ export const FeedDetail = ({
             );
           })}
           <div className="w-full whitespace-pre-wrap break-words leading-5 pt-4 border-t">
-            {detailData?.content}
+            {data?.content}
           </div>
           {haveFile && (
             <div className="w-full mt-12 font-bold text-lg">첨부파일</div>
           )}
-          {detailData?.uploadFiles.map((file, index) => {
+          {data?.uploadFiles.map((file, index) => {
             return (
               file.is_img === false && (
                 <a
@@ -273,6 +298,15 @@ export const FeedDetail = ({
           </div>
         </div>
       </div>
+      <AlertModal />
     </div>
   );
+};
+
+export const loader = ({ params }: LoaderFunctionArgs) => {
+  let feedId = params.id;
+  return queryClient.fetchQuery({
+    queryKey: ['feed', { feedId }],
+    queryFn: ({ signal }) => feedDetailData({ feedId, signal }),
+  });
 };

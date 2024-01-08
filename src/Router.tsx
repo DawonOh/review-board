@@ -16,8 +16,8 @@ import {
 } from 'pages';
 import { Header } from 'Components';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from 'util/http';
-import { loader as feedDetailLoader } from './Components/FeedDetail/feedDetail.loader';
+import { queryClient } from 'util/feed-http';
+import { loader as feedDetailLoader } from './Components/Feed/FeedDetail';
 
 const router = createBrowserRouter([
   {

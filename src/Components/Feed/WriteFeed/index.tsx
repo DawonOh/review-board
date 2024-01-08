@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
-import ToggleImg from '../../assets/images/toggleDown.png';
-import LikeIconImg from '../../assets/images/thumbsUp.png';
-import DoubleLikeImg from '../../assets/images/double-like.png';
-import DisLikeImg from '../../assets/images/dislike.png';
-import QuestionMark from '../../assets/images/question.png';
-import FileIconImg from '../../assets/images/clip.png';
+import ToggleImg from '../../../assets/images/toggleDown.png';
+import LikeIconImg from '../../../assets/images/thumbsUp.png';
+import DoubleLikeImg from '../../../assets/images/double-like.png';
+import DisLikeImg from '../../../assets/images/dislike.png';
+import QuestionMark from '../../../assets/images/question.png';
+import FileIconImg from '../../../assets/images/clip.png';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 

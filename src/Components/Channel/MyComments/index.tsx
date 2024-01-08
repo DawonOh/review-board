@@ -8,10 +8,10 @@ import React, {
 import axios from 'axios';
 import Styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
-import ReplyIconImg from '../../assets/images/reply.png';
-import LockIconImg from '../../assets/images/lock.png';
+import ReplyIconImg from '../../../assets/images/reply.png';
+import LockIconImg from '../../../assets/images/lock.png';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
-import { AlertModal } from 'Components/AlertModal';
+import { AlertModal } from 'Components/Modal/AlertModal';
 
 const CommentContainer = Styled.div<{
   ref?: ForwardedRef<HTMLDivElement> | null;

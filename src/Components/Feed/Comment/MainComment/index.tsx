@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
-import LockImg from '../../assets/images/lock.png';
-import { CommentTextarea } from 'Components/CommentTextarea';
-import { AlertModal } from 'Components/AlertModal';
+import LockImg from '../../../../assets/images/lock.png';
+import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
+import { AlertModal } from 'Components/Modal/AlertModal';
 
 const MainCommentContainer = Styled.div<{ isChildren: boolean }>`
   width: ${props => (props.isChildren ? '80%' : '90%')};

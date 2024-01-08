@@ -1,4 +1,4 @@
-import { AlertModal } from '../AlertModal';
+import { AlertModal } from '../Modal/AlertModal';
 import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react';

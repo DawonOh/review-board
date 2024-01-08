@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { MainComment } from 'Components/MainComment';
-import { ChildrenArr } from 'Components/CommentContainer';
-import { CommentTextarea } from 'Components/CommentTextarea';
+import { MainComment } from 'Components/Feed/Comment/MainComment';
+import { ChildrenArr } from 'Components/Feed/Comment/CommentContainer';
+import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
 
 interface PropsType {
   mainComment: {

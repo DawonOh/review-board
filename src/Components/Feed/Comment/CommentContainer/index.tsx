@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { CommentList } from 'Components/CommentList';
-import { CommentTextarea } from 'Components/CommentTextarea';
+import { CommentList } from 'Components/Feed/Comment/CommentList';
+import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
 import { useParams } from 'react-router-dom';
 
 const ReplyContainer = Styled.div`

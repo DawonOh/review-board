@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import instance from 'api';
+import axios from 'axios';
 
 export const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ export interface DataType {
 const BACK_URL = process.env.REACT_APP_BACK_URL;
 const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
+// 피드 상세 정보 불러오기
 export const feedDetailData = async ({
   feedId,
   signal,
@@ -53,6 +55,23 @@ export const feedDetailData = async ({
         signal,
       }
     );
+    return response.data.result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+interface SymbolType {
+  message: string;
+  result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
+}
+
+// 피드 좋아요 요청
+export const sendLike = async ({ feedId }: { feedId: string | undefined }) => {
+  try {
+    const response = await instance.post<SymbolType>(`/symbols/${feedId}`, {
+      symbolId: 1,
+    });
     return response.data.result;
   } catch (error) {
     throw error;

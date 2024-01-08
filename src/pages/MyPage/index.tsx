@@ -12,7 +12,7 @@ import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { useParams } from 'react-router-dom';
 import { MyFeeds } from 'Components';
 import { Pagination } from '@mui/material';
-import MyComments from 'Components/MyComments';
+import MyComments from 'Components/Channel/MyComments';
 import { Link } from 'react-router-dom';
 
 const MainContainer = Styled.div`

@@ -1,10 +1,10 @@
 import { useEffect, useState, forwardRef, ForwardedRef } from 'react';
 
-import LikeIconImg from '../../assets/images/likeCountBlack.png';
-import LikeClickIconImg from '../../assets/images/likeCountClick.png';
-import CommentIconImg from '../../assets/images/comment.png';
-import Clip from '../../assets/images/clip.png';
-import ViewIconImg from '../../assets/images/view.png';
+import LikeIconImg from '../../../assets/images/likeCountBlack.png';
+import LikeClickIconImg from '../../../assets/images/likeCountClick.png';
+import CommentIconImg from '../../../assets/images/comment.png';
+import Clip from '../../../assets/images/clip.png';
+import ViewIconImg from '../../../assets/images/view.png';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
 import instance from 'api';

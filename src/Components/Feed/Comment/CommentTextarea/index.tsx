@@ -1,10 +1,10 @@
-import { AlertModal } from 'Components/AlertModal';
+import { AlertModal } from 'Components/Modal/AlertModal';
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
-import LockImg from '../../assets/images/lock.png';
-import UnlockImg from '../../assets/images/unlock.png';
+import LockImg from '../../../../assets/images/lock.png';
+import UnlockImg from '../../../../assets/images/unlock.png';
 
 const WriteReplyContainer = Styled.div<{
   isNestedComment: boolean;
