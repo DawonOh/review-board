@@ -13,8 +13,9 @@ import {
   LikeList,
   Join,
   Login,
+  RootLayout,
+  ErrorPage,
 } from 'pages';
-import { Header } from 'Components';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feed-http';
 import { loader as feedDetailLoader } from './Components/Feed/FeedDetail';
@@ -22,9 +23,10 @@ import { loader as feedDetailLoader } from './Components/Feed/FeedDetail';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Header />,
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
-      { path: '/', element: <MainPage /> },
+      { index: true, element: <MainPage /> },
       { path: '/writefeed', element: <WriteFeed /> },
       { path: '/temp/list', element: <TempList /> },
       { path: '/search', element: <SearchPage /> },

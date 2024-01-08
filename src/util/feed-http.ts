@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import instance from 'api';
 import axios from 'axios';
+import { json } from 'react-router-dom';
 
 export const queryClient = new QueryClient();
 
@@ -57,7 +58,10 @@ export const feedDetailData = async ({
     );
     return response.data.result;
   } catch (error) {
-    throw error;
+    throw json(
+      { message: '정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' },
+      { status: 500 }
+    );
   }
 };
 

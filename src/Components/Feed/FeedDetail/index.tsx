@@ -110,6 +110,18 @@ export const FeedDetail = () => {
     }
   };
 
+  // 좋아요 요청 에러 발생 시
+  if (isError) {
+    // dispatch(
+    //   alertActions.setModal({
+    //     isModalOpen: true,
+    //     contents: '잠시 후 다시 시도해주세요.',
+    //     isQuestion: false,
+    //     alertPath: '',
+    //   })
+    // );
+  }
+
   // 좋아요 수
   useEffect(() => {
     axios

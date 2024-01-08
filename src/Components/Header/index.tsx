@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MobileMenu } from 'Components';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { persistor } from 'index';
 import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
@@ -104,7 +104,6 @@ export const Header = () => {
         </div>
       </header>
       <SearchModal />
-      <Outlet />
     </>
   );
 };

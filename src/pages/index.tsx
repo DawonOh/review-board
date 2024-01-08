@@ -11,3 +11,5 @@ export * from './Quit';
 export * from './ModifyPw';
 export * from './FindPw';
 export * from './LikeList';
+export * from './ErrorPage';
+export * from './RootLayout';
