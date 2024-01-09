@@ -1,18 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
 import { CommentList } from 'Components/Feed/Comment/CommentList';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
-
-const ReplyContainer = Styled.div`
-  width: 70%;
-  margin: 1em auto;
-  border-top: 2px solid #f1f1f1;
-`;
-const Title = Styled.h2`
-  margin-top: 1em;
-  font-size: 1.3em;
-  font-weight: 700;
-`;
 
 export interface CommentJsonType {
   id: number;
@@ -77,7 +65,7 @@ export const CommentContainer = ({
   return (
     <div className="w-full p-8">
       <div className="w-4/5 my-0 mx-auto md:px-20 px-8 pb-8">
-        <Title>댓글</Title>
+        <h2 className="mt-4 text-xl font-bold mb-4">댓글</h2>
         <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
         {mainCommentList &&
           mainCommentList.map((mainComment: CommentJsonType) => {
