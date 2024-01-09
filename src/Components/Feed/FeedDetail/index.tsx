@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import instance from 'api';
-import { DataType, queryClient, sendLike } from 'util/feed-http';
+import {
+  DataType,
+  LikeType,
+  deleteLike,
+  queryClient,
+  sendLike,
+} from 'util/feed-http';
 import { AlertModal } from 'Components/Modal/AlertModal';
 import { useMutation } from '@tanstack/react-query';
-
-interface LikeType {
-  count: number;
-  feedId: number;
-  symbol: string;
-  symbolId: number;
-}
-
 interface SymbolType {
   message: string;
   result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
@@ -35,11 +32,12 @@ interface LoginLikeType {
 
 export const FeedDetail = ({
   feedDetailData,
+  feedLikeData,
 }: {
   feedDetailData: DataType['result'] | undefined;
+  feedLikeData: LikeType[] | undefined;
 }) => {
   const [isLike, setIsLike] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
   const [haveFile, setHaveFile] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
@@ -58,14 +56,23 @@ export const FeedDetail = ({
 
   const dispatch = useAppDispatch();
 
-  const { mutate } = useMutation({
+  const { mutate: getLikeMutate } = useMutation({
     mutationFn: sendLike,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['feed', { feedId }],
-        refetchType: 'none',
+        queryKey: ['like'],
       });
       setIsLike(true);
+    },
+  });
+
+  const { mutate: deleteLikeMutate } = useMutation({
+    mutationFn: deleteLike,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['like'],
+      });
+      setIsLike(false);
     },
   });
 
@@ -86,26 +93,11 @@ export const FeedDetail = ({
       isLogin &&
       loginUserId !== feedDetailData?.user.id
     ) {
-      mutate({ feedId });
+      getLikeMutate({ feedId });
       return;
     }
     if (isLike) {
-      instance
-        .delete<SymbolType>(`/symbols/${feedId}`)
-        .then(response => {
-          setIsLike(false);
-          for (let i = 0; i < response.data.result.length; i++) {
-            if (response.data.result[i].symbolId === 1) {
-              setLikeCount(response.data.result[i].count);
-            }
-          }
-        })
-        .catch(error => {
-          if (error.code === 'ECONNABORTED') {
-            alert('잠시 후 다시 시도해주세요.');
-          }
-        });
-      return;
+      deleteLikeMutate({ feedId });
     }
   };
 
@@ -123,21 +115,6 @@ export const FeedDetail = ({
 
   // 좋아요 수
   useEffect(() => {
-    axios
-      .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
-        timeout: 5000,
-      })
-      .then(response => {
-        for (let i = 0; i < response.data.length; i++) {
-          if (response.data[i].symbolId === 1) {
-            setLikeCount(response.data[i].count);
-          }
-        }
-      })
-      .catch(error => {
-        alert('잠시 후 다시 시도해주세요.');
-      });
-
     if (isLogin) {
       instance
         .get<LoginLikeType>(`/symbols/check/${feedId}`)
@@ -308,7 +285,7 @@ export const FeedDetail = ({
                   : "bg-[url('./assets/images/likeCount.png')]"
               } bg-no-repeat bg-cover`}
             />
-            <span>{likeCount}</span>
+            <span>{feedLikeData && feedLikeData[0].count}</span>
           </div>
         </div>
       </div>

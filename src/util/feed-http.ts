@@ -70,6 +70,35 @@ interface SymbolType {
   result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
 }
 
+export interface LikeType {
+  count: number;
+  feedId: number;
+  symbol: string;
+  symbolId: number;
+}
+
+// 피드 좋아요 정보 불러오기
+export const getFeedLike = async ({
+  feedId,
+  signal,
+}: {
+  feedId: string | undefined;
+  signal: AbortSignal;
+}) => {
+  try {
+    const response = await axios.get<LikeType[]>(
+      `${BACK_URL}:${BACK_PORT}/symbols/${feedId}`,
+      {
+        timeout: 5000,
+        signal,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // 피드 좋아요 요청
 export const sendLike = async ({ feedId }: { feedId: string | undefined }) => {
   try {
@@ -77,6 +106,20 @@ export const sendLike = async ({ feedId }: { feedId: string | undefined }) => {
       symbolId: 1,
     });
     return response.data.result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 피드 좋아요 삭제
+export const deleteLike = async ({
+  feedId,
+}: {
+  feedId: string | undefined;
+}) => {
+  try {
+    const response = await instance.delete<SymbolType>(`/symbols/${feedId}`);
+    return response.data;
   } catch (error) {
     throw error;
   }
