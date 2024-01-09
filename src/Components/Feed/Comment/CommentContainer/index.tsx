@@ -1,8 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { CommentList } from 'Components/Feed/Comment/CommentList';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
-import { useParams } from 'react-router-dom';
 
 const ReplyContainer = Styled.div`
   width: 70%;
@@ -61,31 +60,15 @@ export interface ChildrenArr {
   is_private: boolean;
 }
 
-interface loginUserIdType {
-  loginUserId: number;
-}
-export const CommentContainer = ({ loginUserId }: loginUserIdType) => {
-  const [mainCommentList, setMainCommentList] = useState<CommentJsonType[]>([]);
+export const CommentContainer = ({
+  mainCommentList,
+}: {
+  mainCommentList: CommentJsonType[];
+}) => {
   //댓글 작성 여부
   const [success, setSuccess] = useState(false);
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('accept', 'application/json');
-  let token = localStorage.getItem('token');
-  token && requestHeaders.set('Authorization', token);
 
-  const params = useParams();
-  let feedId = params.id;
-
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   useEffect(() => {
-    fetch(`${BACK_URL}:${BACK_PORT}/comments/${feedId}`, {
-      headers: requestHeaders,
-    })
-      .then(response => response.json())
-      .then(json => {
-        setMainCommentList(json);
-      });
     if (success) {
       setSuccess(false);
     }
@@ -95,18 +78,18 @@ export const CommentContainer = ({ loginUserId }: loginUserIdType) => {
     <ReplyContainer>
       <Title>댓글</Title>
       <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
-      {mainCommentList.map((mainComment: CommentJsonType) => {
-        return (
-          <Fragment key={mainComment.id}>
-            <CommentList
-              mainComment={mainComment}
-              setSuccess={setSuccess}
-              loginUserId={loginUserId}
-              success={success}
-            />
-          </Fragment>
-        );
-      })}
+      {mainCommentList &&
+        mainCommentList.map((mainComment: CommentJsonType) => {
+          return (
+            <Fragment key={mainComment.id}>
+              <CommentList
+                mainComment={mainComment}
+                setSuccess={setSuccess}
+                success={success}
+              />
+            </Fragment>
+          );
+        })}
     </ReplyContainer>
   );
 };

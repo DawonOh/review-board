@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { MainComment } from 'Components/Feed/Comment/MainComment';
 import { ChildrenArr } from 'Components/Feed/Comment/CommentContainer';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
+import { useAppSelector } from 'hooks';
 
 interface PropsType {
   mainComment: {
@@ -37,18 +38,17 @@ interface PropsType {
     ];
   };
   setSuccess: Function;
-  loginUserId: number;
   success: boolean;
 }
 
 export const CommentList = ({
   mainComment,
   setSuccess,
-  loginUserId,
   success,
 }: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
+  const loginUserId = useAppSelector(state => state.user.id);
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);

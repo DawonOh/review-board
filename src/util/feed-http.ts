@@ -81,3 +81,25 @@ export const sendLike = async ({ feedId }: { feedId: string | undefined }) => {
     throw error;
   }
 };
+
+// 피드 댓글
+export const feedComments = async ({
+  feedId,
+  signal,
+}: {
+  feedId: string | undefined;
+  signal: AbortSignal;
+}) => {
+  try {
+    const response = await axios.get(
+      `${BACK_URL}:${BACK_PORT}/comments/${feedId}`,
+      {
+        timeout: 5000,
+        signal,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

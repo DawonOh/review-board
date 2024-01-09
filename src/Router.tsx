@@ -15,10 +15,10 @@ import {
   Login,
   RootLayout,
   ErrorPage,
+  feedLoader,
 } from 'pages';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feed-http';
-import { loader as feedDetailLoader } from './Components/Feed/FeedDetail';
 
 const router = createBrowserRouter([
   {
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
       { path: '/changepw', element: <ModifyPw /> },
       { path: '/changeinfo', element: <ModifyInfoPage /> },
       { path: '/likes', element: <LikeList /> },
-      { path: '/feed/:id', element: <Feed />, loader: feedDetailLoader },
+      { path: '/feed/:id', element: <Feed />, loader: feedLoader },
     ],
   },
   { path: '/login', element: <Login /> },
