@@ -10,3 +10,4 @@ export * from './Channel/MyFeeds';
 export * from './Channel/MyComments';
 export * from './CheckPassword';
 export * from './Modal/SearchModal';
+export * from './Feed/File';

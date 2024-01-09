@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { MobileMenu, FeedDetail, CommentContainer } from 'Components';
+import { MobileMenu, FeedDetail, CommentContainer, File } from 'Components';
 import {
   feedComments,
   feedDetailData,
@@ -45,11 +45,12 @@ export const Feed = () => {
   return (
     <Fragment>
       <MobileMenu />
-      <div className="w-full h-screen relate my-0 mx-auto pt-8 bg-bg-gray">
+      <div className="w-full h-full relate my-0 mx-auto pt-8 bg-bg-gray">
         <FeedDetail
           feedDetailData={feedData[0].data}
           feedLikeData={feedData[2].data}
         />
+        <File fileData={feedData[0].data?.uploadFiles} />
         <CommentContainer mainCommentList={feedData[1].data} />
       </div>
     </Fragment>

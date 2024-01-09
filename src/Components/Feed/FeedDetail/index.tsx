@@ -38,7 +38,6 @@ export const FeedDetail = ({
   feedLikeData: LikeType[] | undefined;
 }) => {
   const [isLike, setIsLike] = useState(false);
-  const [haveFile, setHaveFile] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
@@ -47,16 +46,9 @@ export const FeedDetail = ({
   const params = useParams();
   let feedId = params.id;
 
-  feedDetailData?.uploadFiles.forEach(file => {
-    if (file.is_img === false) {
-      setHaveFile(true);
-      return;
-    }
-  });
-
   const dispatch = useAppDispatch();
 
-  const { mutate: getLikeMutate } = useMutation({
+  const { mutate: getLikeMutate, isError: getLikeIsError } = useMutation({
     mutationFn: sendLike,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -101,17 +93,16 @@ export const FeedDetail = ({
     }
   };
 
-  // 좋아요 요청 에러 발생 시
-  // if (isError) {
-  // dispatch(
-  //   alertActions.setModal({
-  //     isModalOpen: true,
-  //     contents: '잠시 후 다시 시도해주세요.',
-  //     isQuestion: false,
-  //     alertPath: '',
-  //   })
-  // );
-  // }
+  if (getLikeIsError) {
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: '잠시 후 다시 시도해주세요.',
+        isQuestion: false,
+        alertPath: '',
+      })
+    );
+  }
 
   // 좋아요 수
   useEffect(() => {
@@ -250,30 +241,6 @@ export const FeedDetail = ({
           <div className="w-full whitespace-pre-wrap break-words leading-5 pt-4 border-t">
             {feedDetailData?.content}
           </div>
-          {haveFile && (
-            <div className="w-full mt-12 font-bold text-lg">첨부파일</div>
-          )}
-          {feedDetailData?.uploadFiles.map((file, index) => {
-            return (
-              file.is_img === false && (
-                <a
-                  className="flex justify-between gap-4 w-full p-4 cursor-pointer"
-                  href={file.file_link}
-                  key={file.id}
-                  download
-                >
-                  <div>
-                    <span>{file.file_name}</span>
-                    <span className="text-buttongray text-sm ml-4">
-                      {file.file_size}
-                    </span>
-                  </div>
-
-                  <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/download.png')] bg-no-repeat bg-cover" />
-                </a>
-              )
-            );
-          })}
           <div
             className="flex justify-end items-center w-full gap-2 cursor-pointer"
             onClick={handleClickLike}

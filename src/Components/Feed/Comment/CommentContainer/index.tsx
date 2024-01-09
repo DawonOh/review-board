@@ -75,21 +75,23 @@ export const CommentContainer = ({
   }, [success]);
 
   return (
-    <ReplyContainer>
-      <Title>댓글</Title>
-      <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
-      {mainCommentList &&
-        mainCommentList.map((mainComment: CommentJsonType) => {
-          return (
-            <Fragment key={mainComment.id}>
-              <CommentList
-                mainComment={mainComment}
-                setSuccess={setSuccess}
-                success={success}
-              />
-            </Fragment>
-          );
-        })}
-    </ReplyContainer>
+    <div className="w-full p-8">
+      <div className="w-4/5 my-0 mx-auto md:px-20 px-8 pb-8">
+        <Title>댓글</Title>
+        <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
+        {mainCommentList &&
+          mainCommentList.map((mainComment: CommentJsonType) => {
+            return (
+              <Fragment key={mainComment.id}>
+                <CommentList
+                  mainComment={mainComment}
+                  setSuccess={setSuccess}
+                  success={success}
+                />
+              </Fragment>
+            );
+          })}
+      </div>
+    </div>
   );
 };
