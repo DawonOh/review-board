@@ -1,25 +1,13 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import { ButtonLayout } from 'Styles/CommonStyle';
 import LockImg from '../../../../assets/images/lock.png';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
-import { AlertModal } from 'Components/Modal/AlertModal';
-
-const MainCommentContainer = Styled.div<{ isChildren: boolean }>`
-  width: ${props => (props.isChildren ? '80%' : '90%')};
-  margin: 1em auto;
-  padding: 1em;
-  border-left: 2px solid #f1f1f1;
-`;
 
 const InfoDiv = Styled.div`
   display: flex;
   align-items: flex-end;
   gap: 0.5em;
-`;
-
-const Writer = Styled.span`
-  font-weight: 700;
 `;
 
 const WriteDate = Styled.span`
@@ -78,10 +66,6 @@ interface MainCommentProps {
   loginUserId: Number;
 }
 
-interface MessageType {
-  id: number;
-  text: string;
-}
 export const MainComment = ({
   userId,
   nickname,
@@ -98,16 +82,6 @@ export const MainComment = ({
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
   const [isModify, setIsModify] = useState(false);
-  //AlertModal open 여부
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  //AlertModal 버튼 - '취소/확인'으로 넣을 때 조건(default:'확인')
-  const [isQuestion, setIsQuestion] = useState(false);
-  //AlertModal 메세지 내용
-  const [alertMessage, setAlertMessage] = useState<MessageType[]>([]);
-  //AlertModal에서 취소(false)/확인(true)중 어떤걸 눌렀는 지 확인
-  const [result, setResult] = useState(false);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const createAtDate = createdAt.slice(0, -8);
 
   const token = localStorage.getItem('token');
@@ -147,90 +121,100 @@ export const MainComment = ({
   //   }
   // };
 
-  const deleteComment = () => {
-    setAlertMessage([{ id: 1, text: '삭제하시겠습니까?' }]);
-    setIsQuestion(true);
-    setIsAlertModalOpen(true);
-  };
-  useEffect(() => {
-    if (result) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
-        method: 'DELETE',
-        headers: requestHeaders,
-      })
-        .then(res => res.json())
-        .then(json => {
-          if (json.message.includes('SUCCESSFULLY')) {
-            setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setIsDeleted(true);
-            return;
-          }
-          if (json.message.includes('INVALID_TOKEN')) {
-            setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setIsDeleted(false);
-            return;
-          }
-          if (json.message.includes('EXIST')) {
-            setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setIsDeleted(false);
-            return;
-          }
-        });
-      return;
-    }
-  }, [result]);
+  // const deleteComment = () => {};
+  // useEffect(() => {
+  //   if (result) {
+  //     fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
+  //       method: 'DELETE',
+  //       headers: requestHeaders,
+  //     })
+  //       .then(res => res.json())
+  //       .then(json => {
+  //         if (json.message.includes('SUCCESSFULLY')) {
+  //           setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
+  //           setIsQuestion(false);
+  //           setIsAlertModalOpen(true);
+  //           setIsDeleted(true);
+  //           return;
+  //         }
+  //         if (json.message.includes('INVALID_TOKEN')) {
+  //           setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
+  //           setIsQuestion(false);
+  //           setIsAlertModalOpen(true);
+  //           setIsDeleted(false);
+  //           return;
+  //         }
+  //         if (json.message.includes('EXIST')) {
+  //           setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
+  //           setIsQuestion(false);
+  //           setIsAlertModalOpen(true);
+  //           setIsDeleted(false);
+  //           return;
+  //         }
+  //       });
+  //     return;
+  //   }
+  // }, [result]);
   return (
-    <Fragment>
-      <MainCommentContainer isChildren={isChildren}>
-        <InfoDiv>
-          <Writer>
-            {(loginUserId !== userId && isPrivate) || deletedAt
-              ? '-'
-              : nickname}
-          </Writer>
-          <WriteDate>{createAtDate}</WriteDate>
-          {isPrivate && deletedAt === null && <LockIcon />}
-          {!deletedAt && (
-            <Buttons>
-              {userId === loginUserId && (
-                <Fragment>
-                  <ModifyDeleteButton onClick={modifyNestedReply}>
-                    {isModify ? '취소' : '수정'}
-                  </ModifyDeleteButton>
-                  <ModifyDeleteButton isDelete onClick={deleteComment}>
-                    삭제
-                  </ModifyDeleteButton>
-                </Fragment>
-              )}
+    <div className="flex flex-col justify-end items-end w-full">
+      <div className={`${isChildren ? 'w-95%' : 'w-full'} font-bold`}>
+        {(loginUserId !== userId && isPrivate) || deletedAt ? '-' : nickname}
+      </div>
+      <div className="flex justify-between w-full">
+        {isChildren && <div className="w-1 h-auto rounded-md bg-mainsky" />}
+        <div
+          className={`${
+            isChildren ? 'w-95%' : 'w-full'
+          } p-4 rounded-md bg-white`}
+        >
+          <div className="flex justify-between">
+            <div className="flex gap-4">
+              <span className="text-sm text-buttongray">{createAtDate}</span>
+              {isPrivate && deletedAt === null && <LockIcon />}
               {!isChildren && (
-                <WriteCommentButton onClick={writeNewNestedReply}>
+                <button
+                  className="text-sm hover:underline cursor-pointer"
+                  onClick={writeNewNestedReply}
+                >
                   {isTextareaOpen ? '취소' : '답글 달기'}
-                </WriteCommentButton>
+                </button>
               )}
-            </Buttons>
+            </div>
+            {!deletedAt && (
+              <div className="flex items-center gap-2">
+                {userId === loginUserId && (
+                  <>
+                    <button
+                      className="text-sm hover:text-mainblue cursor-pointer"
+                      onClick={modifyNestedReply}
+                    >
+                      {isModify ? '취소' : '수정'}
+                    </button>
+                    <span className="text-sm">|</span>
+                    <button className="text-sm hover:text-mainred cursor-pointer">
+                      삭제
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {isModify && !deletedAt ? (
+            <CommentTextarea
+              isNestedComment={false}
+              isModify={true}
+              commentId={commentId}
+              content={specificComment}
+              setIsModify={setIsModify}
+              setSuccess={setIsDeleted}
+              modifyPrivate={isPrivate}
+            />
+          ) : (
+            <div className="mt-2">{specificComment}</div>
           )}
-        </InfoDiv>
-        {isModify && !deletedAt ? (
-          <CommentTextarea
-            isNestedComment={false}
-            isModify={true}
-            commentId={commentId}
-            content={specificComment}
-            setIsModify={setIsModify}
-            setSuccess={setIsDeleted}
-            modifyPrivate={isPrivate}
-          />
-        ) : (
-          <Content>{specificComment}</Content>
-        )}
-      </MainCommentContainer>
-      {/* {openAlertModal()} */}
-    </Fragment>
+        </div>
+      </div>
+    </div>
   );
 };

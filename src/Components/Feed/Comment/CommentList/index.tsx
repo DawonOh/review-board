@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MainComment } from 'Components/Feed/Comment/MainComment';
 import { ChildrenArr } from 'Components/Feed/Comment/CommentContainer';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
@@ -56,7 +56,7 @@ export const CommentList = ({
     success && setIsTextareaOpen(false);
   }, [success]);
   return (
-    <Fragment>
+    <div className="flex flex-col items-end gap-4 mt-8">
       <MainComment
         userId={mainComment.user.id}
         nickname={mainComment.user.nickname}
@@ -98,6 +98,6 @@ export const CommentList = ({
           setSuccess={setSuccess}
         />
       )}
-    </Fragment>
+    </div>
   );
 };

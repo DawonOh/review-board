@@ -44,7 +44,7 @@ export const CommentTextarea = ({
     }
   }, [content]);
 
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('accept', 'application/json');
   token && requestHeaders.set('Authorization', token);
@@ -210,53 +210,50 @@ export const CommentTextarea = ({
   };
 
   return (
-    <div className="flex w-full flex-col items-end">
-      <span>{isNestedComment ? '답글 달기' : '댓글 달기'}</span>
-      <div
-        className={`flex md:justify-between justify-center items-center md:items-start flex-col gap-4 p-4 ${
-          isNestedComment ? 'w-11/12' : 'w-full'
-        } my-auto bg-white rounded-md`}
-      >
-        <textarea
-          className="w-full border-none resize-none outline-none"
-          placeholder={isNestedComment ? '답글 입력하기' : '댓글 입력하기'}
-          onFocus={handleMainResizeHeight}
-          onInput={handleMainResizeHeight}
-          maxLength={1000}
-          defaultValue={isModify ? content : ''}
-          ref={textareaFocus}
-        />
-        <div className="flex md:items-end items-start md:justify-start justify-center gap-4">
-          <span
-            className={`text-sm ${
-              replyMainTextLength === 1000 && 'text-mainred'
-            }`}
-          >
-            {replyMainTextLength}/1000
-          </span>
+    <div
+      className={`flex md:justify-between justify-center items-center md:items-start flex-col gap-4 p-4 ${
+        isNestedComment ? 'w-95%' : 'w-full'
+      } my-auto bg-white rounded-md`}
+    >
+      <textarea
+        className="w-full border-none resize-none outline-none"
+        placeholder={isNestedComment ? '답글 입력하기' : '댓글 입력하기'}
+        onFocus={handleMainResizeHeight}
+        onInput={handleMainResizeHeight}
+        maxLength={1000}
+        defaultValue={isModify ? content : ''}
+        ref={textareaFocus}
+      />
+      <div className="flex md:items-end items-start md:justify-start justify-center gap-4">
+        <span
+          className={`text-sm ${
+            replyMainTextLength === 1000 && 'text-mainred'
+          }`}
+        >
+          {replyMainTextLength}/1000
+        </span>
+        <div
+          className="flexCenterAlign cursor-pointer"
+          onClick={handleClickPrivate}
+        >
           <div
-            className="flexCenterAlign cursor-pointer"
-            onClick={handleClickPrivate}
-          >
-            <div
-              className={`w-4 h-4 ${
-                isPrivate
-                  ? "bg-[url('./assets/images/lock.png')]"
-                  : "bg-[url('./assets/images/unlock.png')]"
-              } bg-no-repeat bg-cover`}
-            />
-            <span className="text-sm">비밀댓글</span>
-          </div>
-          <button
-            className="text-sm hover:text-mainred"
-            onClick={() => {
-              cruComment();
-              notEmpty();
-            }}
-          >
-            {isModify ? '수정' : '등록'}
-          </button>
+            className={`w-4 h-4 ${
+              isPrivate
+                ? "bg-[url('./assets/images/lock.png')]"
+                : "bg-[url('./assets/images/unlock.png')]"
+            } bg-no-repeat bg-cover`}
+          />
+          <span className="text-sm">비밀댓글</span>
         </div>
+        <button
+          className="text-sm hover:text-mainblue"
+          onClick={() => {
+            cruComment();
+            notEmpty();
+          }}
+        >
+          {isModify ? '수정' : '등록'}
+        </button>
       </div>
     </div>
   );
