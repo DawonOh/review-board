@@ -74,19 +74,29 @@ export const CommentTextarea = ({
     }
   };
 
-  const { mutate: sendMainCommentMutate } = useMutation({
-    mutationFn: sendComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['comments'],
-      });
-      setMainCommentText('');
-      setReplyMainTextLength(0);
-      newAlert('작성되었습니다.');
-    },
-  });
+  const { mutate: sendMainCommentMutate, isError: sendMainCommentHasError } =
+    useMutation({
+      mutationFn: sendComment,
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['comments'],
+        });
+        setMainCommentText('');
+        setReplyMainTextLength(0);
+        newAlert('작성되었습니다.');
+      },
+    });
 
-  const { mutate: sendChildrenCommentMutate } = useMutation({
+  useEffect(() => {
+    if (sendMainCommentHasError) {
+      newAlert('댓글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }, [sendMainCommentHasError]);
+
+  const {
+    mutate: sendChildrenCommentMutate,
+    isError: sendChildrenCommentHasError,
+  } = useMutation({
     mutationFn: sendComment,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -97,16 +107,29 @@ export const CommentTextarea = ({
     },
   });
 
-  const { mutate: modifyCommentMutate } = useMutation({
-    mutationFn: modifyComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['comments'],
-      });
-      newAlert('수정되었습니다.');
-      modifyReply && modifyReply();
-    },
-  });
+  useEffect(() => {
+    if (sendChildrenCommentHasError) {
+      newAlert('댓글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }, [sendChildrenCommentHasError]);
+
+  const { mutate: modifyCommentMutate, isError: modifyCommentHasError } =
+    useMutation({
+      mutationFn: modifyComment,
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['comments'],
+        });
+        newAlert('수정되었습니다.');
+        modifyReply && modifyReply();
+      },
+    });
+
+  useEffect(() => {
+    if (modifyCommentHasError) {
+      newAlert('댓글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }, [modifyCommentHasError]);
 
   const cruComment = () => {
     //댓글 작성

@@ -10,13 +10,7 @@ import {
   queryClient,
   sendLike,
 } from 'util/feed-http';
-import { AlertModal } from 'Components/Modal/AlertModal';
 import { useMutation } from '@tanstack/react-query';
-interface SymbolType {
-  message: string;
-  result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
-}
-
 interface LoginLikeType {
   checkValue: boolean;
   result: {
@@ -38,7 +32,6 @@ export const FeedDetail = ({
   feedLikeData: LikeType[] | undefined;
 }) => {
   const [isLike, setIsLike] = useState(false);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
 
   let isLogin = useAppSelector(state => state.login.isLogin);
   let loginUserId = useAppSelector(state => state.user.id);
@@ -47,6 +40,7 @@ export const FeedDetail = ({
 
   const dispatch = useAppDispatch();
 
+  // 좋아요 요청
   const { mutate: getLikeMutate, isError: getLikeIsError } = useMutation({
     mutationFn: sendLike,
     onSuccess: () => {
@@ -57,7 +51,7 @@ export const FeedDetail = ({
     },
   });
 
-  const { mutate: deleteLikeMutate } = useMutation({
+  const { mutate: deleteLikeMutate, isError: deletLikeHasError } = useMutation({
     mutationFn: deleteLike,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -69,14 +63,14 @@ export const FeedDetail = ({
 
   const handleClickLike = async () => {
     if (isLogin === null || isLogin === false) {
-      // dispatch(
-      //   alertActions.setModal({
-      //     isModalOpen: true,
-      //     contents: '로그인 후 이용해주세요.',
-      //     isQuestion: false,
-      //     alertPath: '/login',
-      //   })
-      // );
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '로그인 후 이용해주세요.',
+          isQuestion: false,
+          alertPath: '/login',
+        })
+      );
       return;
     }
     if (
@@ -92,16 +86,32 @@ export const FeedDetail = ({
     }
   };
 
-  if (getLikeIsError) {
-    // dispatch(
-    //   alertActions.setModal({
-    //     isModalOpen: true,
-    //     contents: '잠시 후 다시 시도해주세요.',
-    //     isQuestion: false,
-    //     alertPath: '',
-    //   })
-    // );
-  }
+  const errorAlert = (content: string) => {
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: content,
+        isQuestion: false,
+        alertPath: '',
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (getLikeIsError) {
+      errorAlert(
+        '죄송합니다.현재 서버에 문제가 발생하여 요청을 처리할 수 없습니다.'
+      );
+    }
+  }, [dispatch, getLikeIsError]);
+
+  useEffect(() => {
+    if (deletLikeHasError) {
+      errorAlert(
+        '죄송합니다.현재 서버에 문제가 발생하여 요청을 처리할 수 없습니다.'
+      );
+    }
+  }, [deletLikeHasError, dispatch]);
 
   // 좋아요 수
   useEffect(() => {
@@ -112,9 +122,9 @@ export const FeedDetail = ({
           setIsLike(response.data.checkValue);
         })
         .catch(error => {
-          if (error.code === 'ECONNABORTED') {
-            alert('잠시 후 다시 시도해주세요.');
-          }
+          errorAlert(
+            '좋아요 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
+          );
         });
     }
   }, [isLogin, feedId]);

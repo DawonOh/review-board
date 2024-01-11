@@ -79,15 +79,29 @@ export const MainComment = ({
     setIsModify(!isModify);
   };
 
-  const { mutate: deleteCommentMutate } = useMutation({
-    mutationFn: deleteComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['comments', { commentsFeedId: feedId }],
-        exact: true,
-      });
-    },
-  });
+  const { mutate: deleteCommentMutate, isError: deleteCommentHasError } =
+    useMutation({
+      mutationFn: deleteComment,
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['comments', { commentsFeedId: feedId }],
+          exact: true,
+        });
+      },
+    });
+
+  useEffect(() => {
+    if (deleteCommentHasError) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '댓글 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          alertPath: '',
+          isQuestion: false,
+        })
+      );
+    }
+  }, [deleteCommentHasError, dispatch]);
 
   const deleteCommentHandler = (deleteCommentId: number) => {
     setClickedCommentId(deleteCommentId);
