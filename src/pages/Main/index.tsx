@@ -17,15 +17,14 @@ export const MainPage = () => {
   const [categoryId, setCategoryId] = useState(0);
   const [countIdx, setCountIdx] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   const isLogin = useAppSelector(state => state.login.isLogin);
 
   useEffect(() => {
-    axios.get(`${BACK_URL}:${BACK_PORT}/categories`).then(result => {
+    axios.get(`${BACK_URL}/categories`).then(result => {
       setCategoryList([{ id: 0, category: '전체보기' }, ...result.data]);
     });
-  }, [BACK_URL, BACK_PORT]);
+  }, [BACK_URL]);
 
   const handleToggle = () => {
     if (isToggleOpen === false || isToggleOpen === null) {

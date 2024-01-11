@@ -7,7 +7,7 @@ export const AlertModal = () => {
   const dispatch = useAppDispatch();
   const alertModal = useAppSelector(state => state.alert);
   const AlertDivRef = useRef<HTMLDivElement>(null);
-  let alertMessage = alertModal.contents.match(/[^.]+[.]/g);
+  let alertMessage = alertModal.contents.match(/[^.?]+[.?]/g);
 
   const linkButton = () => {
     if (alertModal.alertPath) {

@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Card from '../Card';
-import { useCardList } from '../../hooks/useCardList';
+import { useCardList } from '../../../hooks/useCardList';
 
 interface cardListType {
   category: string;

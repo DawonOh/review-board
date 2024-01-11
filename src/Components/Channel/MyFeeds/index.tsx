@@ -1,7 +1,7 @@
 import Styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import HeartIconImg from '../../assets/images/heart.png';
-import ViewIconImg from '../../assets/images/view.png';
+import HeartIconImg from '../../../assets/images/heart.png';
+import ViewIconImg from '../../../assets/images/view.png';
 import { flexCenterAlign } from 'Styles/CommonStyle';
 
 const WriterFeedItem = Styled.div`

@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { MainComment } from 'Components/MainComment';
-import { ChildrenArr } from 'Components/CommentContainer';
-import { CommentTextarea } from 'Components/CommentTextarea';
+import { useEffect, useState } from 'react';
+import { MainComment } from 'Components/Feed/Comment/MainComment';
+import { ChildrenArr } from 'Components/Feed/Comment/CommentContainer';
+import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
+import { useAppSelector } from 'hooks';
 
 interface PropsType {
   mainComment: {
@@ -36,27 +37,22 @@ interface PropsType {
       }
     ];
   };
-  setSuccess: Function;
-  loginUserId: number;
-  success: boolean;
 }
 
-export const CommentList = ({
-  mainComment,
-  setSuccess,
-  loginUserId,
-  success,
-}: PropsType) => {
+export const CommentList = ({ mainComment }: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
+
+  const toggleTextarea = () => {
+    setIsTextareaOpen(!isTextareaOpen);
+  };
+
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);
-  useEffect(() => {
-    success && setIsTextareaOpen(false);
-  }, [success]);
+
   return (
-    <Fragment>
+    <div className="flex flex-col items-end gap-4 mt-8">
       <MainComment
         userId={mainComment.user.id}
         nickname={mainComment.user.nickname}
@@ -65,11 +61,9 @@ export const CommentList = ({
         isPrivate={mainComment.is_private}
         deletedAt={mainComment.deleted_at}
         isChildren={false}
-        setIsTextareaOpen={setIsTextareaOpen}
-        isTextareaOpen={isTextareaOpen}
         commentId={mainComment.id}
-        setIsDeleted={setSuccess}
-        loginUserId={loginUserId}
+        isTextareaOpen={isTextareaOpen}
+        toggleTextarea={toggleTextarea}
       />
 
       {childrenComments.map((childrenComment: ChildrenArr) => {
@@ -83,11 +77,9 @@ export const CommentList = ({
             isPrivate={childrenComment.is_private}
             deletedAt={childrenComment.deleted_at}
             isChildren={true}
-            setIsTextareaOpen={setIsTextareaOpen}
-            isTextareaOpen={isTextareaOpen}
             commentId={childrenComment.id}
-            setIsDeleted={setSuccess}
-            loginUserId={loginUserId}
+            isTextareaOpen={isTextareaOpen}
+            toggleTextarea={toggleTextarea}
           />
         );
       })}
@@ -95,9 +87,9 @@ export const CommentList = ({
         <CommentTextarea
           isNestedComment={true}
           parentId={mainComment.id}
-          setSuccess={setSuccess}
+          toggleTextarea={toggleTextarea}
         />
       )}
-    </Fragment>
+    </div>
   );
 };

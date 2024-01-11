@@ -122,7 +122,6 @@ export const ModifyPw = () => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [alertPath, setAlertPath] = useState('');
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
 
   const location = useLocation();
@@ -140,7 +139,7 @@ export const ModifyPw = () => {
   useEffect(() => {
     if (query) {
       axios
-        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: query },
         })
@@ -158,7 +157,7 @@ export const ModifyPw = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
@@ -218,7 +217,7 @@ export const ModifyPw = () => {
     if (result) {
       axios
         .patch(
-          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          `${BACK_URL}/users/signup`,
           { password: newPw },
           {
             timeout: 5000,

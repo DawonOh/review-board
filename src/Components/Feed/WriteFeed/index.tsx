@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
 import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
-import ToggleImg from '../../assets/images/toggleDown.png';
-import LikeIconImg from '../../assets/images/thumbsUp.png';
-import DoubleLikeImg from '../../assets/images/double-like.png';
-import DisLikeImg from '../../assets/images/dislike.png';
-import QuestionMark from '../../assets/images/question.png';
-import FileIconImg from '../../assets/images/clip.png';
+import ToggleImg from '../../../assets/images/toggleDown.png';
+import LikeIconImg from '../../../assets/images/thumbsUp.png';
+import DoubleLikeImg from '../../../assets/images/double-like.png';
+import DisLikeImg from '../../../assets/images/dislike.png';
+import QuestionMark from '../../../assets/images/question.png';
+import FileIconImg from '../../../assets/images/clip.png';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
@@ -397,7 +397,6 @@ export const WriteContainer = () => {
   const [modifyData, setModifyData] = useState<ModifyDataType>();
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
@@ -414,7 +413,7 @@ export const WriteContainer = () => {
 
   // 처음 렌더링 시 불러오는 데이터(카테고리, 좋아요, 수정할 feedId)
   useEffect(() => {
-    fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
+    fetch(`${BACK_URL}/categories`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -423,7 +422,7 @@ export const WriteContainer = () => {
       });
 
     axios
-      .get<EstimatioinType[]>(`${BACK_URL}:${BACK_PORT}/feeds/estimations`, {
+      .get<EstimatioinType[]>(`${BACK_URL}/feeds/estimations`, {
         timeout: 5000,
       })
       .then(response => {
@@ -440,7 +439,7 @@ export const WriteContainer = () => {
 
     if (modifyId !== 0) {
       axios
-        .get<ModifyDataType>(`${BACK_URL}:${BACK_PORT}/feeds/${modifyId}`, {
+        .get<ModifyDataType>(`${BACK_URL}/feeds/${modifyId}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
@@ -571,7 +570,7 @@ export const WriteContainer = () => {
     });
     if (mainFileList.length !== 0) {
       axios
-        .post<FileLinkType>(`${BACK_URL}:${BACK_PORT}/upload`, formData, {
+        .post<FileLinkType>(`${BACK_URL}/upload`, formData, {
           timeout: 5000,
           headers: { Accept: `multipart/form-data`, Authorization: token },
         })
@@ -614,7 +613,7 @@ export const WriteContainer = () => {
   ) => {
     axios
       .post<SaveResultType>(
-        `${BACK_URL}:${BACK_PORT}/feeds/temp`,
+        `${BACK_URL}/feeds/temp`,
         {
           title: titleValue,
           content: contentValue,
@@ -648,7 +647,7 @@ export const WriteContainer = () => {
   ) => {
     axios
       .patch<SaveResultType>(
-        `${BACK_URL}:${BACK_PORT}/feeds/temp`,
+        `${BACK_URL}/feeds/temp`,
         {
           feedId: feedId,
           title: titleValue,
@@ -825,7 +824,7 @@ export const WriteContainer = () => {
     }
     if (title && content && categoryId) {
       axios
-        .post<SaveResultType>(`${BACK_URL}:${BACK_PORT}/feeds/post`, bodyObj, {
+        .post<SaveResultType>(`${BACK_URL}/feeds/post`, bodyObj, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
@@ -847,7 +846,7 @@ export const WriteContainer = () => {
     if (title && content && categoryId) {
       axios
         .patch<SaveResultType>(
-          `${BACK_URL}:${BACK_PORT}/feeds/post`,
+          `${BACK_URL}/feeds/post`,
           {
             feedId: modifyId,
             title: title,

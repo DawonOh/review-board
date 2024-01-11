@@ -35,7 +35,7 @@ const alertSlice = createSlice({
       state.isClickOk = false;
     },
     setIsClickOk: state => {
-      state.isClickOk = true;
+      state.isClickOk = !state.isClickOk;
     },
     closeModal: state => {
       state.isModalOpen = false;

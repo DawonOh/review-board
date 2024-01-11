@@ -1,9 +1,8 @@
 import axios from 'axios';
 const BACK_URL = process.env.REACT_APP_BACK_URL;
-const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
 const instance = axios.create({
-  baseURL: `${BACK_URL}:${BACK_PORT}`,
+  baseURL: `${BACK_URL}`,
   timeout: 5000,
   headers: {
     Accept: 'application/json',

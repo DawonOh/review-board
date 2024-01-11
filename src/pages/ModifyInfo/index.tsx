@@ -175,7 +175,6 @@ export const ModifyInfoPage = () => {
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
   // const openAlertModal = () => {
   //   if (isAlertModalOpen) {
@@ -193,7 +192,7 @@ export const ModifyInfoPage = () => {
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -228,7 +227,7 @@ export const ModifyInfoPage = () => {
     if (result) {
       axios
         .patch<ChangeUserInfoType>(
-          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          `${BACK_URL}/users/signup`,
           { nickname: newNickName, email: newEmail },
           {
             timeout: 5000,

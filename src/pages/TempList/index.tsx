@@ -132,7 +132,6 @@ export const TempList = () => {
   const [tempFeedId, setTempFeedId] = useState(0);
   const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const [tempData, setTempData] = useState<TempType[]>([]);
   // const openAlertModal = () => {
   //   if (isAlertModalOpen) {
@@ -152,7 +151,7 @@ export const TempList = () => {
 
   useEffect(() => {
     axios
-      .get<TempListType>(`${BACK_URL}:${BACK_PORT}/feeds/temp`, {
+      .get<TempListType>(`${BACK_URL}/feeds/temp`, {
         timeout: 5000,
         headers: { Accept: `application/json`, Authorization: token },
       })
@@ -173,7 +172,7 @@ export const TempList = () => {
   useEffect(() => {
     if (result) {
       axios
-        .delete(`${BACK_URL}:${BACK_PORT}/feeds/${tempFeedId}`, {
+        .delete(`${BACK_URL}/feeds/${tempFeedId}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
@@ -190,7 +189,7 @@ export const TempList = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })

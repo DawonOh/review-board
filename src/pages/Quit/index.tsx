@@ -60,7 +60,6 @@ export const Quit = () => {
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let token = localStorage.getItem('token');
 
   // const openAlertModal = () => {
@@ -92,7 +91,7 @@ export const Quit = () => {
     if (result) {
       setLoading(true);
       axios
-        .delete<string>(`${BACK_URL}:${BACK_PORT}/users/signup`, {
+        .delete<string>(`${BACK_URL}/users/signup`, {
           headers: { Accept: 'application/json', Authorization: token },
         })
         .then(response => {

@@ -30,7 +30,6 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
   const [hasMore, setHasMore] = useState(false);
   const [isEmpty, setIsEmpty] = useState<boolean | null>(null);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   let location = useLocation();
   let params = new URLSearchParams(location.search);
@@ -47,7 +46,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
     if (query) {
       axios({
         method: 'GET',
-        url: `${BACK_URL}:${BACK_PORT}/search/list`,
+        url: `${BACK_URL}/search/list`,
         params: { query: query, index: pageNumber },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
@@ -72,7 +71,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
     if (!query || categoryId === 0 || categoryId) {
       axios({
         method: 'GET',
-        url: `${BACK_URL}:${BACK_PORT}/feeds/post`,
+        url: `${BACK_URL}/feeds/post`,
         params: { index: pageNumber, categoryId: categoryId, limit: 10 },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
@@ -96,6 +95,6 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
         });
       return () => cancel();
     }
-  }, [BACK_PORT, BACK_URL, query, categoryId, pageNumber]);
+  }, [BACK_URL, query, categoryId, pageNumber]);
   return { loading, error, cardList, hasMore, isEmpty };
 };

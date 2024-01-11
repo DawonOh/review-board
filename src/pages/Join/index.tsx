@@ -21,7 +21,6 @@ export const Join = () => {
   const [isNickNamePass, setIsNickNamePass] = useState<null | boolean>(null);
 
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   const dispatch = useAppDispatch();
 
@@ -39,7 +38,7 @@ export const Join = () => {
     if (!emailHasError) {
       try {
         let response = await axios.get(
-          `${BACK_URL}:${BACK_PORT}/users/checkemail?email=${email}`
+          `${BACK_URL}/users/checkemail?email=${email}`
         );
         if (response.status === 200) {
           setIsEmailPass(true);
@@ -86,7 +85,7 @@ export const Join = () => {
     try {
       if (!nickNameHasError) {
         const response = await axios.get(
-          `${BACK_URL}:${BACK_PORT}/users/checknickname?nickname=${nickName}`
+          `${BACK_URL}/users/checknickname?nickname=${nickName}`
         );
         if (response.status === 200) {
           setIsNickNamePass(true);
@@ -134,7 +133,7 @@ export const Join = () => {
       }
       if (isAllPass) {
         const response = await axios.post(
-          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          `${BACK_URL}/users/signup`,
           {
             nickname: nickName,
             email: email,

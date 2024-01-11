@@ -19,7 +19,6 @@ const initialLoginState: LoginType = {
 };
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
-const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
 export const login = createAsyncThunk(
   'loginSlice/login',
@@ -29,7 +28,7 @@ export const login = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post<LoginResultType>(
-        `${BACK_URL}:${BACK_PORT}/users/signin`,
+        `${BACK_URL}/users/signin`,
         { email: user.email, password: user.password }
       );
       if (response.status === 200 && response.data.result) {
