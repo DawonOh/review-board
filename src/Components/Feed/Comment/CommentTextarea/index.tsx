@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useAppDispatch } from 'hooks';
+import { useAppDispatch, useAppSelector } from 'hooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { alertActions } from 'redux/slice/alert-slice';
@@ -13,6 +13,7 @@ interface Props {
   commentId?: number;
   parentId?: number;
   modifyPrivate?: boolean;
+  toggleTextarea?: () => void;
 }
 export const CommentTextarea = ({
   isNestedComment,
@@ -22,6 +23,7 @@ export const CommentTextarea = ({
   commentId,
   parentId,
   modifyPrivate,
+  toggleTextarea,
 }: Props) => {
   //비밀댓글 여부
   const [isPrivate, setIsPrivate] = useState(false);
@@ -33,6 +35,8 @@ export const CommentTextarea = ({
   const [replyMainTextLength, setReplyMainTextLength] = useState(0);
 
   const dispatch = useAppDispatch();
+
+  const isLogin = useAppSelector(state => state.login.isLogin);
 
   const textareaFocus = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -88,6 +92,7 @@ export const CommentTextarea = ({
       queryClient.invalidateQueries({
         queryKey: ['comments'],
       });
+      toggleTextarea && toggleTextarea();
       newAlert('작성되었습니다.');
     },
   });
@@ -162,6 +167,16 @@ export const CommentTextarea = ({
   const handleMainResizeHeight = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
+    if (isLogin === null || isLogin === false) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '로그인 후 이용해주세요.',
+          alertPath: '/login',
+          isQuestion: false,
+        })
+      );
+    }
     e.target.style.height = '1px';
     e.target.style.height = e.target.scrollHeight + 'px';
     const currentTextareaText = e.target.value;
@@ -208,7 +223,7 @@ export const CommentTextarea = ({
           <span className="text-sm">비밀댓글</span>
         </div>
         <button
-          className="text-sm hover:text-mainblue"
+          className="text-sm border border-mainsky px-1 rounded-lg hover:text-mainblue"
           onClick={() => {
             cruComment();
             notEmpty();

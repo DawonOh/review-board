@@ -5,6 +5,7 @@ import { deleteComment, queryClient } from 'util/feed-http';
 import { alertActions } from 'redux/slice/alert-slice';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { useParams } from 'react-router-dom';
+
 interface MainCommentProps {
   userId: number;
   nickname: string;
@@ -13,10 +14,9 @@ interface MainCommentProps {
   isPrivate: boolean;
   deletedAt: string | null;
   isChildren: boolean;
-  setIsTextareaOpen: Function;
-  isTextareaOpen: boolean;
   commentId: number;
-  loginUserId: Number;
+  isTextareaOpen: boolean;
+  toggleTextarea: () => void;
 }
 
 export const MainComment = ({
@@ -27,10 +27,9 @@ export const MainComment = ({
   isPrivate,
   deletedAt,
   isChildren,
-  setIsTextareaOpen,
-  isTextareaOpen,
   commentId,
-  loginUserId,
+  isTextareaOpen,
+  toggleTextarea,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
   const [isModify, setIsModify] = useState(false);
@@ -38,10 +37,13 @@ export const MainComment = ({
   const createAtDate = createdAt.slice(0, -8);
 
   const dispatch = useAppDispatch();
-  const alertModal = useAppSelector((state: any) => state.alert);
+  const alertModal = useAppSelector(state => state.alert);
+  const isLogin = useAppSelector(state => state.login.isLogin);
 
   const params = useParams();
   const feedId = params.id;
+
+  const loginUserId = useAppSelector(state => state.user.id);
 
   // 댓글 내용 설정(비밀댓글, 삭제된 댓글)
   useEffect(() => {
@@ -51,14 +53,24 @@ export const MainComment = ({
       return;
     }
     if (isPrivate) {
-      comment === '## PRIVATE_COMMENT ##' &&
-        setSpecificComment('비밀댓글입니다.');
+      setSpecificComment('비밀댓글입니다.');
       return;
     }
   }, [comment, deletedAt, isPrivate]);
 
   const writeNewNestedReply = () => {
-    setIsTextareaOpen(!isTextareaOpen);
+    toggleTextarea && toggleTextarea();
+    if (isLogin === null || isLogin === false) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '로그인 후 이용해주세요.',
+          alertPath: '/login',
+          isQuestion: false,
+        })
+      );
+      return;
+    }
   };
   const modifyReply = () => {
     setIsModify(!isModify);
@@ -95,23 +107,23 @@ export const MainComment = ({
 
   return (
     <div className="flex flex-col justify-end items-end w-full">
-      <div className={`${isChildren ? 'w-95%' : 'w-full'} font-bold`}>
+      <div className={`${isChildren ? 'w-11/12' : 'w-full'} font-bold`}>
         {(loginUserId !== userId && isPrivate) || deletedAt ? '-' : nickname}
       </div>
       <div className="flex justify-between w-full">
         {isChildren && <div className="w-1 h-auto rounded-md bg-mainsky" />}
         <div
           className={`${
-            isChildren ? 'w-95%' : 'w-full'
+            isChildren ? 'w-11/12' : 'w-full'
           } p-4 rounded-md bg-white`}
         >
-          <div className="flex justify-between">
+          <div className="flex justify-between items-start md:flex-row flex-col">
             <div className="flex gap-4">
               <span className="text-sm text-buttongray">{createAtDate}</span>
               {isPrivate && deletedAt === null && (
                 <div className="w-4 h-4 bg-[url('./assets/images/lock.png')] bg-no-repeat bg-cover" />
               )}
-              {!isChildren && (
+              {!isChildren && deletedAt === null && (
                 <button
                   className="text-sm hover:underline cursor-pointer"
                   onClick={writeNewNestedReply}
@@ -125,14 +137,14 @@ export const MainComment = ({
                 {userId === loginUserId && (
                   <>
                     <button
-                      className="text-sm hover:text-mainblue cursor-pointer"
+                      className="text-sm md:border-none border border-mainsky rounded-lg px-1 hover:text-mainblue cursor-pointer"
                       onClick={modifyReply}
                     >
                       {isModify ? '취소' : '수정'}
                     </button>
-                    <span className="text-sm">|</span>
+                    <span className="md:inline-block hidden text-sm">|</span>
                     <button
-                      className="text-sm hover:text-mainred cursor-pointer"
+                      className="text-sm md:border-none border border-mainred/50 rounded-lg px-1 hover:text-mainred cursor-pointer"
                       onClick={() => deleteCommentHandler(commentId)}
                     >
                       삭제

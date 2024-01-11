@@ -42,10 +42,15 @@ interface PropsType {
 export const CommentList = ({ mainComment }: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
-  const loginUserId = useAppSelector(state => state.user.id);
+
+  const toggleTextarea = () => {
+    setIsTextareaOpen(!isTextareaOpen);
+  };
+
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);
+
   return (
     <div className="flex flex-col items-end gap-4 mt-8">
       <MainComment
@@ -56,10 +61,9 @@ export const CommentList = ({ mainComment }: PropsType) => {
         isPrivate={mainComment.is_private}
         deletedAt={mainComment.deleted_at}
         isChildren={false}
-        setIsTextareaOpen={setIsTextareaOpen}
-        isTextareaOpen={isTextareaOpen}
         commentId={mainComment.id}
-        loginUserId={loginUserId}
+        isTextareaOpen={isTextareaOpen}
+        toggleTextarea={toggleTextarea}
       />
 
       {childrenComments.map((childrenComment: ChildrenArr) => {
@@ -73,15 +77,18 @@ export const CommentList = ({ mainComment }: PropsType) => {
             isPrivate={childrenComment.is_private}
             deletedAt={childrenComment.deleted_at}
             isChildren={true}
-            setIsTextareaOpen={setIsTextareaOpen}
-            isTextareaOpen={isTextareaOpen}
             commentId={childrenComment.id}
-            loginUserId={loginUserId}
+            isTextareaOpen={isTextareaOpen}
+            toggleTextarea={toggleTextarea}
           />
         );
       })}
       {isTextareaOpen && (
-        <CommentTextarea isNestedComment={true} parentId={mainComment.id} />
+        <CommentTextarea
+          isNestedComment={true}
+          parentId={mainComment.id}
+          toggleTextarea={toggleTextarea}
+        />
       )}
     </div>
   );

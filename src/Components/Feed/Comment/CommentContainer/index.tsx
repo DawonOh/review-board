@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
 import { CommentList } from 'Components/Feed/Comment/CommentList';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
 
