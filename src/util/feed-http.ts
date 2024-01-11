@@ -142,7 +142,10 @@ export const feedComments = async ({
     const response = await instance.get(`/comments/${feedId}`);
     return response.data;
   } catch (error) {
-    throw error;
+    throw json(
+      { message: '정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' },
+      { status: 500 }
+    );
   }
 };
 
