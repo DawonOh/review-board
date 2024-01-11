@@ -1,36 +1,38 @@
+import { useMutation } from '@tanstack/react-query';
+import { useAppDispatch } from 'hooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { alertActions } from 'redux/slice/alert-slice';
+import { modifyComment, queryClient, sendComment } from 'util/feed-http';
 
 interface Props {
   isNestedComment: boolean;
   isModify?: boolean;
-  setIsModify?: Function;
+  modifyReply?: () => void;
   content?: string;
   commentId?: number;
   parentId?: number;
-  setSuccess?: Function;
   modifyPrivate?: boolean;
 }
 export const CommentTextarea = ({
   isNestedComment,
   isModify,
+  modifyReply,
   content,
   commentId,
   parentId,
-  setSuccess,
-  setIsModify,
   modifyPrivate,
 }: Props) => {
   //비밀댓글 여부
   const [isPrivate, setIsPrivate] = useState(false);
   //textarea 내 내용
-  const [mainCommentText, setMainCommentText] = useState('');
+  const [mainCommentText, setMainCommentText] = useState<string | undefined>(
+    ''
+  );
   //textarea 내 내용 길이
   const [replyMainTextLength, setReplyMainTextLength] = useState(0);
-  //수정되었는지 여부
-  const [successModify, setSuccessModify] = useState(false);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
+
+  const dispatch = useAppDispatch();
 
   const textareaFocus = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -42,19 +44,24 @@ export const CommentTextarea = ({
         setReplyMainTextLength(content.length);
       }
     }
-  }, [content]);
-
-  const token = sessionStorage.getItem('token');
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('accept', 'application/json');
-  token && requestHeaders.set('Authorization', token);
-  requestHeaders.set('Content-Type', 'application/json');
+  }, [content, isModify, isNestedComment]);
   const params = useParams();
-  let feed = Number(params.id);
+  let feedId = Number(params.id);
+
+  // 알림창
+  const newAlert = (content: string) => {
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: content,
+        alertPath: '',
+        isQuestion: false,
+      })
+    );
+  };
 
   const notEmpty = () => {
-    if (Boolean(mainCommentText.replace(/ /g, '') === '')) {
-      setSuccess && setSuccess(false);
+    if (Boolean(mainCommentText?.replace(/ /g, '') === '')) {
       if (textareaFocus.current !== null) {
         textareaFocus.current.value = '';
       }
@@ -62,140 +69,95 @@ export const CommentTextarea = ({
       setReplyMainTextLength(0);
     }
   };
+
+  const { mutate: sendMainCommentMutate } = useMutation({
+    mutationFn: sendComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments'],
+      });
+      setMainCommentText('');
+      setReplyMainTextLength(0);
+      newAlert('작성되었습니다.');
+    },
+  });
+
+  const { mutate: sendChildrenCommentMutate } = useMutation({
+    mutationFn: sendComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments'],
+      });
+      newAlert('작성되었습니다.');
+    },
+  });
+
+  const { mutate: modifyCommentMutate } = useMutation({
+    mutationFn: modifyComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments'],
+      });
+      newAlert('수정되었습니다.');
+      modifyReply && modifyReply();
+    },
+  });
+
   const cruComment = () => {
     //댓글 작성
     if (
       !isModify &&
       isNestedComment === false &&
-      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+      Boolean(mainCommentText?.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
-        method: 'POST',
-        headers: requestHeaders,
-        body: JSON.stringify({
-          feed: feed,
-          comment: mainCommentText,
-          is_private: isPrivate,
-        }),
-      })
-        .then(res => res.json())
-        .then(json => {
-          if (String(json.message).includes('SUCCESSFULLY')) {
-            setSuccess && setSuccess(true);
-            if (textareaFocus.current !== null) {
-              textareaFocus.current.value = '';
-            }
-            setMainCommentText('');
-
-            setReplyMainTextLength(0);
-            return;
-          }
-          if (String(json.message.isNotEmpty).includes('empty')) {
-            setSuccess && setSuccess(false);
-            return;
-          }
-          if (String(json.message).includes('INVALID_TOKEN')) {
-            setSuccess && setSuccess(false);
-            return;
-          }
-          if (String(json.message).includes('string')) {
-            setSuccess && setSuccess(false);
-            return;
-          }
-        });
+      sendMainCommentMutate({
+        feed: feedId,
+        mainCommentText,
+        isPrivate,
+        isChildren: false,
+      });
     }
     //답글 작성
     if (
       !isModify &&
       isNestedComment &&
-      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+      Boolean(mainCommentText?.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
-        method: 'POST',
-        headers: requestHeaders,
-        body: JSON.stringify({
-          feed: feed,
-          comment: mainCommentText,
-          is_private: isPrivate,
-          parent: parentId,
-        }),
-      })
-        .then(res => res.json())
-        .then(json => {
-          if (String(json.message).includes('SUCCESSFULLY')) {
-            return;
-          }
-          if (String(json.message.isNotEmpty).includes('empty')) {
-            setSuccess && setSuccess(false);
-            return;
-          }
-          if (String(json.message).includes('INVALID_TOKEN')) {
-            setIsModify && setIsModify(false);
-            setSuccess && setSuccess(false);
-            return;
-          }
-          if (String(json.message).includes('string')) {
-            setSuccess && setSuccess(false);
-            return;
-          }
-        });
+      sendChildrenCommentMutate({
+        feed: feedId,
+        mainCommentText,
+        isPrivate,
+        parentId,
+        isChildren: true,
+      });
     }
 
     //댓글,답글 수정
     if (
       isModify &&
-      Boolean(mainCommentText.replace(/ /g, '') === '') === false
+      Boolean(mainCommentText?.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
-        method: 'PATCH',
-        headers: requestHeaders,
-        body: JSON.stringify({
-          commentId: commentId,
-          comment: mainCommentText,
-          is_private: isPrivate,
-        }),
-      })
-        .then(res => res.json())
-        .then(json => {
-          if (String(json.message).includes('SUCCESSFULLY')) {
-            setSuccessModify(true);
-            return;
-          }
-          if (String(json.message).includes('INVALID_TOKEN')) {
-            setSuccess && setSuccess(false);
-            setSuccessModify(false);
-            return;
-          }
-          if (String(json.message).includes('EXIST')) {
-            setSuccess && setSuccess(false);
-            setSuccessModify(false);
-            return;
-          }
-          if (String(json.message).includes('COMMENT_IS_NOT_CHANGED')) {
-            setSuccess && setSuccess(false);
-            setSuccessModify(false);
-            return;
-          }
-        });
+      modifyCommentMutate({
+        commentId,
+        mainCommentText,
+        isPrivate,
+      });
     }
   };
-
-  // useEffect(() => {
-  //   result && setIsModify && setIsModify(false);
-  //   result && setSuccess && setSuccess(true);
-  // }, [result]);
 
   useEffect(() => {
     modifyPrivate && setIsPrivate(modifyPrivate);
   }, [modifyPrivate]);
 
-  useEffect(() => {
-    successModify && setSuccess && setSuccess(true);
-  }, [successModify]);
-
   const handleClickPrivate = () => {
     setIsPrivate(!isPrivate);
   };
+
+  useEffect(() => {
+    if (isModify) {
+      setMainCommentText(content);
+    }
+  }, [isModify, content]);
 
   const handleMainResizeHeight = (
     e: React.ChangeEvent<HTMLTextAreaElement>
@@ -221,7 +183,7 @@ export const CommentTextarea = ({
         onFocus={handleMainResizeHeight}
         onInput={handleMainResizeHeight}
         maxLength={1000}
-        defaultValue={isModify ? content : ''}
+        value={mainCommentText}
         ref={textareaFocus}
       />
       <div className="flex md:items-end items-start md:justify-start justify-center gap-4">

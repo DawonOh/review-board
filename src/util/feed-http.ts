@@ -38,7 +38,6 @@ export interface DataType {
 }
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
-const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
 // 피드 상세 정보 불러오기
 export const feedDetailData = async ({
@@ -49,13 +48,10 @@ export const feedDetailData = async ({
   signal: AbortSignal;
 }): Promise<DataType['result'] | undefined> => {
   try {
-    const response = await axios.get<DataType>(
-      `${BACK_URL}:${BACK_PORT}/feeds/${feedId}`,
-      {
-        timeout: 5000,
-        signal,
-      }
-    );
+    const response = await axios.get<DataType>(`${BACK_URL}/feeds/${feedId}`, {
+      timeout: 5000,
+      signal,
+    });
     return response.data.result;
   } catch (error) {
     throw json(
@@ -87,7 +83,7 @@ export const getFeedLike = async ({
 }) => {
   try {
     const response = await axios.get<LikeType[]>(
-      `${BACK_URL}:${BACK_PORT}/symbols/${feedId}`,
+      `${BACK_URL}/symbols/${feedId}`,
       {
         timeout: 5000,
         signal,
@@ -125,7 +121,7 @@ export const deleteLike = async ({
   }
 };
 
-// 피드 댓글
+// 피드 전체 댓글 불러오기
 export const feedComments = async ({
   feedId,
   signal,
@@ -134,13 +130,74 @@ export const feedComments = async ({
   signal: AbortSignal;
 }) => {
   try {
-    const response = await axios.get(
-      `${BACK_URL}:${BACK_PORT}/comments/${feedId}`,
-      {
-        timeout: 5000,
-        signal,
-      }
-    );
+    const response = await axios.get(`${BACK_URL}/comments/${feedId}`, {
+      timeout: 5000,
+      signal,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 피드 댓글, 대댓글 작성
+export const sendComment = async ({
+  feed,
+  mainCommentText,
+  isPrivate,
+  parentId,
+  isChildren,
+}: {
+  feed: number;
+  mainCommentText: string | undefined;
+  isPrivate: boolean;
+  parentId?: number | undefined;
+  isChildren: boolean;
+}) => {
+  try {
+    let bodyObj = {
+      feed,
+      comment: mainCommentText,
+      is_private: isPrivate,
+      ...(isChildren && { parent: parentId }),
+    };
+    const response = await instance.post('/comments', bodyObj);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 댓글, 대댓글 수정
+export const modifyComment = async ({
+  commentId,
+  mainCommentText,
+  isPrivate,
+}: {
+  commentId: number | undefined;
+  mainCommentText: string | undefined;
+  isPrivate: boolean;
+}) => {
+  try {
+    const response = await instance.patch('/comments', {
+      commentId,
+      comment: mainCommentText,
+      is_private: isPrivate,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 댓글, 대댓글 삭제
+export const deleteComment = async ({
+  commentId,
+}: {
+  commentId: number | undefined;
+}) => {
+  try {
+    const response = await instance.delete(`/comments/${commentId}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -123,8 +123,6 @@ export const FindPw = () => {
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-  const FRONT_URL = process.env.REACT_APP_BASE_URL;
 
   // const openAlertModal = () => {
   //   if (isAlertModalOpen) {
@@ -159,7 +157,7 @@ export const FindPw = () => {
     if (email !== '' && isEmailPass) {
       axios
         .post(
-          `${BACK_URL}:${BACK_PORT}/users/signup/password`,
+          `${BACK_URL}/users/signup/password`,
           {
             email: email,
             resetPasswordUrl: `http://localhost:3000/changepw`,

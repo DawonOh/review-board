@@ -1,5 +1,11 @@
 import { Fragment } from 'react';
-import { MobileMenu, FeedDetail, CommentContainer, File } from 'Components';
+import {
+  MobileMenu,
+  FeedDetail,
+  CommentContainer,
+  File,
+  AlertModal,
+} from 'Components';
 import {
   feedComments,
   feedDetailData,
@@ -53,6 +59,7 @@ export const Feed = () => {
         <File fileData={feedData[0].data?.uploadFiles} />
         <CommentContainer mainCommentList={feedData[1].data} />
       </div>
+      <AlertModal />
     </Fragment>
   );
 };

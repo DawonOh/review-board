@@ -66,12 +66,11 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
   const [result, setResult] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -103,7 +102,7 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
     setIsPass(false);
     axios
       .post(
-        `${BACK_URL}:${BACK_PORT}/users/signin`,
+        `${BACK_URL}/users/signin`,
         {
           email: email,
           password: pw,

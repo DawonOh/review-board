@@ -1,56 +1,10 @@
 import { useEffect, useState } from 'react';
-import Styled from 'styled-components';
-import { ButtonLayout } from 'Styles/CommonStyle';
-import LockImg from '../../../../assets/images/lock.png';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
-
-const InfoDiv = Styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5em;
-`;
-
-const WriteDate = Styled.span`
-  font-size: 0.8em;
-  color: #D3D3D3;
-`;
-
-const Content = Styled.div`
-  margin-top: 0.5em;
-  line-height: 1.3em;
-`;
-
-const LockIcon = Styled.div`
-  width: 1em;
-  height: 1em;
-  background: url(${LockImg});
-  background-repeat: no-repeat;
-  background-size: cover;
-  cursor: pointer;
-`;
-
-const Buttons = Styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.2em;
-`;
-
-const ModifyDeleteButton = Styled.button<{ isDelete?: boolean }>`
-  ${ButtonLayout}
-  font-size: 0.8em;
-  color: #fff;
-  background-color: ${props => (props.isDelete ? '#C1C1C1' : '#CDDEFF')};
-  cursor: pointer;
-`;
-
-const WriteCommentButton = Styled.button<{ writeNestedComment?: boolean }>`
-  ${ButtonLayout}
-  font-size: 0.8em;
-  color: #fff;
-  background-color: #FF5959;
-  border: none;
-  cursor: pointer;
-`;
+import { useMutation } from '@tanstack/react-query';
+import { deleteComment, queryClient } from 'util/feed-http';
+import { alertActions } from 'redux/slice/alert-slice';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { useParams } from 'react-router-dom';
 interface MainCommentProps {
   userId: number;
   nickname: string;
@@ -62,7 +16,6 @@ interface MainCommentProps {
   setIsTextareaOpen: Function;
   isTextareaOpen: boolean;
   commentId: number;
-  setIsDeleted: Function;
   loginUserId: Number;
 }
 
@@ -77,18 +30,20 @@ export const MainComment = ({
   setIsTextareaOpen,
   isTextareaOpen,
   commentId,
-  setIsDeleted,
   loginUserId,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
   const [isModify, setIsModify] = useState(false);
+  const [clickedCommentId, setClickedCommentId] = useState<number | null>(null);
   const createAtDate = createdAt.slice(0, -8);
 
-  const token = localStorage.getItem('token');
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('accept', 'application/json');
-  token && requestHeaders.set('Authorization', token);
+  const dispatch = useAppDispatch();
+  const alertModal = useAppSelector((state: any) => state.alert);
 
+  const params = useParams();
+  const feedId = params.id;
+
+  // 댓글 내용 설정(비밀댓글, 삭제된 댓글)
   useEffect(() => {
     setSpecificComment(comment);
     if (deletedAt) {
@@ -100,61 +55,44 @@ export const MainComment = ({
         setSpecificComment('비밀댓글입니다.');
       return;
     }
-  }, [comment]);
+  }, [comment, deletedAt, isPrivate]);
+
   const writeNewNestedReply = () => {
     setIsTextareaOpen(!isTextareaOpen);
   };
-  const modifyNestedReply = () => {
+  const modifyReply = () => {
     setIsModify(!isModify);
   };
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //       />
-  //     );
-  //   }
-  // };
 
-  // const deleteComment = () => {};
-  // useEffect(() => {
-  //   if (result) {
-  //     fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
-  //       method: 'DELETE',
-  //       headers: requestHeaders,
-  //     })
-  //       .then(res => res.json())
-  //       .then(json => {
-  //         if (json.message.includes('SUCCESSFULLY')) {
-  //           setAlertMessage([{ id: 1, text: '삭제되었습니다.' }]);
-  //           setIsQuestion(false);
-  //           setIsAlertModalOpen(true);
-  //           setIsDeleted(true);
-  //           return;
-  //         }
-  //         if (json.message.includes('INVALID_TOKEN')) {
-  //           setAlertMessage([{ id: 1, text: '로그인 후 이용해주세요.' }]);
-  //           setIsQuestion(false);
-  //           setIsAlertModalOpen(true);
-  //           setIsDeleted(false);
-  //           return;
-  //         }
-  //         if (json.message.includes('EXIST')) {
-  //           setAlertMessage([{ id: 1, text: '존재하지 않는 댓글입니다.' }]);
-  //           setIsQuestion(false);
-  //           setIsAlertModalOpen(true);
-  //           setIsDeleted(false);
-  //           return;
-  //         }
-  //       });
-  //     return;
-  //   }
-  // }, [result]);
+  const { mutate: deleteCommentMutate } = useMutation({
+    mutationFn: deleteComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['comments', { commentsFeedId: feedId }],
+        exact: true,
+      });
+    },
+  });
+
+  const deleteCommentHandler = (deleteCommentId: number) => {
+    setClickedCommentId(deleteCommentId);
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: '댓글을 삭제하시겠습니까?',
+        alertPath: '',
+        isQuestion: true,
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (alertModal.isClickOk && clickedCommentId !== null) {
+      deleteCommentMutate({ commentId: clickedCommentId });
+      dispatch(alertActions.setIsClickOk());
+    }
+  }, [alertModal.isClickOk, deleteCommentMutate, clickedCommentId, dispatch]);
+
   return (
     <div className="flex flex-col justify-end items-end w-full">
       <div className={`${isChildren ? 'w-95%' : 'w-full'} font-bold`}>
@@ -170,7 +108,9 @@ export const MainComment = ({
           <div className="flex justify-between">
             <div className="flex gap-4">
               <span className="text-sm text-buttongray">{createAtDate}</span>
-              {isPrivate && deletedAt === null && <LockIcon />}
+              {isPrivate && deletedAt === null && (
+                <div className="w-4 h-4 bg-[url('./assets/images/lock.png')] bg-no-repeat bg-cover" />
+              )}
               {!isChildren && (
                 <button
                   className="text-sm hover:underline cursor-pointer"
@@ -186,12 +126,15 @@ export const MainComment = ({
                   <>
                     <button
                       className="text-sm hover:text-mainblue cursor-pointer"
-                      onClick={modifyNestedReply}
+                      onClick={modifyReply}
                     >
                       {isModify ? '취소' : '수정'}
                     </button>
                     <span className="text-sm">|</span>
-                    <button className="text-sm hover:text-mainred cursor-pointer">
+                    <button
+                      className="text-sm hover:text-mainred cursor-pointer"
+                      onClick={() => deleteCommentHandler(commentId)}
+                    >
                       삭제
                     </button>
                   </>
@@ -204,10 +147,9 @@ export const MainComment = ({
             <CommentTextarea
               isNestedComment={false}
               isModify={true}
+              modifyReply={modifyReply}
               commentId={commentId}
               content={specificComment}
-              setIsModify={setIsModify}
-              setSuccess={setIsDeleted}
               modifyPrivate={isPrivate}
             />
           ) : (

@@ -53,29 +53,16 @@ export const CommentContainer = ({
 }: {
   mainCommentList: CommentJsonType[];
 }) => {
-  //댓글 작성 여부
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    if (success) {
-      setSuccess(false);
-    }
-  }, [success]);
-
   return (
     <div className="w-full p-8 pt-0">
       <div className="w-4/5 my-0 mx-auto md:px-20 px-8 pb-8">
         <h2 className="mt-4 text-xl font-bold mb-4">댓글</h2>
-        <CommentTextarea isNestedComment={false} setSuccess={setSuccess} />
+        <CommentTextarea isNestedComment={false} />
         {mainCommentList &&
           mainCommentList.map((mainComment: CommentJsonType) => {
             return (
               <Fragment key={mainComment.id}>
-                <CommentList
-                  mainComment={mainComment}
-                  setSuccess={setSuccess}
-                  success={success}
-                />
+                <CommentList mainComment={mainComment} />
               </Fragment>
             );
           })}

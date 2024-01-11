@@ -37,24 +37,15 @@ interface PropsType {
       }
     ];
   };
-  setSuccess: Function;
-  success: boolean;
 }
 
-export const CommentList = ({
-  mainComment,
-  setSuccess,
-  success,
-}: PropsType) => {
+export const CommentList = ({ mainComment }: PropsType) => {
   const [childrenComments, setChildrenComments] = useState<ChildrenArr[]>([]);
   const [isTextareaOpen, setIsTextareaOpen] = useState(false);
   const loginUserId = useAppSelector(state => state.user.id);
   useEffect(() => {
     setChildrenComments(mainComment.children);
   }, [mainComment]);
-  useEffect(() => {
-    success && setIsTextareaOpen(false);
-  }, [success]);
   return (
     <div className="flex flex-col items-end gap-4 mt-8">
       <MainComment
@@ -68,7 +59,6 @@ export const CommentList = ({
         setIsTextareaOpen={setIsTextareaOpen}
         isTextareaOpen={isTextareaOpen}
         commentId={mainComment.id}
-        setIsDeleted={setSuccess}
         loginUserId={loginUserId}
       />
 
@@ -86,17 +76,12 @@ export const CommentList = ({
             setIsTextareaOpen={setIsTextareaOpen}
             isTextareaOpen={isTextareaOpen}
             commentId={childrenComment.id}
-            setIsDeleted={setSuccess}
             loginUserId={loginUserId}
           />
         );
       })}
       {isTextareaOpen && (
-        <CommentTextarea
-          isNestedComment={true}
-          parentId={mainComment.id}
-          setSuccess={setSuccess}
-        />
+        <CommentTextarea isNestedComment={true} parentId={mainComment.id} />
       )}
     </div>
   );

@@ -39,7 +39,6 @@ export const FeedDetail = ({
 }) => {
   const [isLike, setIsLike] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
 
   let isLogin = useAppSelector(state => state.login.isLogin);
   let loginUserId = useAppSelector(state => state.user.id);
@@ -70,14 +69,14 @@ export const FeedDetail = ({
 
   const handleClickLike = async () => {
     if (isLogin === null || isLogin === false) {
-      dispatch(
-        alertActions.setModal({
-          isModalOpen: true,
-          contents: '로그인 후 이용해주세요.',
-          isQuestion: false,
-          alertPath: '/login',
-        })
-      );
+      // dispatch(
+      //   alertActions.setModal({
+      //     isModalOpen: true,
+      //     contents: '로그인 후 이용해주세요.',
+      //     isQuestion: false,
+      //     alertPath: '/login',
+      //   })
+      // );
       return;
     }
     if (
@@ -94,14 +93,14 @@ export const FeedDetail = ({
   };
 
   if (getLikeIsError) {
-    dispatch(
-      alertActions.setModal({
-        isModalOpen: true,
-        contents: '잠시 후 다시 시도해주세요.',
-        isQuestion: false,
-        alertPath: '',
-      })
-    );
+    // dispatch(
+    //   alertActions.setModal({
+    //     isModalOpen: true,
+    //     contents: '잠시 후 다시 시도해주세요.',
+    //     isQuestion: false,
+    //     alertPath: '',
+    //   })
+    // );
   }
 
   // 좋아요 수
@@ -118,7 +117,7 @@ export const FeedDetail = ({
           }
         });
     }
-  }, [BACK_PORT, BACK_URL, isLogin, feedId]);
+  }, [isLogin, feedId]);
 
   // 게시물 삭제
   const deleteFeed = () => {
@@ -126,8 +125,8 @@ export const FeedDetail = ({
       alertActions.setModal({
         isModalOpen: true,
         contents: '삭제하시겠습니까?',
-        isQuestion: true,
         alertPath: '',
+        isQuestion: true,
       })
     );
   };
@@ -135,7 +134,7 @@ export const FeedDetail = ({
   // useEffect(() => {
   //   if (result) {
   //     axios
-  //       .delete<string>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+  //       .delete<string>(`${BACK_URL}/feeds/${feedId}`, {
   //         timeout: 5000,
   //         headers: { Accept: `application/json`, Authorization: token },
   //       })
@@ -256,7 +255,6 @@ export const FeedDetail = ({
           </div>
         </div>
       </div>
-      <AlertModal />
     </div>
   );
 };

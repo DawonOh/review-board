@@ -102,7 +102,6 @@ export const SearchPage = () => {
   const [isNotEmpty, setIsNotEmpty] = useState(false);
   const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
   let location = useLocation();
   let params = new URLSearchParams(location.search);
   let query = params.get('query');
@@ -133,7 +132,7 @@ export const SearchPage = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
