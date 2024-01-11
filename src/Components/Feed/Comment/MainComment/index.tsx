@@ -32,6 +32,7 @@ export const MainComment = ({
   toggleTextarea,
 }: MainCommentProps) => {
   const [specificComment, setSpecificComment] = useState(comment);
+  const [specificNickName, setSpecificNickName] = useState(nickname);
   const [isModify, setIsModify] = useState(false);
   const [clickedCommentId, setClickedCommentId] = useState<number | null>(null);
   const createAtDate = createdAt.slice(0, -8);
@@ -48,15 +49,17 @@ export const MainComment = ({
   // 댓글 내용 설정(비밀댓글, 삭제된 댓글)
   useEffect(() => {
     setSpecificComment(comment);
+    setSpecificNickName(nickname);
     if (deletedAt) {
       setSpecificComment('삭제된 댓글입니다.');
+      setSpecificNickName('-');
       return;
     }
-    if (isPrivate) {
+    if (isPrivate && comment === '## PRIVATE_COMMENT ##') {
       setSpecificComment('비밀댓글입니다.');
-      return;
+      setSpecificNickName('-');
     }
-  }, [comment, deletedAt, isPrivate]);
+  }, [comment, deletedAt, isPrivate, userId, nickname]);
 
   const writeNewNestedReply = () => {
     toggleTextarea && toggleTextarea();
@@ -108,7 +111,7 @@ export const MainComment = ({
   return (
     <div className="flex flex-col justify-end items-end w-full">
       <div className={`${isChildren ? 'w-11/12' : 'w-full'} font-bold`}>
-        {(loginUserId !== userId && isPrivate) || deletedAt ? '-' : nickname}
+        {specificNickName}
       </div>
       <div className="flex justify-between w-full">
         {isChildren && <div className="w-1 h-auto rounded-md bg-mainsky" />}

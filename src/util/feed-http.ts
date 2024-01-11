@@ -124,16 +124,22 @@ export const deleteLike = async ({
 // 피드 전체 댓글 불러오기
 export const feedComments = async ({
   feedId,
+  token,
   signal,
 }: {
   feedId: string | undefined;
+  token: string | null | undefined;
   signal: AbortSignal;
 }) => {
   try {
-    const response = await axios.get(`${BACK_URL}/comments/${feedId}`, {
-      timeout: 5000,
-      signal,
-    });
+    if (token === null || token === undefined) {
+      const response = await axios.get(`${BACK_URL}/comments/${feedId}`, {
+        timeout: 5000,
+        signal,
+      });
+      return response.data;
+    }
+    const response = await instance.get(`/comments/${feedId}`);
     return response.data;
   } catch (error) {
     throw error;

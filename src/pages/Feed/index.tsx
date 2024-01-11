@@ -22,10 +22,11 @@ const feedDetailQuery = (feedId: string | undefined) => ({
   staleTime: 1000 * 60 * 2,
 });
 
+let token = sessionStorage.getItem('token');
 const feedCommentsQuery = (feedId: string | undefined) => ({
   queryKey: ['comments', { commentsFeedId: feedId }],
   queryFn: ({ signal }: { signal: AbortSignal }) =>
-    feedComments({ feedId, signal }),
+    feedComments({ feedId, signal, token }),
   staleTime: 1000 * 60 * 2,
 });
 
