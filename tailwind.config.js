@@ -6,9 +6,11 @@ module.exports = {
       width: {
         132: '32rem',
         '95%': '95%',
+        '1.5rem': '1.5rem',
       },
       height: {
         '25rem': '25rem',
+        noScroll: 'calc(100vh - 3rem)',
       },
       screens: {
         md: '768px',
@@ -63,6 +65,16 @@ module.exports = {
             transform: 'translateY(0px)',
           },
         },
+        'saveAlert-open': {
+          '0%': { visibility: 'hidden', opacity: 0 },
+          '50%': { visibility: 'visible' },
+          '100%': { visibility: 'visible', opacity: 1 },
+        },
+        'saveAlert-close': {
+          '0%': { visibility: 'visible', opacity: 1 },
+          '50%': { visibility: 'visible' },
+          '100%': { visibility: 'hidden', opacity: 0 },
+        },
       },
       animation: {
         'fade-in': 'fade-in 1s ease-in forwards',
@@ -72,6 +84,8 @@ module.exports = {
         'category-default': 'category-default',
         move: 'move 2s ease-in-out infinite',
         'search-open': 'searchModal-open 500ms ease-in',
+        'saveAlert-open': 'saveAlert-open 500ms alternate',
+        'saveAlert-close': 'saveAlert-close 500ms alternate',
       },
       minHeight: {
         '2.5rem': '2.5rem',

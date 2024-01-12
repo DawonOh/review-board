@@ -1,6 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import Styled from 'styled-components';
-import { flexCenterAlign, ButtonLayout } from 'Styles/CommonStyle';
+import React, { useEffect, useRef, useState } from 'react';
 import ToggleImg from '../../../assets/images/toggleDown.png';
 import LikeIconImg from '../../../assets/images/thumbsUp.png';
 import DoubleLikeImg from '../../../assets/images/double-like.png';
@@ -9,279 +7,6 @@ import QuestionMark from '../../../assets/images/question.png';
 import FileIconImg from '../../../assets/images/clip.png';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-
-const TitleDiv = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Title = Styled.h1`
-  font-size: 1.6em;
-  font-weight: 700;
-  margin-bottom: 2em;
-`;
-
-const MenuContainer = Styled.div`
-  display: flex;
-  align-items: center;
-  margin: 0 auto;
-  gap: 1em;
-  @media (max-width: 767px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-`;
-
-const CategoryButton = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 12em;
-  padding: 0.8em;
-  border: 1px solid #f1f1f1;
-  border-radius: 0.3em;
-  cursor: pointer;
-`;
-
-const CategorySelectBox = Styled.ul<{ isToggleOpen: boolean }>`
-  display: ${props => (props.isToggleOpen ? 'block' : 'none')};
-  position: absolute;
-  width: 12em;
-  margin-top: 18em;
-  padding: 1em;
-  background-color: #fff;
-  border: 1px solid #EDEDED;
-  border-radius: 0.3em;
-  @media (max-width: 767px) {
-    margin-top: 3em;
-  }
-`;
-
-const ToggleButton = Styled.img<{ isToggleOpen: boolean }>`
-  width: 1em;
-  margin-left: 0.5em;
-  transform: ${props => props.isToggleOpen === true && 'rotateZ(-60deg)'};
-`;
-
-const CategoryItem = Styled.li`
-  padding: 0.5em;
-  cursor: pointer;
-  &:hover {
-    color: #676FA3;
-  }
-`;
-
-const ActiveItem = Styled.li`
-  padding: 0.5em;
-  font-weight: 700;
-`;
-
-const UploadButton = Styled.button`
-  ${ButtonLayout}
-  padding: 0.2em;
-  cursor: pointer;
-`;
-
-const FileInput = Styled.input`
-  visibility: hidden;
-  position: absolute;
-`;
-
-const ContentsContainer = Styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 2em;
-`;
-
-const InputDiv = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid #f1f1f1;
-  border-radius: 0.3em;
-`;
-
-const TitleInput = Styled.input`
-  width: 90%;
-  padding: 0.3em 1em;
-  font-size: 1.3em;
-  border: none;
-  outline: none;
-  &::placeholder {
-    color: #c1c1c1;
-  }
-`;
-
-const ImgPreview = Styled.div`
-  ${flexCenterAlign}
-  padding: 1em;
-  gap: 0.5em;
-  border: 1px solid #f1f1f1;
-  border-radius: 0.3em;
-  flex-wrap: wrap;
-  @media (max-width: 767px) {
-    flex-direction: column;
-  }
-`;
-
-const ImgPreviewMessage = Styled.div`
-  display: flex;
-  color: #c1c1c1;
-  font-size: 1.2em;
-`;
-
-const FilePreviewDiv = Styled.div`
-  ${flexCenterAlign}
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 0.5em;
-`;
-
-const ImgPreviewItem = Styled.img<{ isFile: boolean }>`
-  max-width: ${props => (props.isFile ? '7em' : '12em')};
-  max-height: ${props => (props.isFile ? '5em' : '8em')};
-  cursor: pointer;
-`;
-
-const ContentTextarea = Styled.textarea`
-  width: 95%;
-  height: 25em;
-  padding: 1em;
-  border: none;
-  outline: none;
-  &::placeholder {
-    color: #c1c1c1;
-  }
-  resize: none;
-`;
-
-const Buttons = Styled.div`
-  display: flex;
-  width: 100%;
-  margin-top: 1em;
-  justify-content: flex-end;
-  gap: 1em;
-`;
-
-const Button = Styled.button<{ isSave: boolean }>`
-  ${ButtonLayout}
-  padding: 0.1em 1em;
-  background-color: ${props => (props.isSave ? '#C1C1C1' : '#FF5959')};
-  color: ${props => (props.isSave ? '#000' : '#fff')};
-  cursor: pointer;
-`;
-
-const SaveAlertDiv = Styled.div<{
-  isSaved: string;
-  isNotNull: boolean;
-  isSaveSuccess: boolean;
-  categoryId: number | undefined;
-}>`
-visibility: ${props => (props.isSaved === 'true' ? 'visible' : 'hidden')};
-  position: absolute;
-  padding: 0.3em;
-  right: 20em;
-  color: #fff;
-  background-color: ${props =>
-    props.isNotNull && props.isSaveSuccess && props.categoryId !== 0
-      ? '#CDDEFF'
-      : '#FF5959'};
-  border-radius: 0.3em;
-  animation-name: ${props =>
-    props.isSaved === 'true'
-      ? 'alertOpen'
-      : props.isSaved === 'false'
-      ? 'alertClose'
-      : 'none'};
-  animation-direction: alternate;
-  animation-duration: 300ms;
-
-  @keyframes alertOpen {
-    from {
-      visibility: hidden;
-      opacity: 0;
-    }
-    50% {
-      visibility:visible;
-    }
-    to{
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-
-  @keyframes alertClose {
-    from {
-      visibility: visible;
-      opacity: 1;
-    }
-    50% {
-      visibility:visible;
-    }
-    to{
-      visibility: hidden;
-      opacity: 0;
-    }
-  }
-
-  @keyframes none {
-    0% {
-      display: none;
-    }
-    100% {
-      display: none;
-    }
-  }
-`;
-
-const RadioContainer = Styled.div`
-  display: flex;
-  gap: 1em;
-`;
-
-const RadioButton = Styled.label`
-  ${flexCenterAlign}
-  flex-direction: column;
-  cursor: pointer;
-`;
-
-const RadioImg = Styled.img`
-  width: 1.5em;
-  cursor: pointer;
-`;
-
-const QuestionDiv = Styled.div<{ isQuestionOpen: boolean }>`
-  display: ${props => (props.isQuestionOpen ? 'flex' : 'none')};
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.3em;
-  position: absolute;
-  padding: 1em;
-  background-color: #fff;
-  font-size: 0.8em;
-  border: 1px solid #b1b1b1;
-  border-radius: 0.3em;
-`;
-
-const InfoDiv = Styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.4em;
-  margin-top: 1em;
-  font-size: 0.8em;
-  color: #b1b1b1;
-`;
-
-const Count = Styled.span<{ textLength: number; maxLength: number }>`
-  color: ${props => props.textLength === props.maxLength && '#FF5959'};
-  align-self: flex-end;
-  font-size: 0.8em;
-  padding: 0.2em;
-`;
-
-const WarningMessage = Styled.p`
-  color: #FF5959;
-`;
 
 interface CategoryType {
   id: number;
@@ -560,7 +285,7 @@ export const WriteContainer = () => {
     setSelectedLike(Number(e.target.value));
   };
 
-  let token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token');
 
   // 파일 업로드
   useEffect(() => {
@@ -737,27 +462,30 @@ export const WriteContainer = () => {
           return null;
         }
         return allowExtensions.includes(extension) ? (
-          <ImgPreviewItem
+          <img
+            className="max-w-48 max-h-32 cursor-pointer"
             key={item.id}
             src={item.url}
             alt={item.id + '번째 이미지'}
-            isFile={false}
             onClick={() => {
               deleteFile(item.url, item.name);
             }}
           />
         ) : (
-          <FilePreviewDiv key={item.id}>
-            <ImgPreviewItem
+          <div
+            className="flexCenterAlign flex-col flex-wrap gap-2"
+            key={item.id}
+          >
+            <img
+              className="w-8 h-8 max-w-8 max-h-8 cursor-pointer"
               src={FileIconImg}
               alt="파일 아이콘"
-              isFile={true}
               onClick={() => {
                 deleteFile(item.url, item.name);
               }}
             />
             <span>{item.name}</span>
-          </FilePreviewDiv>
+          </div>
         );
       })
     );
@@ -869,32 +597,54 @@ export const WriteContainer = () => {
     }
   };
 
+  const saveAlertClass = () => {
+    if (isSaved === 'true') {
+      return 'animate-saveAlert-open';
+    }
+    if (isSaved === 'false') {
+      return 'animate-saveAlert-close';
+    }
+    return 'animate-category-default';
+  };
+
   return (
-    <Fragment>
-      <TitleDiv>
-        <Title>{ifModifyFeed === false ? '게시글 작성' : '게시글 수정'}</Title>
-        <SaveAlertDiv
-          isSaved={isSaved}
-          isNotNull={isNotNull}
-          isSaveSuccess={isSaveSuccess}
-          categoryId={categoryId && categoryId}
+    <div className="w-full bg-bg-gray">
+      <div
+        className={`${isSaved === 'true' ? 'visible' : 'invisible'} w-full ${
+          isNotNull && isSaveSuccess && categoryId !== 0
+            ? 'text-black bg-mainsky'
+            : 'text-white bg-mainred'
+        }  text-center py-2 ${saveAlertClass()}`}
+      >
+        {/* {saveMessage} */}
+        카테고리를 선택해주세요.
+      </div>
+      <div className="flex justify-between items-center w-4/5 my-0 mx-auto p-8">
+        <h1 className="text-xl font-bold">
+          {ifModifyFeed === false ? '게시글 작성' : '게시글 수정'}
+        </h1>
+      </div>
+      <div className="flex md:items-center items-start md:flex-row flex-col w-4/5 h-12 relative my-0 mx-auto gap-4 p-8">
+        <div
+          className="flex justify-between items-center w-48 p-2 bg-white rounded-md cursor-pointer"
+          onClick={handleToggle}
         >
-          {saveMessage}
-        </SaveAlertDiv>
-      </TitleDiv>
-      <MenuContainer>
-        <CategoryButton onClick={handleToggle}>
           {categoryName}
-          <ToggleButton
+          <img
+            className={`w-4 h-4 ml-2 ${isToggleOpen && '-rotate-90'}`}
             src={ToggleImg}
             alt="토글버튼"
-            isToggleOpen={isToggleOpen}
           />
-        </CategoryButton>
-        <CategorySelectBox isToggleOpen={isToggleOpen}>
+        </div>
+        <ul
+          className={`${
+            isToggleOpen ? 'block' : 'hidden'
+          } w-48 absolute md:top-16 top-20 bg-white border border-bg-gray rounded-md p-8`}
+        >
           {categoryList.map((category: CategoryType, idx: number) => {
             return idx !== countIdx ? (
-              <CategoryItem
+              <li
+                className="p-2 cursor-pointer hover:text-mainblue"
                 key={category.id}
                 value={category.id}
                 onClick={e => {
@@ -905,9 +655,10 @@ export const WriteContainer = () => {
                 }}
               >
                 {category.category}
-              </CategoryItem>
+              </li>
             ) : (
-              <ActiveItem
+              <li
+                className="p-2 font-bold"
                 key={category.id}
                 value={category.id}
                 onClick={e => {
@@ -919,18 +670,20 @@ export const WriteContainer = () => {
                 ref={selectRef}
               >
                 {category.category}
-              </ActiveItem>
+              </li>
             );
           })}
-        </CategorySelectBox>
-        <UploadButton
+        </ul>
+        <button
+          className="buttonLayout px-4 py-2 cursor-pointer bg-white"
           onClick={() => {
             input.current?.click();
           }}
         >
           파일 선택
-        </UploadButton>
-        <FileInput
+        </button>
+        <input
+          className="invisible absolute"
           type="file"
           ref={input}
           onChange={e => {
@@ -938,11 +691,18 @@ export const WriteContainer = () => {
           }}
           multiple
         />
-        <RadioContainer>
+        <div className="flex gap-4">
           {estimationList.map(estimation => {
             return (
-              <RadioButton key={estimation.id}>
-                <RadioImg src={estimation.img} alt={estimation.estimation} />
+              <label
+                className="flexCenterAlign flex-col cursor-pointer"
+                key={estimation.id}
+              >
+                <img
+                  className="w-1.5rem cursor-pointer"
+                  src={estimation.img}
+                  alt={estimation.estimation}
+                />
                 <input
                   type="radio"
                   value={estimation.id}
@@ -952,78 +712,90 @@ export const WriteContainer = () => {
                     handleChange(e);
                   }}
                 />
-              </RadioButton>
+              </label>
             );
           })}
-        </RadioContainer>
-        <div ref={QuestionDivRef}>
-          <RadioImg
+        </div>
+        <div className="flexCenterAlign gap-2" ref={QuestionDivRef}>
+          <img
+            className="w-1.5rem cursor-pointer"
             src={QuestionMark}
             alt="도움말"
             onClick={() => {
               setIsQuestionOpen(!isQuestionOpen);
             }}
           />
-          <QuestionDiv isQuestionOpen={isQuestionOpen}>
+          <div
+            className={`${
+              isQuestionOpen ? 'flex' : 'hidden'
+            } flex-col px-4 py-2 text-sm bg-white rounded-md z-50`}
+          >
             <p>리뷰하는 주제에 대한 평가를 선택해주세요.</p>
             <p>매우 좋아요 / 좋아요 / 별로예요</p>
-          </QuestionDiv>
+          </div>
         </div>
-      </MenuContainer>
-      <InfoDiv>
+      </div>
+      <div className="flex justify-start flex-col w-4/5 my-0 mx-auto text-sm text-[#b1b1b1] px-8">
         <p>• 파일은 한 번 선택 시 5개까지 가능합니다.</p>
-        <p>• 최대 파일 갯수는 제한 없습니다.</p>
         <p>• 이미지는 png / jpg / jpeg / gif만 업로드가 가능합니다.</p>
         <p>• 이미지 및 파일은 5MB까지 업로드가 가능합니다.</p>
-        <p>• 아래 이미지를 클릭하면 삭제할 수 있습니다.</p>
+        <p>• 이미지를 클릭하면 삭제할 수 있습니다.</p>
         {isFileSizePass === false && (
-          <WarningMessage>• 파일 용량을 확인해주세요.</WarningMessage>
+          <p className="text-mainred">• 파일 용량을 확인해주세요.</p>
         )}
         {isFileCountPass === false && mainFileList.length !== 0 && (
-          <WarningMessage>• 파일 개수를 확인해주세요.</WarningMessage>
+          <p className="text-mainred">• 파일 개수를 확인해주세요.</p>
         )}
-      </InfoDiv>
-      <ContentsContainer>
-        <InputDiv>
-          <TitleInput
-            type="text"
-            placeholder="제목을 입력해주세요."
-            onInput={getTitle}
-            maxLength={30}
-            ref={inputValueRef}
-            defaultValue={modifyData ? modifyData.result.title : title}
-          />
-          <Count maxLength={30} textLength={titleLength}>
-            {titleLength} / 30
-          </Count>
-        </InputDiv>
+      </div>
+      <div className="p-8">
+        <div className="flex flex-col w-4/5 mx-auto bg-white rounded-md">
+          <div className="flex justify-between border-b border-b-[#f1f1f1]">
+            <input
+              className="w-full p-4 text-xl border-none outline-none"
+              type="text"
+              placeholder="제목"
+              onInput={getTitle}
+              maxLength={30}
+              ref={inputValueRef}
+              defaultValue={modifyData ? modifyData.result.title : title}
+            />
+            <div
+              className={`${
+                titleLength === 30 && 'text-mainred'
+              } self-end w-12 text-sm p-0.5`}
+            >
+              {titleLength} / 30
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <textarea
+              className="w-full h-96 p-4 border-none outline-none resize-none"
+              placeholder="내용"
+              onInput={getContent}
+              maxLength={10000}
+              ref={textareaValueRef}
+              defaultValue={modifyData ? modifyData.result.content : content}
+            />
+            <div className="self-end w-20 text-sm p-0.5">
+              {contentLength} / 10000
+            </div>
+          </div>
+          <div className="flexCenterAlign flex-col flex-wrap md:flex-row gap-2 border-t border-b-[#f1f1f1]">
+            {mainFileList.length === 0 && previewList.length === 0 && (
+              <div className="flex text-[#c1c1c1] text-xl">파일 미리보기</div>
+            )}
+            {mainFileList.length !== 0 && isFileCountPass && isLoading && (
+              <div className="flex text-[#c1c1c1] text-xl">Loading...</div>
+            )}
+            {previewFiles()}
+          </div>
+        </div>
+      </div>
 
-        <ImgPreview>
-          {mainFileList.length === 0 && previewList.length === 0 && (
-            <ImgPreviewMessage>파일 미리보기</ImgPreviewMessage>
-          )}
-          {mainFileList.length !== 0 && isFileCountPass && isLoading && (
-            <ImgPreviewMessage>Loading...</ImgPreviewMessage>
-          )}
-          {previewFiles()}
-        </ImgPreview>
-        <InputDiv>
-          <ContentTextarea
-            placeholder="내용을 입력해주세요."
-            onInput={getContent}
-            maxLength={10000}
-            ref={textareaValueRef}
-            defaultValue={modifyData ? modifyData.result.content : content}
-          />
-          <Count maxLength={10000} textLength={contentLength}>
-            {contentLength} / 10000
-          </Count>
-        </InputDiv>
-      </ContentsContainer>
-      <Buttons>
+      <div className="flex w-4/5 my-0 mx-auto px-8 justify-end gap-4">
         {isTempFeed && (
-          <Button
-            isSave={true}
+          <button
+            className="buttonLayout py-0.5 px-4 hover:text-mainred"
             onClick={() =>
               saveFeed(
                 inputValueRef.current,
@@ -1033,15 +805,15 @@ export const WriteContainer = () => {
             }
           >
             임시저장
-          </Button>
+          </button>
         )}
-        <Button
-          isSave={false}
+        <button
+          className="py-0.5 px-4 border border-mainblue rounded-md hover:text-mainblue hover:bg-white"
           onClick={ifModifyFeed === false ? feedUpload : feedModify}
         >
           {ifModifyFeed === false ? '등록' : '수정'}
-        </Button>
-      </Buttons>
-    </Fragment>
+        </button>
+      </div>
+    </div>
   );
 };
