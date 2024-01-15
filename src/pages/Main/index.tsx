@@ -104,7 +104,7 @@ export const MainPage = () => {
           </ul>
           {isLogin && (
             <Link
-              to="/writefeed"
+              to="/writefeed?mode=write"
               state={{ feedId: 0, isModify: false, isTemp: true }}
             >
               <button className="border rounded-md border-mainblue px-3 py-2 bg-white cursor-pointer">

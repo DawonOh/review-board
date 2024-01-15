@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CommentTextarea } from 'Components/Feed/Comment/CommentTextarea';
 import { useMutation } from '@tanstack/react-query';
-import { deleteComment, queryClient } from 'util/feed-http';
+import { deleteComment, queryClient } from 'util/feedDetail-http';
 import { alertActions } from 'redux/slice/alert-slice';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { useParams } from 'react-router-dom';

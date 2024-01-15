@@ -11,7 +11,7 @@ import {
   feedDetailData,
   getFeedLike,
   queryClient,
-} from 'util/feed-http';
+} from 'util/feedDetail-http';
 import { useQueries } from '@tanstack/react-query';
 import { LoaderFunctionArgs, json, useParams } from 'react-router-dom';
 

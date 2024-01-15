@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from 'hooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { alertActions } from 'redux/slice/alert-slice';
-import { modifyComment, queryClient, sendComment } from 'util/feed-http';
+import { modifyComment, queryClient, sendComment } from 'util/feedDetail-http';
 
 interface Props {
   isNestedComment: boolean;

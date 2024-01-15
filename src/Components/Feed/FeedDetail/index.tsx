@@ -9,7 +9,7 @@ import {
   deleteLike,
   queryClient,
   sendLike,
-} from 'util/feed-http';
+} from 'util/feedDetail-http';
 import { useMutation } from '@tanstack/react-query';
 interface LoginLikeType {
   checkValue: boolean;
