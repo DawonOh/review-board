@@ -16,7 +16,6 @@ import {
   sendFeed,
   sendFeedType,
 } from 'util/feed-http';
-import { useMutation } from '@tanstack/react-query';
 import instance from 'api';
 import { useAppDispatch } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
@@ -99,10 +98,8 @@ interface ModifyDataType {
 }
 
 export const WriteContainer = ({
-  categoryList,
   estimationList,
 }: {
-  categoryList: CategoryType[];
   estimationList: EstimationType[];
 }) => {
   // 카테고리 오픈 여부
@@ -177,6 +174,8 @@ export const WriteContainer = ({
   const BACK_URL = process.env.REACT_APP_BACK_URL;
 
   const dispatch = useAppDispatch();
+
+  const categoryList = queryClient.getQueryData(['cetegory']);
 
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
@@ -628,78 +627,6 @@ export const WriteContainer = ({
     }
   }, [isFirstSave, selectedLike, fileLink]);
 
-  // 게시글 등록
-  // const feedUpload = () => {
-  //   let bodyObj;
-  //   if (feedId !== 0) {
-  //     bodyObj = {
-  //       feedId: feedId,
-  //       title: title,
-  //       content: content,
-  //       estimation: selectedLike,
-  //       category: categoryId,
-  //       fileLinks: fileLink,
-  //     };
-  //   } else {
-  //     bodyObj = {
-  //       title: title,
-  //       content: content,
-  //       estimation: selectedLike,
-  //       category: categoryId,
-  //       fileLinks: fileLink,
-  //     };
-  //   }
-  //   if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
-  //     alert('제목 / 내용 / 카테고리는 필수입니다.');
-  //     return;
-  //   }
-  //   if (title && content && categoryId) {
-  //     axios
-  //       .post<SaveResultType>(`${BACK_URL}/feeds/post`, bodyObj, {
-  //         timeout: 5000,
-  //         headers: { Accept: `application/json`, Authorization: token },
-  //       })
-  //       .then(response => {
-  //         window.location.href = '/';
-  //       })
-  //       .catch(error => {
-  //         alert('게시글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
-  //       });
-  //   }
-  // };
-
-  // 게시글 수정
-  // const feedModify = () => {
-  //   if (title.trim() === '' || content.trim() === '' || categoryId === 0) {
-  //     alert('제목 / 내용 / 카테고리는 필수입니다.');
-  //     return;
-  //   }
-  //   if (title && content && categoryId) {
-  //     axios
-  //       .patch<SaveResultType>(
-  //         `${BACK_URL}/feeds/post`,
-  //         {
-  //           feedId: modifyId,
-  //           title: title,
-  //           content: content,
-  //           estimation: selectedLike,
-  //           category: categoryId,
-  //           fileLinks: fileLink,
-  //         },
-  //         {
-  //           timeout: 5000,
-  //           headers: { Accept: `application/json`, Authorization: token },
-  //         }
-  //       )
-  //       .then(response => {
-  //         window.location.href = `/feed/${modifyId}`;
-  //       })
-  //       .catch(error => {
-  //         alert('게시글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
-  //       });
-  //   }
-  // };
-
   // tailwind css - 토스트 문구 classname
   const saveAlertClass = () => {
     if (isSaved === 'true') {
@@ -772,7 +699,7 @@ export const WriteContainer = ({
             isToggleOpen ? 'block' : 'hidden'
           } w-48 absolute md:top-16 top-20 bg-white border border-bg-gray rounded-md p-8`}
         >
-          {categoryList.map((category: CategoryType, idx: number) => {
+          {/* {categoryList?.map((category: CategoryType, idx: number) => {
             return idx !== countIdx ? (
               <li
                 className="p-2 cursor-pointer hover:text-mainblue"
@@ -803,7 +730,7 @@ export const WriteContainer = ({
                 {category.category}
               </li>
             );
-          })}
+          })} */}
         </ul>
         <button
           type="button"

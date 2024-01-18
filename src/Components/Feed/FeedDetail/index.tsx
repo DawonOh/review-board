@@ -11,6 +11,7 @@ import {
   sendLike,
 } from 'util/feedDetail-http';
 import { useMutation } from '@tanstack/react-query';
+import { deleteFeed } from 'util/feed-http';
 interface LoginLikeType {
   checkValue: boolean;
   result: {
@@ -130,7 +131,7 @@ export const FeedDetail = ({
   }, [isLogin, feedId]);
 
   // 게시물 삭제
-  const deleteFeed = () => {
+  const deleteFeedAlert = () => {
     dispatch(
       alertActions.setModal({
         isModalOpen: true,
@@ -140,6 +141,14 @@ export const FeedDetail = ({
       })
     );
   };
+
+  const isDelete = useAppSelector(state => state.alert.isClickOk);
+
+  useEffect(() => {
+    if (isDelete) {
+      deleteFeed(feedId);
+    }
+  }, [isDelete, feedId]);
 
   // useEffect(() => {
   //   if (result) {
@@ -219,7 +228,7 @@ export const FeedDetail = ({
                     |
                     <button
                       className="buttonLayout text-sm"
-                      onClick={deleteFeed}
+                      onClick={deleteFeedAlert}
                     >
                       삭제
                     </button>

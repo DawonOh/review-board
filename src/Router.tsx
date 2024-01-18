@@ -17,6 +17,7 @@ import {
   ErrorPage,
   feedLoader,
   feedWriteLoader,
+  mainLoader,
 } from 'pages';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feedDetail-http';
@@ -28,7 +29,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <MainPage /> },
+      { index: true, element: <MainPage />, loader: mainLoader },
       {
         path: '/writefeed',
         element: <WriteFeed />,
