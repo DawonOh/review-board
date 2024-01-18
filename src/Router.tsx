@@ -22,6 +22,7 @@ import {
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feedDetail-http';
 import { writeFeedAction } from 'Components';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,7 @@ const Router = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
   );
 };

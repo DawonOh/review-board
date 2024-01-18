@@ -3,6 +3,7 @@ import LikeIconImg from '../assets/images/thumbsUp.png';
 import DoubleLikeImg from '../assets/images/double-like.png';
 import DisLikeImg from '../assets/images/dislike.png';
 import instance from 'api';
+import { QueryFunction } from '@tanstack/react-query';
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
 
@@ -44,6 +45,38 @@ export const getMainFeedList = async ({
       });
       return response.data;
     }
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시물 별 좋아요 여부(cardList)
+export interface LoginLikeType {
+  checkValue: boolean | undefined;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: number;
+    feed: number;
+    symbol: number;
+  } | null;
+}
+export const getSymbolsCheck = async ({
+  id,
+  signal,
+}: {
+  id: number;
+  signal: AbortSignal;
+}) => {
+  try {
+    const response = await instance.get<LoginLikeType>(`/symbols/check/${id}`, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 5000,
+      signal,
+    });
+    return response.data;
   } catch (error) {
     throw error;
   }
