@@ -16,13 +16,13 @@ export const useCardList = (categoryId: number) => {
     error,
   } = useInfiniteQuery({
     queryKey: query ? ['searchList', { query }] : ['mainList', { categoryId }],
-    queryFn: ({ pageParam = 1, signal }) =>
+    queryFn: ({ pageParam, signal }) =>
       query
         ? getMainFeedList({ query, pageParam, categoryId, signal })
         : getMainFeedList({ pageParam, categoryId, signal }),
-    initialPageParam: 1,
+    initialPageParam: 0,
     getNextPageParam: (lastPage, allpages) => {
-      const nextPage = allpages.length * 10 + 1;
+      const nextPage = allpages.length * 10;
       return lastPage.length === 0 ? undefined : nextPage;
     },
     staleTime: 1000 * 60 * 2,

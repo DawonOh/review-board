@@ -3,7 +3,6 @@ import LikeIconImg from '../assets/images/thumbsUp.png';
 import DoubleLikeImg from '../assets/images/double-like.png';
 import DisLikeImg from '../assets/images/dislike.png';
 import instance from 'api';
-import { QueryFunction } from '@tanstack/react-query';
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
 
@@ -22,27 +21,17 @@ export const getMainFeedList = async ({
 }: mainFeedType) => {
   try {
     if (query) {
-      const response = await axios({
-        method: 'GET',
-        url: `${BACK_URL}/search/list`,
-        params: { query: query, index: pageParam },
-        timeout: 5000,
-        signal,
-      });
+      const response = await axios.get(
+        `${BACK_URL}/search/list?query=${query}&index=${pageParam}`,
+        { timeout: 5000, signal }
+      );
       return response.data;
     }
     if (!query) {
-      const response = await axios({
-        method: 'GET',
-        url: `${BACK_URL}/feeds/post`,
-        params: {
-          index: pageParam,
-          categoryId: categoryId,
-          limit: 10,
-        },
-        timeout: 5000,
-        signal,
-      });
+      const response = await axios(
+        `${BACK_URL}/feeds/post?index=${pageParam}&categoryId=${categoryId}&limit=10`,
+        { timeout: 5000, signal }
+      );
       return response.data;
     }
   } catch (error) {
@@ -82,13 +71,17 @@ export const getSymbolsCheck = async ({
   }
 };
 
-// 게시물 작성 페이지 - 카테고리 불러오기
+// 게시물 작성 페이지, 메인페이지 - 카테고리 불러오기
 export interface CategoryType {
   id: number;
   category: string;
 }
 
-export const getCategory = async ({ signal }: { signal: AbortSignal }) => {
+export const getCategory = async ({
+  signal,
+}: {
+  signal: AbortSignal;
+}): Promise<CategoryType[]> => {
   try {
     const response = await axios.get<CategoryType[]>(`${BACK_URL}/categories`, {
       headers: { 'Content-Type': 'application/json' },
@@ -108,7 +101,11 @@ export interface EstimationType {
   img: string;
 }
 
-export const getEstimation = async ({ signal }: { signal: AbortSignal }) => {
+export const getEstimation = async ({
+  signal,
+}: {
+  signal: AbortSignal;
+}): Promise<EstimationType[]> => {
   try {
     const response = await axios.get<EstimationType[]>(
       `${BACK_URL}/feeds/estimations`,

@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useRef } from 'react';
 import Card from '../Card';
 import { useCardList } from '../../../hooks/useCardList';
 

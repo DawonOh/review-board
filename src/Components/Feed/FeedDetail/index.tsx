@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import instance from 'api';
@@ -40,6 +40,8 @@ export const FeedDetail = ({
   let feedId = params.id;
 
   const dispatch = useAppDispatch();
+
+  const navigate = useNavigate();
 
   // 좋아요 요청
   const { mutate: getLikeMutate, isError: getLikeIsError } = useMutation({
@@ -144,30 +146,33 @@ export const FeedDetail = ({
 
   const isDelete = useAppSelector(state => state.alert.isClickOk);
 
+  const { mutate: deleteMutate, isError } = useMutation({
+    mutationFn: deleteFeed,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mainList'] });
+      navigate('/');
+    },
+  });
+
   useEffect(() => {
     if (isDelete) {
-      deleteFeed(feedId);
+      deleteMutate(feedId);
+      dispatch(alertActions.setIsClickOk());
     }
-  }, [isDelete, feedId]);
+  }, [isDelete, feedId, dispatch, deleteMutate]);
 
-  // useEffect(() => {
-  //   if (result) {
-  //     axios
-  //       .delete<string>(`${BACK_URL}/feeds/${feedId}`, {
-  //         timeout: 5000,
-  //         headers: { Accept: `application/json`, Authorization: token },
-  //       })
-  //       .then(response => {
-  //         setIsAlertModalOpen(false);
-  //         window.location.href = '/';
-  //       })
-  //       .catch(error => {
-  //         if (error.code === 'ECONNABORTED') {
-  //           alert('잠시 후 다시 시도해주세요.');
-  //         }
-  //       });
-  //   }
-  // }, [result]);
+  useEffect(() => {
+    if (isError) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          alertPath: '',
+          isQuestion: false,
+        })
+      );
+    }
+  }, [isError, dispatch]);
 
   let createDate = feedDetailData?.created_at.slice(0, -8);
   let updateDate = feedDetailData?.updated_at.slice(0, -8);

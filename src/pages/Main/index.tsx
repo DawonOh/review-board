@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MobileMenu, CardList } from 'Components';
 import ToggleImg from '../../assets/images/toggleDown.png';
 import { Link, useLoaderData } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { useAppSelector } from 'hooks';
 import { CategoryType, getCategory } from 'util/feed-http';
 import { queryClient } from 'util/feedDetail-http';
 
-const getCategoryQuery = () => ({
+export const getCategoryQuery = () => ({
   queryKey: ['category'],
   queryFn: ({ signal }: { signal: AbortSignal }) => getCategory({ signal }),
   staleTime: Infinity,

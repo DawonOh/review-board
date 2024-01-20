@@ -20,6 +20,7 @@ import instance from 'api';
 import { useAppDispatch } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import { queryClient } from 'util/feedDetail-http';
+import { getCategoryQuery } from 'pages';
 
 interface FileLinkType {
   file_links: string[];
@@ -99,8 +100,10 @@ interface ModifyDataType {
 
 export const WriteContainer = ({
   estimationList,
+  categoryList,
 }: {
-  estimationList: EstimationType[];
+  estimationList: EstimationType[] | undefined;
+  categoryList: CategoryType[] | undefined;
 }) => {
   // 카테고리 오픈 여부
   const [isToggleOpen, setIsToggleOpen] = useState(false);
@@ -110,9 +113,6 @@ export const WriteContainer = ({
 
   // 카테고리 id
   const [categoryId, setCategoryId] = useState<number | undefined>(0);
-
-  // 선택한 카테고리 표시를 위한 인덱스
-  const [countIdx, setCountIdx] = useState(0);
 
   // 백에 전송할 파일 리스트
   const [mainFileList, setMainFileList] = useState<File[]>([]);
@@ -175,8 +175,6 @@ export const WriteContainer = ({
 
   const dispatch = useAppDispatch();
 
-  const categoryList = queryClient.getQueryData(['cetegory']);
-
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
   let location = useLocation();
@@ -225,7 +223,6 @@ export const WriteContainer = ({
           setCategoryName(response.data.result.category.category);
           setCategoryId(response.data.result.category.id);
           setSelectedLike(response.data.result.estimation.id);
-          setCountIdx(response.data.result.category.id);
         })
         .catch(() => {
           alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -276,11 +273,6 @@ export const WriteContainer = ({
   // 카테고리 토글 열고 닫기
   const handleToggle = () => {
     setIsToggleOpen(!isToggleOpen);
-  };
-
-  // 선택한 카테고리 강조를 위한 인덱스 가져오기
-  const handleClickIndex = (e: React.MouseEvent, idx: number) => {
-    setCountIdx(idx);
   };
 
   // 파일 선택 input ref
@@ -699,8 +691,8 @@ export const WriteContainer = ({
             isToggleOpen ? 'block' : 'hidden'
           } w-48 absolute md:top-16 top-20 bg-white border border-bg-gray rounded-md p-8`}
         >
-          {/* {categoryList?.map((category: CategoryType, idx: number) => {
-            return idx !== countIdx ? (
+          {categoryList?.map((category: CategoryType, idx: number) => {
+            return idx !== categoryId ? (
               <li
                 className="p-2 cursor-pointer hover:text-mainblue"
                 key={category.id}
@@ -708,7 +700,6 @@ export const WriteContainer = ({
                 onClick={e => {
                   setCategoryName(category.category);
                   setIsToggleOpen(false);
-                  handleClickIndex(e, idx);
                   handleSelectChange(category.id);
                 }}
               >
@@ -722,7 +713,6 @@ export const WriteContainer = ({
                 onClick={e => {
                   setCategoryName(category.category);
                   setIsToggleOpen(true);
-                  handleClickIndex(e, idx);
                   handleSelectChange(category.id);
                 }}
                 ref={selectRef}
@@ -730,7 +720,7 @@ export const WriteContainer = ({
                 {category.category}
               </li>
             );
-          })} */}
+          })}
         </ul>
         <button
           type="button"
@@ -750,7 +740,7 @@ export const WriteContainer = ({
           }}
           multiple
         />
-        {estimationList.map(estimation => {
+        {estimationList?.map(estimation => {
           return (
             <div
               key={estimation.id}
@@ -820,7 +810,7 @@ export const WriteContainer = ({
             <div
               className={`${
                 titleLength === 30 && 'text-mainred'
-              } self-end w-12 text-sm p-0.5`}
+              } self-end w-16 text-sm p-0.5`}
             >
               {titleLength} / 30
             </div>
@@ -899,5 +889,6 @@ export const writeFeedAction = async ({ request }: { request: Request }) => {
     fileLinks: fileList,
   };
   await sendFeed(bodyObj);
+  await queryClient.invalidateQueries({ queryKey: ['mainList'] });
   return redirect('/');
 };
