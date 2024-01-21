@@ -636,7 +636,7 @@ export const WriteContainer = ({
     const formData = new FormData(e.target as HTMLFormElement);
     // const data = Object.fromEntries(formData);
     let obj = {
-      ...(feedId !== 0 && { feedId: feedId }),
+      ...(feedId !== 0 && mode !== 'write' && { feedId: feedId }),
       estimation: selectedLike,
       category: categoryId,
       fileLinks: fileLink,
