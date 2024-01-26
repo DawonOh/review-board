@@ -21,8 +21,8 @@ import {
 } from 'pages';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feedDetail-http';
-import { writeFeedAction } from 'Components';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { feedFormAction } from 'Components/FeedCRUD/FeedForm';
 
 const router = createBrowserRouter([
   {
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         path: '/writefeed',
         element: <WriteFeed />,
         loader: feedWriteLoader,
-        action: writeFeedAction,
+        action: feedFormAction,
       },
       { path: '/temp/list', element: <TempList /> },
       { path: '/search', element: <SearchPage /> },

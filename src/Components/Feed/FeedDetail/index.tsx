@@ -224,10 +224,7 @@ export const FeedDetail = ({
                 </Link>
                 {feedDetailData?.user.id === loginUserId && (
                   <div className="flexCenterAlign gap-2">
-                    <Link
-                      to="/writeFeed"
-                      state={{ feedId: feedId, isModify: true, isTemp: false }}
-                    >
+                    <Link to={`/writeFeed?mode=modify&id=${feedId}`}>
                       <button className="buttonLayout text-sm">수정</button>
                     </Link>
                     |

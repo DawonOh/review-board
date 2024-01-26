@@ -127,7 +127,7 @@ export const getEstimation = async ({
 };
 
 // 게시글 수정인 경우 불러오는 피드 데이터
-interface ModifyDataType {
+export interface ModifyDataType {
   result: {
     category: { id: number; category: string };
     content: string;
@@ -162,13 +162,13 @@ interface ModifyDataType {
 export const getModifyFeedData = async ({
   feedId,
 }: {
-  feedId: string | undefined;
-}) => {
+  feedId: string | null;
+}): Promise<ModifyDataType> => {
   try {
     const response = await instance.get<ModifyDataType>(
       `${BACK_URL}/feeds/${feedId}`
     );
-    return response.data.result;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -271,7 +271,6 @@ export interface sendFeedType {
   fileLinks: string[] | undefined | null;
 }
 export const sendFeed = async ({
-  feedId,
   title,
   content,
   estimation,
@@ -279,17 +278,6 @@ export const sendFeed = async ({
   fileLinks,
 }: sendFeedType) => {
   try {
-    if (feedId !== 0) {
-      const response = await instance.patch<SaveResultType>(`/feeds/post`, {
-        feedId,
-        title,
-        content,
-        estimation,
-        category,
-        fileLinks,
-      });
-      return response.data;
-    }
     const response = await instance.post<SaveResultType>(`/feeds/post`, {
       title,
       content,
@@ -301,6 +289,26 @@ export const sendFeed = async ({
   } catch (error) {
     throw error;
   }
+};
+
+// 게시글 수정
+export const editFeed = async ({
+  feedId,
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: sendFeedType) => {
+  const response = await instance.patch<SaveResultType>(`/feeds/post`, {
+    feedId,
+    title,
+    content,
+    estimation,
+    category,
+    fileLinks,
+  });
+  return response.data;
 };
 
 // 게시글 삭제
