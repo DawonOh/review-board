@@ -66,7 +66,7 @@ const Estimation = ({
           );
         })}
       </div>
-      <div className="flexCenterAlign h-24" ref={QuestionDivRef}>
+      <div className="flexCenterAlign h-24 gap-2" ref={QuestionDivRef}>
         <img
           className="w-1.5rem cursor-pointer"
           src={QuestionMark}

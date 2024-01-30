@@ -208,22 +208,30 @@ interface SaveResultType {
     ];
   };
 }
-export const postSave = async (
-  titleValue: string,
-  contentValue: string,
-  selectedLike: number | undefined,
-  selectCategory: number | undefined,
-  fileLink: string[]
-) => {
+interface PostSavePropsType {
+  feedId?: string | null;
+  title: string;
+  content: string;
+  estimation: number | undefined;
+  category: number | undefined;
+  fileLinks: string[];
+}
+export const postSave = async ({
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: PostSavePropsType) => {
   try {
     const response = await instance.post<SaveResultType>(
       `${BACK_URL}/feeds/temp`,
       {
-        title: titleValue,
-        content: contentValue,
-        estimation: selectedLike,
-        category: selectCategory,
-        fileLinks: fileLink,
+        title,
+        content,
+        estimation,
+        category,
+        fileLinks,
       }
     );
     return response.data;
@@ -233,24 +241,24 @@ export const postSave = async (
 };
 
 // 임시저장 patch
-export const patchSave = async (
-  feedId: number,
-  titleValue: string,
-  contentValue: string,
-  selectedLike: number | undefined,
-  selectCategory: number | undefined,
-  fileLink: string[]
-) => {
+export const patchSave = async ({
+  feedId,
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: PostSavePropsType) => {
   try {
     const response = await instance.patch<SaveResultType>(
       `${BACK_URL}/feeds/temp`,
       {
-        feedId: feedId,
-        title: titleValue,
-        content: contentValue,
-        estimation: selectedLike,
-        category: selectCategory,
-        fileLinks: fileLink,
+        feedId,
+        title,
+        content,
+        estimation,
+        category,
+        fileLinks,
       }
     );
     return response.data;

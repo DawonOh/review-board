@@ -37,22 +37,17 @@ const FilePreview = ({
 
   const dispatch = useAppDispatch();
 
-  // 업로드 한 파일 제거(onclick)
   const deleteFile = (url: string, name: string) => {
-    // 미리보기 리스트에서 클릭한 파일의 url과 다른 url을 가진 파일들만 다시 미리보기 리스트로 저장
     const result = previewList.filter(file => file.url !== url);
     setPreviewList(result);
 
-    // 백에 보낼 파일은 mainFileList에서 클릭한 파일의 이름과 다른 이름을 가진 파일만 다시 mainFileList에 저장
     const mainFileListResult = mainFileList.filter(file => file.name !== name);
     setMainFileList(mainFileListResult);
 
-    // =백에 보낼 파일 일 링크에서 클릭한 파일 url과 다른 링크를 가진 파일만 다시 파일 링크에 저장
     const fileLinkResult = fileLink.filter(file => file !== url);
     setFileLink(fileLinkResult);
   };
 
-  // 파일 업로드를 위한 formData -> 여기에 파일 데이터 저장함
   const formData = new FormData();
 
   const errorAlert = (content: string) => {
@@ -68,14 +63,11 @@ const FilePreview = ({
 
   // 파일 업로드
   useEffect(() => {
-    // 백에 보낼 파일 리스트 하나하나를 formData에 넣기
     mainFileList.forEach(file => {
       formData.append('file', file);
     });
 
-    // 백에 보낼 파일들(mainFileList)이 있다면?
     if (mainFileList.length !== 0) {
-      // 파일 전송~
       instance
         .post<FileLinkType>(`/upload`, formData)
         .then(response => {
@@ -100,25 +92,18 @@ const FilePreview = ({
     }
   }, [fileLink, mainFileList, previewList]);
 
-  // 파일 미리보기
   const previewFiles = () => {
-    // 허용하는 이미지 파일 확장자
     const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];
 
     return (
-      // 백에 보낼 파일 있고 미리보기 할 파일 있으면
       (mainFileList.length !== 0 || previewList.length !== 0) &&
-      // 미리보기 파일 map으로 돌면서
       previewList.map(item => {
-        // 확장자만 따로 빼기
         const extension = item.url.split('.').pop();
 
-        // 확장자가 없으면 null return(허용하는 이미지 파일에서 확인할 수가 없음)
         if (!extension) {
           return null;
         }
-        // 허용하는 이미지 파일 목록에 확장자가 있으면 이미지 보여주고
-        // 없으면 이미지 파일이 아니어서 파일 아이콘이랑 같이 보여주기
+
         return allowExtensions.includes(extension) ? (
           <img
             className="max-w-48 max-h-32 cursor-pointer"

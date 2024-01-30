@@ -5,15 +5,19 @@ import {
   EstimationType,
   ModifyDataType,
   editFeed,
+  patchSave,
+  postSave,
   sendFeed,
   sendFeedType,
 } from 'util/feed-http';
 import { queryClient } from 'util/feedDetail-http';
 import FilePreview, { PreviewType } from '../FilePreview';
-import TitleContent from '../TitleContent';
 import Category from '../Category';
 import FileInput from '../FileInput';
 import Estimation from '../Estimation';
+import TitleInput from '../TitleInput';
+import ContentTextarea from '../ContentTextarea';
+import { useMutation } from '@tanstack/react-query';
 
 interface FormPropsType {
   estimationList: EstimationType[] | undefined;
@@ -54,6 +58,16 @@ const FeedForm = ({
   const [selectedLike, setSelectedLike] = useState<number | undefined>(1);
   // 백엔드에 보낼 파일 링크
   const [fileLink, setFileLink] = useState<string[]>([]);
+  // 임시저장 성공 여부
+  const [isSaveSuccess, setIsSaveSuccess] = useState<boolean | null>(null);
+  // 임시저장 메세지 띄우기
+  const [isAlertOn, setIsAlertOn] = useState<boolean | null>(null);
+
+  // 임시저장 두 번째 저장 이후부터 필요한 게시물id
+  const [feedId, setFeedId] = useState<string | null>('0');
+
+  // 임시저장 메세지
+  const [saveMessage, setSaveMessage] = useState('');
   // 카테고리 값 가져오기
   const handleSelectChange = (categoryId: number) => {
     setCategoryId(categoryId);
@@ -88,7 +102,6 @@ const FeedForm = ({
       setTitle(modifyFeedResultData?.title);
       setContent(modifyFeedResultData?.content);
       setCategoryId(modifyFeedResultData?.category.id);
-      // setCategoryName(modifyFeedResultData?.category.category);
       let modifyPreviewList: PreviewType[] = [];
       let modifyFileList: string[] = [];
       for (let i = 0; i < modifyFeedResultData?.uploadFiles.length; i++) {
@@ -109,7 +122,7 @@ const FeedForm = ({
   // 제목 input, 내용 textarea, 선택한 카테고리 ref
   const inputValueRef = useRef<HTMLInputElement>(null);
   const textareaValueRef = useRef<HTMLTextAreaElement>(null);
-  const selectRef = useRef<HTMLLIElement>(null);
+  const categoryRef = useRef<HTMLLIElement>(null);
 
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('Content-Type', 'application/json');
@@ -120,6 +133,141 @@ const FeedForm = ({
 
   const getContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
+  };
+
+  // 임시저장 메세지 3초간 띄우기
+  const saveAlertMessage = () => {
+    setIsAlertOn(true);
+
+    setTimeout(() => {
+      setIsAlertOn(false);
+    }, 3000);
+  };
+
+  // post
+  const { mutate: postMutate } = useMutation({
+    mutationFn: postSave,
+    onSuccess: data => {
+      setIsFirstSave(false);
+      setIsSaveSuccess(true);
+      setFeedId(data.result.id.toString());
+      saveAlertMessage();
+    },
+    onError: () => {
+      setIsSaveSuccess(false);
+      saveAlertMessage();
+    },
+  });
+
+  // patch
+  const { mutate: patchMutate } = useMutation({
+    mutationFn: patchSave,
+    onSuccess: () => {
+      setIsFirstSave(false);
+      setIsSaveSuccess(true);
+      saveAlertMessage();
+    },
+    onError: () => {
+      setIsFirstSave(false);
+      setIsSaveSuccess(false);
+      saveAlertMessage();
+    },
+  });
+
+  // 임시저장(saveFeed)
+  const saveFeed = (
+    titleCurrent: HTMLInputElement | null,
+    contentCurrent: HTMLTextAreaElement | null,
+    categoryCurrent: HTMLLIElement | null
+  ) => {
+    const titleValue = titleCurrent?.value.trim();
+    const contentValue = contentCurrent?.value.trim();
+    const selectCategory = categoryCurrent?.value;
+
+    if (selectCategory === 0 || !titleValue || !contentValue) {
+      setIsSaveSuccess(false);
+      saveAlertMessage();
+      return;
+    }
+    // 제목, 내용, 카테고리 모두 있는 경우 + 첫 임시저장
+    if (selectCategory !== 0 && titleValue && contentValue && isFirstSave) {
+      // 글 POST 임시저장 실행
+      postMutate({
+        title: titleValue,
+        content: contentValue,
+        estimation: selectedLike,
+        category: selectCategory,
+        fileLinks: fileLink,
+      });
+      return;
+    }
+    // 제목, 내용, 카테고리 모두 있는 경우 + 이후 임시저장
+    if (selectCategory !== 0 && titleValue && contentValue && !isFirstSave) {
+      patchMutate({
+        feedId,
+        title: titleValue,
+        content: contentValue,
+        estimation: selectedLike,
+        category: selectCategory,
+        fileLinks: fileLink,
+      });
+      return;
+    }
+  };
+
+  // 임시저장 메세지 설정
+  useEffect(() => {
+    if (categoryRef.current?.value === 0) {
+      setSaveMessage('카테고리를 선택해주세요.');
+      return;
+    }
+    if (
+      inputValueRef.current?.value.trim() === '' ||
+      textareaValueRef.current?.value.trim() === ''
+    ) {
+      setSaveMessage('제목과 내용을 입력해주세요.');
+      return;
+    }
+    if (isSaveSuccess === false) {
+      setSaveMessage('임시 저장에 실패했습니다.');
+      return;
+    }
+    if (isSaveSuccess) {
+      setSaveMessage('임시 저장 되었습니다.');
+      return;
+    }
+  }, [
+    inputValueRef.current?.value,
+    textareaValueRef.current?.value,
+    isSaveSuccess,
+    categoryRef.current?.value,
+  ]);
+
+  // 임시저장 1분마다 실행
+  useEffect(() => {
+    if (mode !== 'modify') {
+      const showMessage = setInterval(() => {
+        saveFeed(
+          inputValueRef.current,
+          textareaValueRef.current,
+          categoryRef.current
+        );
+      }, 60000);
+
+      return () => clearInterval(showMessage);
+    }
+  }, [isFirstSave, selectedLike, fileLink]);
+
+  const saveAlertClass = () => {
+    if (isAlertOn === null) {
+      return 'invisible animate-category-default';
+    }
+    if (isAlertOn) {
+      return 'visible animate-saveAlert-open';
+    }
+    if (isAlertOn === false) {
+      return 'invisible animate-saveAlert-close';
+    }
   };
 
   const sendFeed = (e: React.FormEvent<HTMLFormElement>) => {
@@ -144,23 +292,42 @@ const FeedForm = ({
 
   return (
     <Form onSubmit={e => sendFeed(e)} className="w-full bg-bg-gray px-8">
-      <div className="flex items-start flex-col w-4/5 my-0 mx-auto gap-4 relative md:mt-0 mt-4">
-        <div className="flex md:items-center items-start gap-4 md:flex-row flex-col">
-          <Category
-            categoryList={categoryList}
-            handleSelectChange={handleSelectChange}
-            categoryId={categoryId}
-          />
-          <FileInput
-            setIsFileSizePass={setIsFileSizePass}
-            setIsFileCountPass={setIsFileCountPass}
-            setMainFileList={setMainFileList}
-          />
-          <Estimation
-            estimationList={estimationList}
-            setSelectedLike={setSelectedLike}
-            selectedLike={selectedLike}
-          />
+      <div className="flex relative flex-col items-start w-4/5 my-0 mx-auto gap-4 md:mt-0 mt-4">
+        <div className="flex w-full justify-between items-center">
+          <div className="flex gap-4 md:items-center items-start md:flex-row flex-col reletive">
+            <Category
+              categoryList={categoryList}
+              handleSelectChange={handleSelectChange}
+              categoryId={categoryId}
+              ref={categoryRef}
+            />
+            <FileInput
+              setIsFileSizePass={setIsFileSizePass}
+              setIsFileCountPass={setIsFileCountPass}
+              setMainFileList={setMainFileList}
+            />
+            <Estimation
+              estimationList={estimationList}
+              setSelectedLike={setSelectedLike}
+              selectedLike={selectedLike}
+            />
+          </div>
+          <div
+            className={`${
+              isSaveSuccess === true
+                ? 'text-mainblue bg-mainsky border border-mainblue'
+                : 'text-mainred bg-[#F8C7C7] border border-mainred'
+            } ${saveAlertClass()} flexCenterAlign gap-4 h-10 px-4 font-bold rounded-lg fixed top-12 right-0 md:static`}
+          >
+            <div
+              className={`w-6 h-6 ${
+                isAlertOn && isSaveSuccess
+                  ? "bg-[url('./assets/images/checkCircle.png')]"
+                  : "bg-[url('./assets/images/alertSign.png')]"
+              } bg-no-repeat bg-cover`}
+            />
+            <p>{saveMessage}</p>
+          </div>
         </div>
 
         <div className="text-sm text-[#b1b1b1]">
@@ -170,7 +337,7 @@ const FeedForm = ({
           {isFileSizePass === false && (
             <p className="text-mainred">• 파일 용량을 확인해주세요.</p>
           )}
-          {isFileCountPass === false && mainFileList.length !== 0 && (
+          {isFileCountPass === false && (
             <p className="text-mainred">• 파일 개수를 확인해주세요.</p>
           )}
         </div>
@@ -181,12 +348,17 @@ const FeedForm = ({
           setFileLink={setFileLink}
           fileLink={fileLink}
         />
-        <TitleContent
-          title={title}
-          content={content}
-          getTitle={getTitle}
-          getContent={getContent}
-        />
+        <div className="w-full mx-auto my-0 my-4">
+          <h2>제목 및 내용</h2>
+          <div className="flex flex-col p-4 mx-auto bg-white rounded-md">
+            <TitleInput title={title} getTitle={getTitle} ref={inputValueRef} />
+            <ContentTextarea
+              content={content}
+              getContent={getContent}
+              ref={textareaValueRef}
+            />
+          </div>
+        </div>
         <div className="flex w-full my-0 mx-auto px-8 justify-end gap-4">
           {mode === 'temp' ||
             (mode === 'write' && (

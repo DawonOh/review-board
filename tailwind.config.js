@@ -84,8 +84,8 @@ module.exports = {
         'category-default': 'category-default',
         move: 'move 2s ease-in-out infinite',
         'search-open': 'searchModal-open 500ms ease-in',
-        'saveAlert-open': 'saveAlert-open 500ms alternate',
-        'saveAlert-close': 'saveAlert-close 500ms alternate',
+        'saveAlert-open': 'saveAlert-open 500ms ease-in',
+        'saveAlert-close': 'saveAlert-close 500ms ease-in',
       },
       minHeight: {
         '2.5rem': '2.5rem',

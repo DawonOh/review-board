@@ -54,16 +54,6 @@ export const WriteFeed = () => {
     submit(data, { method: 'PATCH' });
   };
 
-  const saveAlertClass = () => {
-    if (isSaved) {
-      return 'animate-saveAlert-open';
-    }
-    if (isSaved === false || isSaved === null) {
-      return 'animate-saveAlert-close';
-    }
-    return 'animate-category-default';
-  };
-
   return (
     <Fragment>
       <MobileMenu />
