@@ -35,8 +35,6 @@ export const getTempListQuery = () => ({
 export const TempList = () => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [tempFeedId, setTempFeedId] = useState(0);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  // const [tempData, setTempData] = useState<TempType[]>([]);
 
   const tempData = useLoaderData() as TempType[];
 
@@ -74,7 +72,7 @@ export const TempList = () => {
               tempData?.map(feed => {
                 return (
                   <div
-                    className="w-full p-8 bg-white rounded-lg cursor-pointer"
+                    className="flex justify-between items-center w-full p-8 bg-white rounded-lg cursor-pointer hover:-translate-y-0.5 hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300"
                     onClick={() => setTempFeedId(feed.id)}
                     key={feed.id}
                   >
@@ -86,22 +84,20 @@ export const TempList = () => {
                         isTemp: true,
                       }}
                     >
-                      <div className="text-xl font-bold">{feed.title}</div>
+                      <span className="text-xl font-bold">{feed.title}</span>
+                      <span className="text-sm text-buttongray ml-4">
+                        {feed.createdAt.slice(0, -3)}
+                      </span>
                       <div className="mt-4 overflow-hidden whitespace-nowrap text-ellipsis">
                         {feed.content}
                       </div>
                     </Link>
-                    <div className="flex justify-between mt-4">
-                      <div className="text-sm text-buttongray">
-                        {feed.createdAt.slice(0, -3)}
-                      </div>
-                      <button
-                        className="buttonLayout bg-bg-gray text-white"
-                        onClick={deleteTempFeed}
-                      >
-                        삭제
-                      </button>
-                    </div>
+                    <button
+                      className="px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg"
+                      onClick={deleteTempFeed}
+                    >
+                      삭제
+                    </button>
                   </div>
                 );
               })

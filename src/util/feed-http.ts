@@ -350,7 +350,9 @@ interface TempListType {
 
 export const getTempList = async ({ signal }: { signal: AbortSignal }) => {
   try {
-    const response = await instance.get<TempListType>('/feeds/temp');
+    const response = await instance.get<TempListType>('/feeds/temp', {
+      signal,
+    });
     return response.data.result;
   } catch (error) {
     throw error;
