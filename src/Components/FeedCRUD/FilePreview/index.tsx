@@ -20,6 +20,7 @@ interface FilePreviewPropsType {
   mainFileList: File[];
   setFileLink: (arg: string[]) => void;
   fileLink: string[];
+  modifyFiles?: PreviewType[];
 }
 
 const FilePreview = ({
@@ -28,12 +29,19 @@ const FilePreview = ({
   mainFileList,
   setFileLink,
   fileLink,
+  modifyFiles,
 }: FilePreviewPropsType) => {
   // 파일 업로드 로딩 여부 - 미리보기 창에 Loading... 표시
   const [isLoading, setIsLoading] = useState(true);
 
   // 미리보기를 위한 파일 리스트
   const [previewList, setPreviewList] = useState<PreviewType[]>([]);
+
+  useEffect(() => {
+    if (modifyFiles) {
+      setPreviewList(modifyFiles);
+    }
+  }, [modifyFiles]);
 
   const dispatch = useAppDispatch();
 

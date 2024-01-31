@@ -52,6 +52,8 @@ const FeedForm = ({
   const [isFileSizePass, setIsFileSizePass] = useState<boolean | null>(null);
   // 파일 개수 통과 여부
   const [isFileCountPass, setIsFileCountPass] = useState<boolean | null>(null);
+  // 파일 미리보기 수정 데이터
+  const [modifyFiles, setModifyFiles] = useState<PreviewType[]>([]);
   // 사용자가 선택한 좋아요 id
   const [selectedLike, setSelectedLike] = useState<number | undefined>(1);
   // 백엔드에 보낼 파일 링크
@@ -111,7 +113,7 @@ const FeedForm = ({
         modifyPreviewList.push(obj);
         modifyFileList.push(modifyFeedResultData?.uploadFiles[i].file_link);
       }
-      // setPreviewList(modifyPreviewList);
+      setModifyFiles(modifyPreviewList);
       setFileLink(modifyFileList);
       setSelectedLike(modifyFeedResultData.estimation.id);
     }
@@ -271,8 +273,9 @@ const FeedForm = ({
   const sendFeed = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
+    let resultFeedId = mode === 'modify' ? id : feedId;
     let obj = {
-      ...(feedId !== null && { feedId: feedId }),
+      ...((feedId !== null || id) && { feedId: resultFeedId }),
       estimation: selectedLike,
       category: categoryId,
       fileLinks: fileLink,
@@ -349,6 +352,7 @@ const FeedForm = ({
           mainFileList={mainFileList}
           setFileLink={setFileLink}
           fileLink={fileLink}
+          modifyFiles={modifyFiles && modifyFiles}
         />
         <div className="w-full mx-auto my-0 my-4">
           <h2>제목 및 내용</h2>
@@ -412,7 +416,12 @@ export const feedFormAction = async ({ request }: { request: Request }) => {
     fileLinks: fileList,
   };
   mode !== 'modify' ? await sendFeed(bodyObj) : await editFeed(bodyObj);
-  await queryClient.invalidateQueries({ queryKey: ['mainList'] });
+
+  queryClient.invalidateQueries({
+    queryKey: ['feed', { feedId: feedId.toString() }],
+  });
+  queryClient.invalidateQueries({ queryKey: ['mainList'] });
+
   return mode !== 'modify' ? redirect(`/`) : redirect(`/feed/${feedId}`);
 };
 
