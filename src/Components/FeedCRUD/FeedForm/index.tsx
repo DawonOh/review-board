@@ -22,7 +22,7 @@ import { useMutation } from '@tanstack/react-query';
 interface FormPropsType {
   estimationList: EstimationType[] | undefined;
   categoryList: CategoryType[] | undefined;
-  modifyFeedData?: ModifyDataType | null | '';
+  modifyFeedData?: ModifyDataType | string;
   mode: string | null;
   id: string | null;
   onSubmit: (arg1: any, arg2: string) => void;
@@ -64,7 +64,7 @@ const FeedForm = ({
   const [isAlertOn, setIsAlertOn] = useState<boolean | null>(null);
 
   // 임시저장 두 번째 저장 이후부터 필요한 게시물id
-  const [feedId, setFeedId] = useState<string | null>(null);
+  const [feedId, setFeedId] = useState<string | null>(id ? id : null);
 
   // 임시저장 메세지
   const [saveMessage, setSaveMessage] = useState('');
@@ -88,9 +88,9 @@ const FeedForm = ({
     }
   }, [title, content]);
 
-  const modifyFeedResultData = modifyFeedData
-    ? (modifyFeedData?.result as ModifyDataType['result'])
-    : '';
+  const modifyFeedResultData =
+    typeof modifyFeedData !== 'string' &&
+    (modifyFeedData?.result as ModifyDataType['result']);
 
   // 불러온 수정 데이터 저장
   useEffect(() => {
@@ -98,7 +98,7 @@ const FeedForm = ({
       setIsFirstSave(false);
     }
 
-    if (mode === 'modify' && modifyFeedResultData) {
+    if (mode !== 'write' && modifyFeedResultData) {
       setTitle(modifyFeedResultData?.title);
       setContent(modifyFeedResultData?.content);
       setCategoryId(modifyFeedResultData?.category.id);
@@ -273,7 +273,7 @@ const FeedForm = ({
   const sendFeed = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    let resultFeedId = mode === 'modify' ? id : feedId;
+    let resultFeedId = mode !== 'write' ? id : feedId;
     let obj = {
       ...((feedId !== null || id) && { feedId: resultFeedId }),
       estimation: selectedLike,
@@ -285,7 +285,7 @@ const FeedForm = ({
     for (const [key, value] of formData.entries()) {
       data[key] = value;
     }
-    if (mode === 'write') {
+    if (mode !== 'modify') {
       onSubmit({ ...data, ...obj }, 'post');
       return;
     }
@@ -366,27 +366,26 @@ const FeedForm = ({
           </div>
         </div>
         <div className="flex w-full my-0 mx-auto px-8 justify-end gap-4">
-          {mode === 'temp' ||
-            (mode === 'write' && (
-              <button
-                type="button"
-                className="buttonLayout py-0.5 px-4 hover:text-mainred"
-                onClick={() =>
-                  saveFeed(
-                    inputValueRef.current,
-                    textareaValueRef.current,
-                    categoryRef.current
-                  )
-                }
-              >
-                임시저장
-              </button>
-            ))}
+          {mode !== 'modify' && (
+            <button
+              type="button"
+              className="buttonLayout py-0.5 px-4 hover:text-mainred"
+              onClick={() =>
+                saveFeed(
+                  inputValueRef.current,
+                  textareaValueRef.current,
+                  categoryRef.current
+                )
+              }
+            >
+              임시저장
+            </button>
+          )}
           <button
             className="py-0.5 px-4 border border-mainblue rounded-md hover:text-mainblue hover:bg-white"
             type="submit"
           >
-            {mode === 'write' ? '등록' : '수정'}
+            {mode !== 'modify' ? '등록' : '수정'}
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { json, useSearchParams, useSubmit } from 'react-router-dom';
 import { AlertModal, MobileMenu } from 'Components';
 import {
@@ -31,13 +31,14 @@ export const WriteFeed = () => {
   let mode = searchParams.get('mode');
   let id = searchParams.get('id');
 
-  let queriesArray = searchParamsId
-    ? [
-        getEstimationQuery(),
-        getCategoryQuery(),
-        getModifyFeedDataQuery(searchParamsId),
-      ]
-    : [getEstimationQuery(), getCategoryQuery()];
+  let queriesArray =
+    searchParamsId !== null
+      ? [
+          getEstimationQuery(),
+          getCategoryQuery(),
+          getModifyFeedDataQuery(searchParamsId),
+        ]
+      : [getEstimationQuery(), getCategoryQuery()];
   const writeFeedData = useQueries({
     queries: queriesArray,
   });
@@ -45,8 +46,7 @@ export const WriteFeed = () => {
   let estimationList = writeFeedData[0].data as EstimationType[];
   let categoryList = writeFeedData[1].data as CategoryType[];
   let modifyFeedData =
-    searchParamsId && (writeFeedData[2].data as ModifyDataType);
-
+    searchParamsId !== null ? (writeFeedData[2].data as ModifyDataType) : '';
   const submit: any = useSubmit();
 
   const onSubmit = (data: any, method: string) => {
@@ -59,7 +59,7 @@ export const WriteFeed = () => {
       <div className="w-full h-noScroll relate my-0 mx-auto bg-bg-gray">
         <div className="flex justify-between items-center w-4/5 my-0 mx-auto px-8 pt-8">
           <h1 className="text-xl font-bold">
-            {mode === 'write' ? '게시글 작성' : '게시글 수정'}
+            {mode !== 'modify' ? '게시글 작성' : '게시글 수정'}
           </h1>
         </div>
         <FeedForm

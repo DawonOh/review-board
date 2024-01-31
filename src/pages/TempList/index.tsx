@@ -1,74 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
-import { Header, MobileMenu } from 'Components';
+import { MobileMenu } from 'Components';
 import axios from 'axios';
-import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
-
-const ListContainer = Styled.div`
-  ${flexCenterAlign}
-  justify-content: center;
-  width: 100%;
-  padding: 2em;
-`;
-
-const Container = Styled.div`
-  width: 80%;
-`;
-
-const Title = Styled.h1`
-  font-size: 1.6em;
-  font-weight: 700;
-`;
-
-const ListItemContainer = Styled.div`
-  width: 100%;
-  margin-top: 3em;
-`;
-
-const ListItem = Styled.div`
-  width: 100%;
-  padding: 2em;
-  border-bottom: 1px solid #DBDBDB;
-  cursor: pointer;
-`;
-
-const FeedTitleDiv = Styled.div`
-  font-size: 1.2em;
-  font-weight: 700;
-`;
-
-const FeedContentDiv = Styled.div`
-  margin-top: 1em;
-  overflow: hidden;
-  white-space:nowrap;
-  text-overflow: ellipsis;
-`;
-
-const ButtonDiv = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1em;
-`;
-
-const CreatedAtDiv = Styled.div`
-  font-size: 0.9em;
-  color: #BDBDBD;
-`;
-
-const DeleteButton = Styled.button`
-  ${ButtonLayout}
-  background-color: #FF5959;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const NoDataMessage = Styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-`;
 
 interface TempListType {
   message: string;
@@ -117,37 +50,13 @@ interface TempType {
   viewCnt: number;
 }
 
-interface MessageType {
-  id: number;
-  text: string;
-}
-
 export const TempList = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isQuestion, setIsQuestion] = useState(false);
-  const [result, setResult] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
   const [tempFeedId, setTempFeedId] = useState(0);
-  const [loginUserId, setLoginUserId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   const [tempData, setTempData] = useState<TempType[]>([]);
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //       />
-  //     );
-  //   }
-  // };
 
-  let token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token');
 
   useEffect(() => {
     axios
@@ -164,78 +73,78 @@ export const TempList = () => {
   }, [isDeleted]);
 
   const deleteTempFeed = () => {
-    setMessages([{ id: 1, text: '삭제하시겠습니까?' }]);
-    setIsQuestion(true);
-    setIsAlertModalOpen(true);
+    // setMessages([{ id: 1, text: '삭제하시겠습니까?' }]);
+    // setIsQuestion(true);
+    // setIsAlertModalOpen(true);
   };
 
-  useEffect(() => {
-    if (result) {
-      axios
-        .delete(`${BACK_URL}/feeds/${tempFeedId}`, {
-          timeout: 5000,
-          headers: { Accept: `application/json`, Authorization: token },
-        })
-        .then(() => {
-          setIsDeleted(true);
-        })
-        .catch(() => {
-          alert('잠시 후 다시 시도해주세요.');
-          setIsDeleted(false);
-        });
-    }
-  }, [result]);
-
-  useEffect(() => {
-    if (token) {
-      axios
-        .get(`${BACK_URL}/users/userinfo`, {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        })
-        .then(response => setLoginUserId(response.data.id));
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (result) {
+  //     axios
+  //       .delete(`${BACK_URL}/feeds/${tempFeedId}`, {
+  //         timeout: 5000,
+  //         headers: { Accept: `application/json`, Authorization: token },
+  //       })
+  //       .then(() => {
+  //         setIsDeleted(true);
+  //       })
+  //       .catch(() => {
+  //         alert('잠시 후 다시 시도해주세요.');
+  //         setIsDeleted(false);
+  //       });
+  //   }
+  // }, [result]);
 
   return (
     <Fragment>
       <MobileMenu />
-      <ListContainer>
-        <Container>
-          <Title>임시 저장 목록</Title>
-          <ListItemContainer>
+      <div className="flexCenterAlign w-full p-8 bg-bg-gray">
+        <div className="w-4/5">
+          <h1 className="text-2xl font-bold">임시 저장 목록</h1>
+          <div className="flex flex-col gap-4 w-full mt-12">
             {tempData.length !== 0 ? (
               tempData.map(feed => {
                 return (
-                  <ListItem
+                  <div
+                    className="w-full p-8 bg-white rounded-lg cursor-pointer"
                     onClick={() => setTempFeedId(feed.id)}
                     key={feed.id}
                   >
                     <Link
-                      to="/writeFeed"
+                      to={`/writeFeed?mode=temp&id=${feed.id}`}
                       state={{
                         feedId: feed.id,
                         isModify: false,
                         isTemp: true,
                       }}
                     >
-                      <FeedTitleDiv>{feed.title}</FeedTitleDiv>
-                      <FeedContentDiv>{feed.content}</FeedContentDiv>
+                      <div className="text-xl font-bold">{feed.title}</div>
+                      <div className="mt-4 overflow-hidden whitespace-nowrap text-ellipsis">
+                        {feed.content}
+                      </div>
                     </Link>
-                    <ButtonDiv>
-                      <CreatedAtDiv>{feed.createdAt.slice(0, -3)}</CreatedAtDiv>
-                      <DeleteButton onClick={deleteTempFeed}>삭제</DeleteButton>
-                    </ButtonDiv>
-                  </ListItem>
+                    <div className="flex justify-between mt-4">
+                      <div className="text-sm text-buttongray">
+                        {feed.createdAt.slice(0, -3)}
+                      </div>
+                      <button
+                        className="buttonLayout bg-bg-gray text-white"
+                        onClick={deleteTempFeed}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
                 );
               })
             ) : (
-              <NoDataMessage>임시저장된 게시물이 없습니다.</NoDataMessage>
+              <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+                임시저장된 게시물이 없습니다.
+              </div>
             )}
-          </ListItemContainer>
-        </Container>
-        {/* {openAlertModal()} */}
-      </ListContainer>
+          </div>
+        </div>
+      </div>
     </Fragment>
   );
 };
