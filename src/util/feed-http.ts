@@ -320,3 +320,39 @@ export const deleteFeed = async (feedId: string | undefined) => {
     throw error;
   }
 };
+
+// 임시저장 리스트 불러오기
+interface TempListType {
+  message: string;
+  result: [
+    {
+      category: string;
+      categoryId: number;
+      commentCnt: string;
+      content: string;
+      createdAt: string;
+      deletedAt: null;
+      filesCnt: string;
+      id: number;
+      imgCnt: string;
+      imgUrl: null;
+      likeCnt: string;
+      postedAt: null;
+      statusId: number;
+      title: string;
+      updatedAt: string;
+      userId: number;
+      userNickname: string;
+      viewCnt: number;
+    }
+  ];
+}
+
+export const getTempList = async ({ signal }: { signal: AbortSignal }) => {
+  try {
+    const response = await instance.get<TempListType>('/feeds/temp');
+    return response.data.result;
+  } catch (error) {
+    throw error;
+  }
+};

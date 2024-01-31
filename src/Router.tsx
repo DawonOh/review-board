@@ -18,6 +18,7 @@ import {
   feedLoader,
   feedWriteLoader,
   mainLoader,
+  tempListLoader,
 } from 'pages';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'util/feedDetail-http';
@@ -37,7 +38,7 @@ const router = createBrowserRouter([
         loader: feedWriteLoader,
         action: feedFormAction,
       },
-      { path: '/temp/list', element: <TempList /> },
+      { path: '/temp/list', element: <TempList />, loader: tempListLoader },
       { path: '/search', element: <SearchPage /> },
       { path: '/quit', element: <Quit /> },
       { path: '/channel/:id', element: <MyPage /> },

@@ -11,6 +11,7 @@ module.exports = {
       height: {
         '25rem': '25rem',
         noScroll: 'calc(100vh - 3rem)',
+        tempListHeight: 'calc(100vh - 12rem)',
       },
       screens: {
         md: '768px',

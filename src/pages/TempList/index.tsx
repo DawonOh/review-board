@@ -1,33 +1,9 @@
 import { Fragment, useEffect, useState } from 'react';
 import { MobileMenu } from 'Components';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-
-interface TempListType {
-  message: string;
-  result: [
-    {
-      category: string;
-      categoryId: number;
-      commentCnt: string;
-      content: string;
-      createdAt: string;
-      deletedAt: null;
-      filesCnt: string;
-      id: number;
-      imgCnt: string;
-      imgUrl: null;
-      likeCnt: string;
-      postedAt: null;
-      statusId: number;
-      title: string;
-      updatedAt: string;
-      userId: number;
-      userNickname: string;
-      viewCnt: number;
-    }
-  ];
-}
+import { Link, useLoaderData } from 'react-router-dom';
+import { getTempList } from 'util/feed-http';
+import { queryClient } from 'util/feedDetail-http';
 
 interface TempType {
   category: string;
@@ -50,27 +26,19 @@ interface TempType {
   viewCnt: number;
 }
 
+export const getTempListQuery = () => ({
+  queryKey: ['tempList'],
+  queryFn: ({ signal }: { signal: AbortSignal }) => getTempList({ signal }),
+  staleTime: 1000 * 60 * 2,
+});
+
 export const TempList = () => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [tempFeedId, setTempFeedId] = useState(0);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const [tempData, setTempData] = useState<TempType[]>([]);
+  // const [tempData, setTempData] = useState<TempType[]>([]);
 
-  let token = sessionStorage.getItem('token');
-
-  useEffect(() => {
-    axios
-      .get<TempListType>(`${BACK_URL}/feeds/temp`, {
-        timeout: 5000,
-        headers: { Accept: `application/json`, Authorization: token },
-      })
-      .then(response => {
-        setTempData(response.data.result);
-      })
-      .catch(() => {
-        alert('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
-      });
-  }, [isDeleted]);
+  const tempData = useLoaderData() as TempType[];
 
   const deleteTempFeed = () => {
     // setMessages([{ id: 1, text: '삭제하시겠습니까?' }]);
@@ -103,7 +71,7 @@ export const TempList = () => {
           <h1 className="text-2xl font-bold">임시 저장 목록</h1>
           <div className="flex flex-col gap-4 w-full mt-12">
             {tempData.length !== 0 ? (
-              tempData.map(feed => {
+              tempData?.map(feed => {
                 return (
                   <div
                     className="w-full p-8 bg-white rounded-lg cursor-pointer"
@@ -138,7 +106,7 @@ export const TempList = () => {
                 );
               })
             ) : (
-              <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+              <div className="w-full h-tempListHeight bg-bg-gray">
                 임시저장된 게시물이 없습니다.
               </div>
             )}
@@ -147,4 +115,8 @@ export const TempList = () => {
       </div>
     </Fragment>
   );
+};
+
+export const tempListLoader = async () => {
+  return queryClient.fetchQuery(getTempListQuery());
 };
