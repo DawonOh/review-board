@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Form, redirect } from 'react-router-dom';
+import { redirect } from 'react-router-dom';
 import {
   CategoryType,
   EstimationType,
@@ -25,8 +25,7 @@ interface FormPropsType {
   modifyFeedData?: ModifyDataType | null | '';
   mode: string | null;
   id: string | null;
-  setIsSaved: (arg: boolean) => void;
-  onSubmit: (arg: any) => void;
+  onSubmit: (arg1: any, arg2: string) => void;
 }
 
 const FeedForm = ({
@@ -35,7 +34,6 @@ const FeedForm = ({
   modifyFeedData,
   mode,
   id,
-  setIsSaved,
   onSubmit,
 }: FormPropsType) => {
   // 처음 임시저장 -> POST / 그 다음부터 저장 -> PATCH
@@ -64,7 +62,7 @@ const FeedForm = ({
   const [isAlertOn, setIsAlertOn] = useState<boolean | null>(null);
 
   // 임시저장 두 번째 저장 이후부터 필요한 게시물id
-  const [feedId, setFeedId] = useState<string | null>('0');
+  const [feedId, setFeedId] = useState<string | null>(null);
 
   // 임시저장 메세지
   const [saveMessage, setSaveMessage] = useState('');
@@ -272,26 +270,30 @@ const FeedForm = ({
 
   const sendFeed = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const formData = new FormData(e.target as HTMLFormElement);
-    // let obj = {
-    //   ...(feedId !== '0' && mode !== 'write' && { feedId: feedId }),
-    //   estimation: selectedLike,
-    //   category: categoryId,
-    //   // fileLinks: fileLink,
-    // };
-    // const data: { [key: string]: FormDataEntryValue } = {};
-    // for (const [key, value] of formData.entries()) {
-    //   data[key] = value;
-    // }
-    // const submitData = { ...data, ...obj };
-    // if (feedId !== '0') {
-    //   submit({ ...data, ...obj }, { method: 'PATCH' });
-    //   return;
-    // }
+    const formData = new FormData(e.target as HTMLFormElement);
+    let obj = {
+      ...(feedId !== null && { feedId: feedId }),
+      estimation: selectedLike,
+      category: categoryId,
+      fileLinks: fileLink,
+      mode: mode,
+    };
+    const data: { [key: string]: FormDataEntryValue } = {};
+    for (const [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    if (mode === 'write') {
+      onSubmit({ ...data, ...obj }, 'post');
+      return;
+    }
+    if (mode === 'modify') {
+      onSubmit({ ...data, ...obj }, 'patch');
+      return;
+    }
   };
 
   return (
-    <Form onSubmit={e => sendFeed(e)} className="w-full bg-bg-gray px-8">
+    <form onSubmit={e => sendFeed(e)} className="w-full bg-bg-gray px-8">
       <div className="flex relative flex-col items-start w-4/5 my-0 mx-auto gap-4 md:mt-0 mt-4">
         <div className="flex w-full justify-between items-center">
           <div className="flex gap-4 md:items-center items-start md:flex-row flex-col reletive">
@@ -365,13 +367,13 @@ const FeedForm = ({
               <button
                 type="button"
                 className="buttonLayout py-0.5 px-4 hover:text-mainred"
-                // onClick={() =>
-                //   saveFeed(
-                //     inputValueRef.current,
-                //     textareaValueRef.current,
-                //     selectRef.current
-                //   )
-                // }
+                onClick={() =>
+                  saveFeed(
+                    inputValueRef.current,
+                    textareaValueRef.current,
+                    categoryRef.current
+                  )
+                }
               >
                 임시저장
               </button>
@@ -384,12 +386,13 @@ const FeedForm = ({
           </button>
         </div>
       </div>
-    </Form>
+    </form>
   );
 };
 
 export const feedFormAction = async ({ request }: { request: Request }) => {
   const formData = await request.formData();
+  const mode = formData.get('mode');
   let fileList =
     formData.get('fileLinks') !== ''
       ? formData.get('fileLinks')?.toString().match(/[^,]+/g)
@@ -399,7 +402,7 @@ export const feedFormAction = async ({ request }: { request: Request }) => {
     ? parseInt(formData.get('feedId') as string, 10)
     : 0;
   let bodyObj: sendFeedType = {
-    ...((feedId !== 0 || feedId !== null) && {
+    ...(feedId !== null && {
       feedId: feedId,
     }),
     title: formData.get('title') as string,
@@ -408,9 +411,9 @@ export const feedFormAction = async ({ request }: { request: Request }) => {
     category: parseInt(formData.get('category') as string, 10),
     fileLinks: fileList,
   };
-  feedId !== 0 ? await sendFeed(bodyObj) : await editFeed(bodyObj);
+  mode !== 'modify' ? await sendFeed(bodyObj) : await editFeed(bodyObj);
   await queryClient.invalidateQueries({ queryKey: ['mainList'] });
-  return feedId !== 0 ? redirect(`/feed/${feedId}`) : redirect('/');
+  return mode !== 'modify' ? redirect(`/`) : redirect(`/feed/${feedId}`);
 };
 
 export default FeedForm;

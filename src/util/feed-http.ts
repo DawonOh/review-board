@@ -165,9 +165,7 @@ export const getModifyFeedData = async ({
   feedId: string | null;
 }): Promise<ModifyDataType> => {
   try {
-    const response = await instance.get<ModifyDataType>(
-      `${BACK_URL}/feeds/${feedId}`
-    );
+    const response = await instance.get<ModifyDataType>(`/feeds/${feedId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -224,16 +222,13 @@ export const postSave = async ({
   fileLinks,
 }: PostSavePropsType) => {
   try {
-    const response = await instance.post<SaveResultType>(
-      `${BACK_URL}/feeds/temp`,
-      {
-        title,
-        content,
-        estimation,
-        category,
-        fileLinks,
-      }
-    );
+    const response = await instance.post<SaveResultType>(`/feeds/temp`, {
+      title,
+      content,
+      estimation,
+      category,
+      fileLinks,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -250,17 +245,14 @@ export const patchSave = async ({
   fileLinks,
 }: PostSavePropsType) => {
   try {
-    const response = await instance.patch<SaveResultType>(
-      `${BACK_URL}/feeds/temp`,
-      {
-        feedId,
-        title,
-        content,
-        estimation,
-        category,
-        fileLinks,
-      }
-    );
+    const response = await instance.patch<SaveResultType>(`/feeds/temp`, {
+      feedId,
+      title,
+      content,
+      estimation,
+      category,
+      fileLinks,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -322,9 +314,7 @@ export const editFeed = async ({
 // 게시글 삭제
 export const deleteFeed = async (feedId: string | undefined) => {
   try {
-    const response = await instance.delete<string>(
-      `${BACK_URL}/feeds/${feedId}`
-    );
+    const response = await instance.delete<string>(`/feeds/${feedId}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -26,7 +26,6 @@ const getModifyFeedDataQuery = (feedId: string | null) => ({
 
 export const WriteFeed = () => {
   // 임시저장 저장 여부 메세지 출력을 위한 state
-  const [isSaved, setIsSaved] = useState<boolean | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   let searchParamsId = searchParams.get('id');
   let mode = searchParams.get('mode');
@@ -50,8 +49,8 @@ export const WriteFeed = () => {
 
   const submit: any = useSubmit();
 
-  const onSubmit = (data: any) => {
-    submit(data, { method: 'PATCH' });
+  const onSubmit = (data: any, method: string) => {
+    submit(data, { method: method });
   };
 
   return (
@@ -69,7 +68,6 @@ export const WriteFeed = () => {
           modifyFeedData={modifyFeedData && modifyFeedData}
           mode={mode}
           id={id}
-          setIsSaved={setIsSaved}
           onSubmit={onSubmit}
         />
       </div>
