@@ -13,3 +13,4 @@ export * from './FindPw';
 export * from './LikeList';
 export * from './ErrorPage';
 export * from './RootLayout';
+export * from './TempList';

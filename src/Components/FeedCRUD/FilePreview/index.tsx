@@ -1,8 +1,8 @@
-import instance from 'api';
 import { useAppDispatch } from 'hooks';
 import { useEffect, useState } from 'react';
 import { alertActions } from 'redux/slice/alert-slice';
 import FileIcon from '../../../assets/images/clip.png';
+import axios from 'axios';
 
 export interface PreviewType {
   id: number;
@@ -70,14 +70,23 @@ const FilePreview = ({
   };
 
   // 파일 업로드
+  let token = sessionStorage.getItem('token');
+  const BACK_URL = process.env.REACT_APP_BACK_URL;
   useEffect(() => {
+    setIsLoading(true);
     mainFileList.forEach(file => {
-      formData.append('file', file);
+      const encodedFilename = encodeURIComponent(file.name);
+      formData.append('file', file, encodedFilename);
     });
-
     if (mainFileList.length !== 0) {
-      instance
-        .post<FileLinkType>(`/upload`, formData)
+      axios
+        .post<FileLinkType>(`${BACK_URL}/upload`, formData, {
+          timeout: 5000,
+          headers: {
+            Accept: 'multipart/form-data; charset=UTF-8',
+            Authorization: token,
+          },
+        })
         .then(response => {
           setFileLink([...fileLink, ...response.data.file_links]);
           setIsLoading(false);
@@ -98,7 +107,7 @@ const FilePreview = ({
           setMainFileList([]);
         });
     }
-  }, [fileLink, mainFileList, previewList]);
+  }, [mainFileList]);
 
   const previewFiles = () => {
     const allowExtensions = ['jpg', 'png', 'jpeg', 'gif'];

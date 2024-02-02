@@ -1,8 +1,7 @@
 import { Fragment } from 'react';
-import { AlertModal, MobileMenu } from 'Components';
+import { AlertModal, MobileMenu, TempFeedItem } from 'Components';
 import { getTempList } from 'util/feed-http';
 import { queryClient } from 'util/feedDetail-http';
-import { TempFeedItem } from 'Components/TempFeedItem';
 import { useQuery } from '@tanstack/react-query';
 
 export interface TempType {
