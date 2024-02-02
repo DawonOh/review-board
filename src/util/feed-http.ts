@@ -271,6 +271,7 @@ export interface sendFeedType {
   fileLinks: string[] | undefined | null;
 }
 export const sendFeed = async ({
+  feedId,
   title,
   content,
   estimation,
@@ -279,6 +280,7 @@ export const sendFeed = async ({
 }: sendFeedType) => {
   try {
     const response = await instance.post<SaveResultType>(`/feeds/post`, {
+      ...(feedId && { feedId }),
       title,
       content,
       estimation,
