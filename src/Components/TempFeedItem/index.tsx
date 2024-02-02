@@ -50,10 +50,13 @@ export const TempFeedItem = ({ feed }: { feed: TempType }) => {
 
   return (
     <>
-      <div className="flex justify-between items-center w-full p-8 bg-white rounded-lg cursor-pointer hover:-translate-y-0.5 hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300">
-        <Link to={`/writeFeed?mode=temp&id=${feed.id}`}>
+      <div className="flex md:justify-between justify-start md:flex-row flex-col md:items-center items-start w-full p-8 bg-white rounded-lg cursor-pointer hover:-translate-y-0.5 hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300">
+        <Link
+          to={`/writeFeed?mode=temp&id=${feed.id}`}
+          className="w-11/12 md:inline flex flex-col"
+        >
           <span className="text-xl font-bold">{feed.title}</span>
-          <span className="text-sm text-buttongray ml-4">
+          <span className="text-sm text-buttongray md:ml-4 ml-0">
             {feed.createdAt.slice(0, -3)}
           </span>
           <div className="mt-4 overflow-hidden whitespace-nowrap text-ellipsis">
@@ -61,7 +64,7 @@ export const TempFeedItem = ({ feed }: { feed: TempType }) => {
           </div>
         </Link>
         <button
-          className="px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg"
+          className="px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg md:mt-0 mt-4"
           onClick={() => {
             deleteTempFeedAlert(feed.id);
           }}

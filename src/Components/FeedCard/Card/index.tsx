@@ -7,7 +7,7 @@ import Clip from '../../../assets/images/clip.png';
 import ViewIconImg from '../../../assets/images/view.png';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
-import { QueryKey, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { QueryKey, useQuery } from '@tanstack/react-query';
 import { LoginLikeType, getSymbolsCheck } from 'util/feed-http';
 
 interface Props {
@@ -45,7 +45,6 @@ const Card = (
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
-  const [isLike, setIsLike] = useState(false);
   useEffect(() => {
     if (img) {
       setIsHaveThumbnail(true);
@@ -56,12 +55,7 @@ const Card = (
 
   let isLogin = useAppSelector(state => state.login.isLogin);
 
-  const { data, isLoading, isError } = useQuery<
-    any,
-    Error,
-    LoginLikeType,
-    QueryKey
-  >({
+  const { data } = useQuery<any, Error, LoginLikeType, QueryKey>({
     queryKey: ['likeList', { feedListId: id }],
     queryFn: ({ signal }) => getSymbolsCheck({ id, signal }),
     enabled: isLogin ? true : false,

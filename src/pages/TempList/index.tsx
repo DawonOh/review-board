@@ -37,10 +37,10 @@ export const TempList = () => {
   return (
     <Fragment>
       <MobileMenu />
-      <div className="w-full h-noScroll p-8 bg-bg-gray">
+      <div className="w-full h-full p-8 bg-bg-gray">
         <div className="w-4/5 mx-auto my-0">
           <h1 className="text-2xl font-bold">임시 저장 목록</h1>
-          <div className="flex flex-col gap-4 w-full mt-12">
+          <div className="flex flex-col gap-4 mt-12">
             {data?.length !== 0 ? (
               data?.map(feed => {
                 return <TempFeedItem key={feed.id} feed={feed} />;
