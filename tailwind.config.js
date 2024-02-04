@@ -75,9 +75,9 @@ module.exports = {
           '50%': { visibility: 'visible' },
           '100%': { visibility: 'hidden', opacity: 0 },
         },
-        'loader-scale': {
-          '0%': { transform: 'scale(0)' },
-          '100%': { transform: 'scale(1)' },
+        'loader-slide': {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       animation: {

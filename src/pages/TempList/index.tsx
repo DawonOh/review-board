@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { AlertModal, LoadingIcon, MobileMenu, TempFeedItem } from 'Components';
+import { AlertModal, MobileMenu, TempFeedItem } from 'Components';
 import { getTempList } from 'util/feed-http';
 import { queryClient } from 'util/feedDetail-http';
 import { useQuery } from '@tanstack/react-query';
@@ -31,9 +31,7 @@ export const getTempListQuery = () => ({
 });
 
 export const TempList = () => {
-  const { data, isLoading } = useQuery<TempType[] | undefined>(
-    getTempListQuery()
-  );
+  const { data } = useQuery<TempType[] | undefined>(getTempListQuery());
   return (
     <Fragment>
       <MobileMenu />
@@ -54,7 +52,6 @@ export const TempList = () => {
         </div>
       </div>
       <AlertModal />
-      {isLoading && <LoadingIcon />}
     </Fragment>
   );
 };

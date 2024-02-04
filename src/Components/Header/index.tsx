@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { MobileMenu } from 'Components';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { persistor } from 'index';
 import { mobileMenuActions } from 'redux/slice/mobileMenu-slice';
-import { SearchModal } from 'Components';
+import { MobileMenu } from '../MobileMenu';
+import { SearchModal } from '../Modal/SearchModal';
 import { searchModalActions } from 'redux/slice/searchModal-slice';
+import { useIsFetching } from '@tanstack/react-query';
 
 export const Header = () => {
   const [isHover, setIsHover] = useState(false);
   const isMenuOn = useAppSelector(state => state.mobileMenu.isMenuOn);
   const isLogin = useAppSelector(state => state.login.isLogin);
   const loginUserId = useAppSelector(state => state.user.id);
+  const isFetching = useIsFetching();
   const dispatch = useAppDispatch();
   const handleMobileMenu = () => {
     dispatch(mobileMenuActions.handleMenuOn());
@@ -34,8 +36,8 @@ export const Header = () => {
 
   return (
     <>
-      <header className="flexCenterAlign sticky h-12 top-0 bg-white z-50">
-        <div className="flex justify-between items-center w-4/5 h-full p-8">
+      <header className="flexCenterAlign flex-col sticky h-12 top-0 bg-white z-50 relative">
+        <div className="flex justify-between items-center w-4/5 h-full px-8">
           <Link to="/">
             <h1 className="font-sans text-mainblue text-2xl font-bold">
               ALLREVIEW
@@ -102,6 +104,11 @@ export const Header = () => {
             <MobileMenu />
           </div>
         </div>
+        {isFetching !== 0 && (
+          <div className="w-full h-1 fixed top-12 bg-mainblue">
+            <div className="w-full h-1 bg-white animate-[loader-slide_2s_ease-in_infinite] bottom-0" />
+          </div>
+        )}
       </header>
       <SearchModal />
     </>
