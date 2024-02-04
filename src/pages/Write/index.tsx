@@ -56,7 +56,7 @@ export const WriteFeed = () => {
   return (
     <Fragment>
       <MobileMenu />
-      <div className="w-full h-noScroll relate my-0 mx-auto bg-bg-gray">
+      <div className="w-full h-noScroll relate my-0 mx-auto">
         <div className="flex justify-between items-center w-4/5 my-0 mx-auto px-8 pt-8">
           <h1 className="text-xl font-bold">
             {mode !== 'modify' ? '게시글 작성' : '게시글 수정'}

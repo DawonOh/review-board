@@ -37,7 +37,7 @@ export const TempList = () => {
   return (
     <Fragment>
       <MobileMenu />
-      <div className="w-full h-full p-8 bg-bg-gray">
+      <div className="w-full h-full p-8">
         <div className="w-4/5 mx-auto my-0">
           <h1 className="text-2xl font-bold">임시 저장 목록</h1>
           <div className="flex flex-col gap-4 mt-12">
@@ -46,8 +46,8 @@ export const TempList = () => {
                 return <TempFeedItem key={feed.id} feed={feed} />;
               })
             ) : (
-              <div className="w-full h-tempListHeight bg-bg-gray">
-                임시저장된 게시물이 없습니다.
+              <div className="w-full h-tempListHeight">
+                임시 저장된 리뷰가 없습니다.
               </div>
             )}
           </div>

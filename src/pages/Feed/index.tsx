@@ -52,7 +52,7 @@ export const Feed = () => {
   return (
     <Fragment>
       <MobileMenu />
-      <div className="w-full h-full relate my-0 mx-auto pt-8 bg-bg-gray">
+      <div className="w-full h-full relate my-0 mx-auto pt-8">
         <FeedDetail
           feedDetailData={feedData[0].data}
           feedLikeData={feedData[2].data}

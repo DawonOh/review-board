@@ -296,7 +296,7 @@ const FeedForm = ({
   };
 
   return (
-    <form onSubmit={e => sendFeed(e)} className="w-full bg-bg-gray px-8">
+    <form onSubmit={e => sendFeed(e)} className="w-full px-8">
       <div className="flex relative flex-col items-start w-4/5 my-0 mx-auto gap-4 md:mt-0 mt-4">
         <div className="flex w-full justify-between items-center">
           <div className="flex gap-4 md:items-center items-start md:flex-row flex-col reletive">
@@ -326,7 +326,7 @@ const FeedForm = ({
           >
             <div
               className={`w-6 h-6 ${
-                isAlertOn && isSaveSuccess
+                isSaveSuccess === true
                   ? "bg-[url('./assets/images/checkCircle.png')]"
                   : "bg-[url('./assets/images/alertSign.png')]"
               } bg-no-repeat bg-cover`}

@@ -41,7 +41,7 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="w-full h-full pt-12 relative bg-bg-gray">
+    <div className="w-full h-full pt-12 relative">
       <MobileMenu />
       <div className="flex justify-between w-4/5 py-0 px-8 my-0 mx-auto mt-4">
         <div className="flex gap-4">
