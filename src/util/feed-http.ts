@@ -360,3 +360,45 @@ export const getTempList = async ({ signal }: { signal: AbortSignal }) => {
     throw error;
   }
 };
+
+// 좋아요 리스트
+export interface symbolListType {
+  created_at: string;
+  feed: {
+    id: number;
+    user: { id: number; nickname: string };
+    title: string;
+  };
+  symbol: { id: number; symbol: string };
+  updated_at: string;
+}
+
+export interface UserLikeFeedsType {
+  symbolCntByUserId: number;
+  symbolListByUserId: symbolListType[];
+  totalPage: number;
+}
+
+interface getLikeListPropsType {
+  signal: AbortSignal;
+  loginUserId: number;
+  currPage: number;
+}
+
+export const getLikeList = async ({
+  signal,
+  loginUserId,
+  currPage,
+}: getLikeListPropsType) => {
+  try {
+    const response = await instance.get<UserLikeFeedsType[]>(
+      `/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
+      {
+        signal,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

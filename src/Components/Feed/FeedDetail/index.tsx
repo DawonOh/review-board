@@ -50,6 +50,9 @@ export const FeedDetail = ({
       queryClient.invalidateQueries({
         queryKey: ['like'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
+      });
       setIsLike(true);
     },
   });
@@ -59,6 +62,9 @@ export const FeedDetail = ({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['like'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
       });
       setIsLike(false);
     },

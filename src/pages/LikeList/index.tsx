@@ -1,10 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import Styled from 'styled-components';
-import { Header, MobileMenu } from 'Components';
+import { LikeListItem, MobileMenu } from 'Components';
 import axios from 'axios';
 import { flexCenterAlign } from 'Styles/CommonStyle';
 import { Link } from 'react-router-dom';
 import { Pagination } from '@mui/material';
+import { useAppSelector } from 'hooks';
+import instance from 'api';
+import { useQuery } from '@tanstack/react-query';
+import { UserLikeFeedsType, getLikeList } from 'util/feed-http';
+import { queryClient } from 'util/feedDetail-http';
 
 const ListContainer = Styled.div`
   ${flexCenterAlign}
@@ -27,32 +32,6 @@ const ListItemContainer = Styled.div`
   margin-top: 3em;
 `;
 
-const ListItem = Styled.div`
-  width: 100%;
-  padding: 1em;
-  border-bottom: 1px solid #DBDBDB;
-  cursor: pointer;
-`;
-
-const FeedTitleDiv = Styled.div`
-  font-size: 1.2em;
-  font-weight: 700;
-  &:hover {
-    color: #676FA3;
-  }
-`;
-
-const ButtonDiv = Styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5em;
-`;
-
-const CreatedAtDiv = Styled.div`
-  font-size: 0.9em;
-  color: #BDBDBD;
-`;
-
 const NoDataMessage = Styled.div`
   position: absolute;
   top: 50%;
@@ -65,98 +44,43 @@ const PaginationContainer = Styled.div`
   justify-content: center;
 `;
 
-interface UserInfoType {
-  created_at: string;
-  deleted_at: string | null;
-  email: string;
-  id: number;
-  nickname: string;
-  updated_at: string;
-}
-
-interface UserLikeFeedsType {
-  symbolCntByUserId: number;
-  symbolListByUserId: symbolListType[];
-  totalPage: number;
-}
-
-interface symbolListType {
-  created_at: string;
-  feed: {
-    id: number;
-    user: { id: number; nickname: string };
-    title: string;
-  };
-  symbol: { id: number; symbol: string };
-  updated_at: string;
-}
-
 export const LikeList = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
-  const [loginUserId, setLoginUserId] = useState(0);
-  const [likeFeedList, setLikeFeedList] = useState<symbolListType[]>();
   const [currPage, setCurrPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  let token = localStorage.getItem('token');
-  useEffect(() => {
-    axios
-      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-        timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
-      })
-      .then(response => {
-        setLoginUserId(response.data.id);
-      })
-      .catch(error => {
-        alert('잠시 후 다시 시도해주세요.');
-      });
-  }, []);
+  let token = sessionStorage.getItem('token');
+  let loginUserId = useAppSelector(state => state.user.id);
+  let isLogin = useAppSelector(state => state.login.isLogin);
 
-  useEffect(() => {
-    if (loginUserId !== 0) {
-      axios
-        .get<UserLikeFeedsType>(
-          `${BACK_URL}/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
-          {
-            timeout: 5000,
-            headers: { Accept: 'application/json', Authorization: token },
-          }
-        )
-        .then(response => {
-          setLikeFeedList(response.data.symbolListByUserId);
-          setTotalPage(response.data.totalPage);
-        })
-        .catch(error => {
-          alert('잠시 후 다시 시도해주세요');
-        });
-    }
-  }, [loginUserId, currPage]);
+  const { data } = useQuery<
+    UserLikeFeedsType[],
+    Error,
+    UserLikeFeedsType[],
+    string[]
+  >({
+    queryKey: ['userLikeList'],
+    queryFn: ({ signal }: { signal: AbortSignal }) =>
+      getLikeList({ signal, loginUserId, currPage }),
+    enabled: isLogin ? true : false,
+    staleTime: 1000 * 60 * 2,
+  });
 
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  // 응답 성공적으로 잘 받으면 setTotalPage(response.data.totalPage);
+
+  const handleChange = (value: number) => {
     setCurrPage(value);
   };
 
   const loginLayout = () => {
-    if (likeFeedList?.length !== 0 && token) {
-      return likeFeedList?.map(feed => {
-        return (
-          <ListItem key={feed.feed.id}>
-            <Link to={`/feed/${feed.feed.id}`}>
-              <FeedTitleDiv>{feed.feed.title}</FeedTitleDiv>
-            </Link>
-            <ButtonDiv>
-              <CreatedAtDiv>{feed.created_at.slice(0, 10)}</CreatedAtDiv>
-            </ButtonDiv>
-          </ListItem>
-        );
+    if (data?.length !== 0 && token) {
+      return data?.map((feed, idx) => {
+        return <LikeListItem key={idx} feedData={feed.symbolListByUserId} />;
       });
     }
-    if (likeFeedList?.length === 0 && token) {
+    if (data?.length === 0 && token) {
       return <NoDataMessage>좋아요를 누른 리뷰가 없습니다.</NoDataMessage>;
     }
 
-    if (!token) {
+    if (!isLogin) {
       return <NoDataMessage>로그인 후 이용해주세요.</NoDataMessage>;
     }
   };
@@ -170,12 +94,12 @@ export const LikeList = () => {
           <ListItemContainer>{loginLayout()}</ListItemContainer>
         </Container>
       </ListContainer>
-      {likeFeedList?.length !== 0 && token && (
+      {data?.length !== 0 && isLogin && (
         <PaginationContainer>
           <Pagination
             count={totalPage}
             page={currPage}
-            onChange={handleChange}
+            onChange={() => handleChange(currPage)}
             size="small"
           />
         </PaginationContainer>

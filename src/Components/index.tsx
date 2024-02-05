@@ -11,3 +11,4 @@ export * from './CheckPassword';
 export * from './Modal/SearchModal';
 export * from './Feed/File';
 export * from './TempFeedItem';
+export * from './LikeListItem';
