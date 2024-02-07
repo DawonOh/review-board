@@ -391,7 +391,7 @@ export const getLikeList = async ({
   currPage,
 }: getLikeListPropsType) => {
   try {
-    const response = await instance.get<UserLikeFeedsType[]>(
+    const response = await instance.get<UserLikeFeedsType>(
       `/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
       {
         signal,

@@ -7,26 +7,16 @@ const CreatedAtDiv = Styled.div`
   color: #BDBDBD;
 `;
 
-export const LikeListItem = ({ feedData }: { feedData: symbolListType[] }) => {
+export const LikeListItem = ({ feedData }: { feedData: symbolListType }) => {
   return (
-    <>
-      {feedData.map(data => {
-        return (
-          <div
-            className="w-full p-4 border-b-[#DBDBDB] cursor-pointer"
-            key={data.feed.id}
-          >
-            <Link to={`/feed/${data.feed.id}`}>
-              <div className="text-xl font-bold hover:text-mainblue">
-                {data.feed.title}
-              </div>
-            </Link>
-            <div className="flex justify-between mt-2">
-              <CreatedAtDiv>{data.created_at.slice(0, 10)}</CreatedAtDiv>
-            </div>
-          </div>
-        );
-      })}
-    </>
+    <div className="flex md:justify-between justify-start md:flex-row flex-col md:items-center items-start w-full p-8 bg-white rounded-lg cursor-pointer hover:-translate-y-0.5 hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300">
+      <Link
+        to={`/feed/${feedData.feed.id}`}
+        className="w-11/12 md:inline flex flex-col"
+      >
+        <div className="text-xl font-bold">{feedData.feed.title}</div>
+        <CreatedAtDiv>{feedData.created_at.slice(0, 10)}</CreatedAtDiv>
+      </Link>
+    </div>
   );
 };

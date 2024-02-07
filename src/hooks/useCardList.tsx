@@ -16,7 +16,7 @@ export const useCardList = (categoryId: number) => {
     error,
   } = useInfiniteQuery({
     queryKey: query ? ['searchList', { query }] : ['mainList', { categoryId }],
-    queryFn: ({ pageParam, signal }) =>
+    queryFn: ({ pageParam = 1, signal }) =>
       query
         ? getMainFeedList({ query, pageParam, categoryId, signal })
         : getMainFeedList({ pageParam, categoryId, signal }),

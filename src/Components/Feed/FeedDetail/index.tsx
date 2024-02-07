@@ -53,6 +53,9 @@ export const FeedDetail = ({
       queryClient.invalidateQueries({
         queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['userLikeList'],
+      });
       setIsLike(true);
     },
   });
@@ -65,6 +68,9 @@ export const FeedDetail = ({
       });
       queryClient.invalidateQueries({
         queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['userLikeList'],
       });
       setIsLike(false);
     },
