@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import instance from 'api';
@@ -9,8 +9,9 @@ import {
   deleteLike,
   queryClient,
   sendLike,
-} from 'util/feed-http';
+} from 'util/feedDetail-http';
 import { useMutation } from '@tanstack/react-query';
+import { deleteFeed } from 'util/feed-http';
 interface LoginLikeType {
   checkValue: boolean;
   result: {
@@ -40,12 +41,20 @@ export const FeedDetail = ({
 
   const dispatch = useAppDispatch();
 
+  const navigate = useNavigate();
+
   // 좋아요 요청
   const { mutate: getLikeMutate, isError: getLikeIsError } = useMutation({
     mutationFn: sendLike,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['like'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['userLikeList'],
       });
       setIsLike(true);
     },
@@ -56,6 +65,12 @@ export const FeedDetail = ({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['like'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['likeList', { feedListId: feedId && parseInt(feedId) }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['userLikeList'],
       });
       setIsLike(false);
     },
@@ -130,7 +145,7 @@ export const FeedDetail = ({
   }, [isLogin, feedId]);
 
   // 게시물 삭제
-  const deleteFeed = () => {
+  const deleteFeedAlert = () => {
     dispatch(
       alertActions.setModal({
         isModalOpen: true,
@@ -141,24 +156,35 @@ export const FeedDetail = ({
     );
   };
 
-  // useEffect(() => {
-  //   if (result) {
-  //     axios
-  //       .delete<string>(`${BACK_URL}/feeds/${feedId}`, {
-  //         timeout: 5000,
-  //         headers: { Accept: `application/json`, Authorization: token },
-  //       })
-  //       .then(response => {
-  //         setIsAlertModalOpen(false);
-  //         window.location.href = '/';
-  //       })
-  //       .catch(error => {
-  //         if (error.code === 'ECONNABORTED') {
-  //           alert('잠시 후 다시 시도해주세요.');
-  //         }
-  //       });
-  //   }
-  // }, [result]);
+  const isDelete = useAppSelector(state => state.alert.isClickOk);
+
+  const { mutate: deleteMutate, isError } = useMutation({
+    mutationFn: deleteFeed,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mainList'] });
+      navigate('/');
+    },
+  });
+
+  useEffect(() => {
+    if (isDelete) {
+      deleteMutate(feedId);
+      dispatch(alertActions.setIsClickOk());
+    }
+  }, [isDelete, feedId, dispatch, deleteMutate]);
+
+  useEffect(() => {
+    if (isError) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          alertPath: '',
+          isQuestion: false,
+        })
+      );
+    }
+  }, [isError, dispatch]);
 
   let createDate = feedDetailData?.created_at.slice(0, -8);
   let updateDate = feedDetailData?.updated_at.slice(0, -8);
@@ -182,7 +208,7 @@ export const FeedDetail = ({
     <div className="w-full p-8">
       <div className="w-4/5 my-0 mx-auto bg-white rounded-md md:px-20 px-8 pt-12 pb-8">
         <div className="flex items-center gap-4 mb-4">
-          <div className="inline-block px-4 bg-bg-gray rounded-md">
+          <div className="inline-block px-4 rounded-md">
             {feedDetailData?.category.category}
           </div>
           <div className="flexCenterAlign mr-2">
@@ -210,16 +236,13 @@ export const FeedDetail = ({
                 </Link>
                 {feedDetailData?.user.id === loginUserId && (
                   <div className="flexCenterAlign gap-2">
-                    <Link
-                      to="/writeFeed"
-                      state={{ feedId: feedId, isModify: true, isTemp: false }}
-                    >
+                    <Link to={`/writeFeed?mode=modify&id=${feedId}`}>
                       <button className="buttonLayout text-sm">수정</button>
                     </Link>
                     |
                     <button
                       className="buttonLayout text-sm"
-                      onClick={deleteFeed}
+                      onClick={deleteFeedAlert}
                     >
                       삭제
                     </button>

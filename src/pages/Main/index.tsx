@@ -1,30 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { MobileMenu, CardList } from 'Components';
 import ToggleImg from '../../assets/images/toggleDown.png';
-import { Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
-import axios from 'axios';
+import { CategoryType, getCategory } from 'util/feed-http';
+import { queryClient } from 'util/feedDetail-http';
 
-interface CategoryType {
-  id: number;
-  category: string;
-}
+export const getCategoryQuery = () => ({
+  queryKey: ['category'],
+  queryFn: ({ signal }: { signal: AbortSignal }) => getCategory({ signal }),
+  staleTime: Infinity,
+});
 
 export const MainPage = () => {
-  const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [isToggleOpen, setIsToggleOpen] = useState<boolean | null>(null);
   const [categoryName, setCategoryName] = useState('전체보기');
   const [categoryId, setCategoryId] = useState(0);
-  const [countIdx, setCountIdx] = useState(0);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
 
   const isLogin = useAppSelector(state => state.login.isLogin);
-
-  useEffect(() => {
-    axios.get(`${BACK_URL}/categories`).then(result => {
-      setCategoryList([{ id: 0, category: '전체보기' }, ...result.data]);
-    });
-  }, [BACK_URL]);
+  const categoryList = useLoaderData() as CategoryType[];
 
   const handleToggle = () => {
     if (isToggleOpen === false || isToggleOpen === null) {
@@ -32,9 +26,6 @@ export const MainPage = () => {
     } else if (isToggleOpen === true) {
       setIsToggleOpen(false);
     }
-  };
-  const handleClickIndex = (e: React.MouseEvent, idx: number) => {
-    setCountIdx(idx);
   };
 
   const categoryModalClass = () => {
@@ -50,7 +41,7 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="w-full h-full pt-12 relative bg-bg-gray">
+    <div className="w-full h-full pt-12 relative">
       <MobileMenu />
       <div className="flex justify-between w-4/5 py-0 px-8 my-0 mx-auto mt-4">
         <div className="flex gap-4">
@@ -71,16 +62,15 @@ export const MainPage = () => {
             className={`${categoryModalClass()} absolute mt-12 p-4 bg-white border border-buttongray z-50`}
           >
             {categoryList.map((category: CategoryType, idx: number) => {
-              return idx !== countIdx ? (
+              return idx !== categoryId ? (
                 <li
                   className="p-2 cursor-pointer hover:font-bold"
                   key={category.id}
                   value={category.id}
-                  onClick={e => {
+                  onClick={() => {
                     setCategoryName(category.category);
                     setIsToggleOpen(false);
                     setCategoryId(category.id);
-                    handleClickIndex(e, idx);
                   }}
                 >
                   {category.category}
@@ -94,7 +84,6 @@ export const MainPage = () => {
                     setCategoryName(category.category);
                     setIsToggleOpen(true);
                     setCategoryId(category.id);
-                    handleClickIndex(e, idx);
                   }}
                 >
                   {category.category}
@@ -104,7 +93,7 @@ export const MainPage = () => {
           </ul>
           {isLogin && (
             <Link
-              to="/writefeed"
+              to="/writefeed?mode=write"
               state={{ feedId: 0, isModify: false, isTemp: true }}
             >
               <button className="border rounded-md border-mainblue px-3 py-2 bg-white cursor-pointer">
@@ -117,4 +106,8 @@ export const MainPage = () => {
       <CardList categoryId={categoryId} />
     </div>
   );
+};
+
+export const mainLoader = async () => {
+  return queryClient.fetchQuery(getCategoryQuery());
 };

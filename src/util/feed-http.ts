@@ -1,11 +1,133 @@
-import { QueryClient } from '@tanstack/react-query';
-import instance from 'api';
 import axios from 'axios';
-import { json } from 'react-router-dom';
+import LikeIconImg from '../assets/images/thumbsUp.png';
+import DoubleLikeImg from '../assets/images/double-like.png';
+import DisLikeImg from '../assets/images/dislike.png';
+import instance from 'api';
 
-export const queryClient = new QueryClient();
+const BACK_URL = process.env.REACT_APP_BACK_URL;
 
-export interface DataType {
+// 메인페이지 - 전체 / 검색(무한스크롤)
+interface mainFeedType {
+  pageParam: number;
+  query?: string | null;
+  categoryId?: number | null;
+  signal: AbortSignal;
+}
+export const getMainFeedList = async ({
+  pageParam,
+  query,
+  categoryId,
+  signal,
+}: mainFeedType) => {
+  try {
+    if (query) {
+      const response = await axios.get(
+        `${BACK_URL}/search/list?query=${query}&index=${pageParam}`,
+        { timeout: 5000, signal }
+      );
+      return response.data;
+    }
+    if (!query) {
+      const response = await axios(
+        `${BACK_URL}/feeds/post?index=${pageParam}&categoryId=${categoryId}&limit=10`,
+        { timeout: 5000, signal }
+      );
+      return response.data;
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시물 별 좋아요 여부(cardList)
+export interface LoginLikeType {
+  checkValue: boolean | undefined;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: number;
+    feed: number;
+    symbol: number;
+  } | null;
+}
+export const getSymbolsCheck = async ({
+  id,
+  signal,
+}: {
+  id: number;
+  signal: AbortSignal;
+}) => {
+  try {
+    const response = await instance.get<LoginLikeType>(`/symbols/check/${id}`, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 5000,
+      signal,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시물 작성 페이지, 메인페이지 - 카테고리 불러오기
+export interface CategoryType {
+  id: number;
+  category: string;
+}
+
+export const getCategory = async ({
+  signal,
+}: {
+  signal: AbortSignal;
+}): Promise<CategoryType[]> => {
+  try {
+    const response = await axios.get<CategoryType[]>(`${BACK_URL}/categories`, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 5000,
+      signal,
+    });
+    return [{ id: 0, category: '카테고리 선택' }, ...response.data];
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시물 작성 페이지 - 좋아요 불러오기
+export interface EstimationType {
+  id: number;
+  estimation: string;
+  img: string;
+}
+
+export const getEstimation = async ({
+  signal,
+}: {
+  signal: AbortSignal;
+}): Promise<EstimationType[]> => {
+  try {
+    const response = await axios.get<EstimationType[]>(
+      `${BACK_URL}/feeds/estimations`,
+      {
+        timeout: 5000,
+        signal,
+      }
+    );
+    const imgList: string[] = [DoubleLikeImg, LikeIconImg, DisLikeImg];
+    const result = response.data.map((estimation, index) => ({
+      ...estimation,
+      img: imgList[index],
+    }));
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시글 수정인 경우 불러오는 피드 데이터
+export interface ModifyDataType {
   result: {
     category: { id: number; category: string };
     content: string;
@@ -37,176 +159,244 @@ export interface DataType {
   };
 }
 
-const BACK_URL = process.env.REACT_APP_BACK_URL;
-
-// 피드 상세 정보 불러오기
-export const feedDetailData = async ({
+export const getModifyFeedData = async ({
   feedId,
-  signal,
 }: {
-  feedId: string | undefined;
-  signal: AbortSignal;
-}): Promise<DataType['result'] | undefined> => {
+  feedId: string | null;
+}): Promise<ModifyDataType> => {
   try {
-    const response = await axios.get<DataType>(`${BACK_URL}/feeds/${feedId}`, {
-      timeout: 5000,
+    const response = await instance.get<ModifyDataType>(`/feeds/${feedId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 임시저장 POSt
+interface SaveResultType {
+  message: string;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    user: {
+      id: number;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string;
+      nickname: string;
+      email: string;
+    };
+    title: string;
+    content: string;
+    category: number;
+    posted_at: string;
+    feedSymbol: [];
+    uploadFiles: [
+      [
+        {
+          id: 1;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string;
+          is_img: boolean;
+          file_link: string;
+        }
+      ]
+    ];
+  };
+}
+interface PostSavePropsType {
+  feedId?: string | null;
+  title: string;
+  content: string;
+  estimation: number | undefined;
+  category: number | undefined;
+  fileLinks: string[];
+}
+export const postSave = async ({
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: PostSavePropsType) => {
+  try {
+    const response = await instance.post<SaveResultType>(`/feeds/temp`, {
+      title,
+      content,
+      estimation,
+      category,
+      fileLinks,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 임시저장 patch
+export const patchSave = async ({
+  feedId,
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: PostSavePropsType) => {
+  try {
+    const response = await instance.patch<SaveResultType>(`/feeds/temp`, {
+      feedId,
+      title,
+      content,
+      estimation,
+      category,
+      fileLinks,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시글 등록 / 수정
+// feedId가 없으면 등록, 있으면 수정
+
+export interface sendFeedType {
+  feedId?: number;
+  title: string;
+  content: string;
+  estimation: number;
+  category: number;
+  fileLinks: string[] | undefined | null;
+}
+export const sendFeed = async ({
+  feedId,
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: sendFeedType) => {
+  try {
+    const response = await instance.post<SaveResultType>(`/feeds/post`, {
+      ...(feedId && { feedId }),
+      title,
+      content,
+      estimation,
+      category,
+      fileLinks,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 게시글 수정
+export const editFeed = async ({
+  feedId,
+  title,
+  content,
+  estimation,
+  category,
+  fileLinks,
+}: sendFeedType) => {
+  const response = await instance.patch<SaveResultType>(`/feeds/post`, {
+    feedId,
+    title,
+    content,
+    estimation,
+    category,
+    fileLinks,
+  });
+  return response.data;
+};
+
+// 게시글 삭제
+export const deleteFeed = async (feedId: string | undefined) => {
+  try {
+    const response = await instance.delete<string>(`/feeds/${feedId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 임시저장 리스트 불러오기
+interface TempListType {
+  message: string;
+  result: [
+    {
+      category: string;
+      categoryId: number;
+      commentCnt: string;
+      content: string;
+      createdAt: string;
+      deletedAt: null;
+      filesCnt: string;
+      id: number;
+      imgCnt: string;
+      imgUrl: null;
+      likeCnt: string;
+      postedAt: null;
+      statusId: number;
+      title: string;
+      updatedAt: string;
+      userId: number;
+      userNickname: string;
+      viewCnt: number;
+    }
+  ];
+}
+
+export const getTempList = async ({ signal }: { signal: AbortSignal }) => {
+  try {
+    const response = await instance.get<TempListType>('/feeds/temp', {
       signal,
     });
     return response.data.result;
   } catch (error) {
-    throw json(
-      { message: '정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' },
-      { status: 500 }
-    );
+    throw error;
   }
 };
 
-interface SymbolType {
-  message: string;
-  result: [{ count: number; feedId: number; symbol: string; symbolId: number }];
+// 좋아요 리스트
+export interface symbolListType {
+  created_at: string;
+  feed: {
+    id: number;
+    user: { id: number; nickname: string };
+    title: string;
+  };
+  symbol: { id: number; symbol: string };
+  updated_at: string;
 }
 
-export interface LikeType {
-  count: number;
-  feedId: number;
-  symbol: string;
-  symbolId: number;
+export interface UserLikeFeedsType {
+  symbolCntByUserId: number;
+  symbolListByUserId: symbolListType[];
+  totalPage: number;
 }
 
-// 피드 좋아요 정보 불러오기
-export const getFeedLike = async ({
-  feedId,
-  signal,
-}: {
-  feedId: string | undefined;
+interface getLikeListPropsType {
   signal: AbortSignal;
-}) => {
+  loginUserId: number;
+  currPage: number;
+}
+
+export const getLikeList = async ({
+  signal,
+  loginUserId,
+  currPage,
+}: getLikeListPropsType) => {
   try {
-    const response = await axios.get<LikeType[]>(
-      `${BACK_URL}/symbols/${feedId}`,
+    const response = await instance.get<UserLikeFeedsType>(
+      `/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
       {
-        timeout: 5000,
         signal,
       }
     );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 피드 좋아요 요청
-export const sendLike = async ({ feedId }: { feedId: string | undefined }) => {
-  try {
-    const response = await instance.post<SymbolType>(`/symbols/${feedId}`, {
-      symbolId: 1,
-    });
-    return response.data.result;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 피드 좋아요 삭제
-export const deleteLike = async ({
-  feedId,
-}: {
-  feedId: string | undefined;
-}) => {
-  try {
-    const response = await instance.delete<SymbolType>(`/symbols/${feedId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 피드 전체 댓글 불러오기
-export const feedComments = async ({
-  feedId,
-  token,
-  signal,
-}: {
-  feedId: string | undefined;
-  token: string | null | undefined;
-  signal: AbortSignal;
-}) => {
-  try {
-    if (token === null || token === undefined) {
-      const response = await axios.get(`${BACK_URL}/comments/${feedId}`, {
-        timeout: 5000,
-        signal,
-      });
-      return response.data;
-    }
-    const response = await instance.get(`/comments/${feedId}`);
-    return response.data;
-  } catch (error) {
-    throw json(
-      { message: '정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' },
-      { status: 500 }
-    );
-  }
-};
-
-// 피드 댓글, 대댓글 작성
-export const sendComment = async ({
-  feed,
-  mainCommentText,
-  isPrivate,
-  parentId,
-  isChildren,
-}: {
-  feed: number;
-  mainCommentText: string | undefined;
-  isPrivate: boolean;
-  parentId?: number | undefined;
-  isChildren: boolean;
-}) => {
-  try {
-    let bodyObj = {
-      feed,
-      comment: mainCommentText,
-      is_private: isPrivate,
-      ...(isChildren && { parent: parentId }),
-    };
-    const response = await instance.post('/comments', bodyObj);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 댓글, 대댓글 수정
-export const modifyComment = async ({
-  commentId,
-  mainCommentText,
-  isPrivate,
-}: {
-  commentId: number | undefined;
-  mainCommentText: string | undefined;
-  isPrivate: boolean;
-}) => {
-  try {
-    const response = await instance.patch('/comments', {
-      commentId,
-      comment: mainCommentText,
-      is_private: isPrivate,
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// 댓글, 대댓글 삭제
-export const deleteComment = async ({
-  commentId,
-}: {
-  commentId: number | undefined;
-}) => {
-  try {
-    const response = await instance.delete(`/comments/${commentId}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -7,7 +7,8 @@ import Clip from '../../../assets/images/clip.png';
 import ViewIconImg from '../../../assets/images/view.png';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
-import instance from 'api';
+import { QueryKey, useQuery } from '@tanstack/react-query';
+import { LoginLikeType, getSymbolsCheck } from 'util/feed-http';
 
 interface Props {
   id: number;
@@ -27,19 +28,6 @@ interface Props {
   statusId?: number;
 }
 
-interface LoginLikeType {
-  checkValue: boolean;
-  result: {
-    id: number;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
-    user: number;
-    feed: number;
-    symbol: number;
-  };
-}
-
 const Card = (
   {
     id,
@@ -57,7 +45,6 @@ const Card = (
   ref: ForwardedRef<HTMLDivElement> | null
 ) => {
   const [isHaveThumbnail, setIsHaveThumbnail] = useState(false);
-  const [isLike, setIsLike] = useState(false);
   useEffect(() => {
     if (img) {
       setIsHaveThumbnail(true);
@@ -67,20 +54,16 @@ const Card = (
   }, [img]);
 
   let isLogin = useAppSelector(state => state.login.isLogin);
-  useEffect(() => {
-    if (isLogin) {
-      instance
-        .get<LoginLikeType>(`/symbols/check/${id}`)
-        .then(response => {
-          setIsLike(response.data.checkValue);
-        })
-        .catch(() => {
-          alert('잠시 후 다시 시도해주세요.');
-        });
-    }
-  }, [id, isLogin]);
+
+  const { data } = useQuery<any, Error, LoginLikeType, QueryKey>({
+    queryKey: ['likeList', { feedListId: id }],
+    queryFn: ({ signal }) => getSymbolsCheck({ id, signal }),
+    enabled: isLogin ? true : false,
+    staleTime: 1000 * 60 * 2,
+  });
 
   const createAtDate = createdAt.slice(0, -8);
+
   return (
     <Link to={'/feed/' + id}>
       <div
@@ -114,7 +97,7 @@ const Card = (
           <div className="flex items-center h-10 mt-2 absolute bottom-8">
             <img
               className="w-5"
-              src={isLike ? LikeClickIconImg : LikeIconImg}
+              src={data?.checkValue ? LikeClickIconImg : LikeIconImg}
               alt="좋아요 아이콘"
             />
             <span className="mx-0 ml-1 mr-4">{likeCount}</span>
