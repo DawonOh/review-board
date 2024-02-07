@@ -229,7 +229,7 @@ export const FeedDetail = ({
                 {createDate} 작성 | {updateDate} 편집
               </div>
               <div className="flex align-center gap-8">
-                <Link to={`/channel/${feedDetailData?.user.id}`}>
+                <Link to={`/channel/${feedDetailData?.user.id}?type=review`}>
                   <span className="font-bold">
                     {feedDetailData?.user.nickname}
                   </span>

@@ -5,7 +5,7 @@ export * from './FeedCard/CardList';
 export * from './FeedCard/Card';
 export * from './Feed/FeedDetail';
 export * from './Feed/Comment/CommentContainer';
-export * from './Channel/MyFeeds';
+export * from './Channel/Feeds/FeedItem';
 export * from './Channel/MyComments';
 export * from './CheckPassword';
 export * from './Modal/SearchModal';

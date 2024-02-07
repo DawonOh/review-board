@@ -24,6 +24,7 @@ module.exports = {
         mainsky: '#CCDEFF',
         white: '#fff',
         black: '#000',
+        textgray: '#BDBDBD',
       },
       keyframes: {
         'fade-in': {

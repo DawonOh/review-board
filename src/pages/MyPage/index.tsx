@@ -5,158 +5,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Header, MobileMenu } from 'Components';
+import { MobileMenu } from 'Components';
 import axios from 'axios';
-import Styled from 'styled-components';
-import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
-import { useParams } from 'react-router-dom';
-import { MyFeeds } from 'Components';
-import { Pagination } from '@mui/material';
+import { useParams, useSearchParams } from 'react-router-dom';
 import MyComments from 'Components/Channel/MyComments';
 import { Link } from 'react-router-dom';
-
-const MainContainer = Styled.div`
-  width: 80%;
-  height: 100%;
-  display: flex;
-  position: relative;
-  margin: 0 auto;
-  padding: 2em;
-  padding-top: 0;
-  @media (max-width: 767px) {
-    display: block;
-  }
-`;
-
-const WriterInfoContainer = Styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  min-width: 25%;
-  height: 70vh;
-  padding: 1em;
-  @media (max-width: 767px) {
-    padding: 2em;
-    height: 100%;
-  }
-`;
-
-const WriterFeedListContainer = Styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  gap: 1em;
-  min-height: 70vh;
-  padding: 1em;
-  border-left: 1px solid #DBDBDB;
-  @media (max-width: 767px) {
-    border-left: none;
-    border-top: 1px solid #DBDBDB;
-  }
-`;
-
-const TabMenuContainer = Styled.div`
-  width: 100%;
-  display: flex;
-`;
-
-const SelectedMenu = Styled.h1`
-  padding: 0.3em;
-  font-size: 1.3em;
-  font-weight: 700;
-  color: #676FA3;
-  border: 1px solid #676FA3;
-  border-bottom: none;
-  cursor: pointer;
-`;
-
-const NoneSelectedMenu = Styled.h1`
-  padding: 0.3em;
-  font-size: 1.3em;
-  font-weight: 700;
-  background-color: #F0F0F0;
-  cursor: pointer;
-`;
-
-const ItemTitle = Styled.div`
-  margin-bottom: 0.3em;
-  font-size: 1.1em;
-  font-weight: 700;
-`;
-
-const ModifyButton = Styled.button`
-  ${ButtonLayout}
-  cursor: pointer;
-`;
-
-const PaginationContainer = Styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-const NoResult = Styled.div`
-  width: 100%;
-  height: 100%;
-  ${flexCenterAlign}
-`;
-
-const Loader = Styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 2em;
-  height: 2em;
-  border: 5px solid #cddeff;
-  border-radius: 50%;
-  border-top: 5px solid #fff;
-  animation: spin 2s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-interface UserInfoType {
-  created_at: string;
-  deleted_at: string | null;
-  email: string;
-  id: number;
-  nickname: string;
-  updated_at: string;
-}
-
-interface UserFeedType {
-  category: string;
-  categoryId: number;
-  commentCnt: string;
-  content: string;
-  createdAt: string;
-  deletedAt: string | null;
-  filesCnt: string;
-  id: number;
-  imgCnt: string;
-  imgUrl: string;
-  likeCnt: string;
-  postedAt: string;
-  statusId: number;
-  title: string;
-  updatedAt: string;
-  userId: number;
-  userNickname: string;
-  viewCnt: number;
-}
-
-interface UserFeedInfoType {
-  feedCntByUserId: number;
-  feedListByUserId: UserFeedType[];
-  totalPage: number;
-}
+import { useAppSelector } from 'hooks';
+import { useQuery } from '@tanstack/react-query';
+import { getChannelUserInfo } from 'util/user-http';
+import { FeedList } from 'Components/Channel/Feeds/FeedList';
 
 interface UserCommentInfoType {
   comment: string;
@@ -182,14 +39,7 @@ interface UserCommentType {
 }
 
 export const MyPage = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
-  const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
-  const [myPageUserInfo, setMyPageUserInfo] = useState<UserInfoType>();
-  const [userFeedInfo, setUserFeedInfo] = useState<UserFeedType[]>([]);
-  const [selectMenu, setSelectMenu] = useState(true);
-  const [currPage, setCurrPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPage, setTotalPage] = useState(0);
+  const [totalFeedCount, setTotalFeedCount] = useState<number | undefined>(0);
   const [pageNum, setPageNum] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -197,30 +47,22 @@ export const MyPage = () => {
   const [commentList, setCommentList] = useState<UserCommentInfoType[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  let token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token');
+
+  const loginUserInfo = useAppSelector(state => state.user);
 
   const params = useParams();
   let userId = params.id;
 
-  useEffect(() => {
-    axios
-      .get<UserInfoType>(`${BACK_URL}/users/userinfo/${userId}`, {
-        timeout: 5000,
-        headers: { Accept: 'application/json' },
-      })
-      .then(response => {
-        setMyPageUserInfo(response.data);
-      });
+  const [searchParams, setSearchParams] = useSearchParams();
+  let searchParamType = searchParams.get('type');
 
-    axios
-      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-        timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
-      })
-      .then(response => {
-        setLoginUserInfo(response.data);
-      });
-  }, []);
+  const { data: myPageUserInfo } = useQuery({
+    queryKey: ['channelUserInfo', { userId }],
+    queryFn: () => getChannelUserInfo({ userId }),
+    staleTime: 1000 * 60 * 2,
+  });
+
   useEffect(() => {
     setLoading(true);
     setError(false);
@@ -283,61 +125,6 @@ export const MyPage = () => {
     }
   }, [error]);
 
-  useEffect(() => {
-    axios
-      .get<UserFeedInfoType>(
-        `${BACK_URL}/users/userinfo/${userId}/feeds?page=${currPage}&limit=4`,
-        {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        }
-      )
-      .then(response => {
-        setUserFeedInfo(response.data.feedListByUserId);
-        setTotalCount(response.data.feedCntByUserId);
-        setTotalPage(response.data.totalPage);
-      });
-  }, [currPage]);
-
-  const handleClickMenu = () => {
-    setSelectMenu(!selectMenu);
-  };
-
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setCurrPage(value);
-  };
-
-  const myReview = () => {
-    if (totalCount) {
-      return (
-        <Fragment>
-          <div>리뷰 수 : {totalCount}개</div>
-          {userFeedInfo?.map((feed, index) => {
-            return (
-              <Fragment key={feed.id}>
-                <MyFeeds
-                  userFeeds={feed}
-                  index={currPage === 1 ? index : index + (currPage - 1) * 4}
-                />
-              </Fragment>
-            );
-          })}
-          <PaginationContainer>
-            <Pagination
-              count={totalPage}
-              page={Number(currPage)}
-              defaultPage={Number(currPage)}
-              onChange={handleChange}
-              size="small"
-            />
-          </PaginationContainer>
-        </Fragment>
-      );
-    } else {
-      return <NoResult>작성한 리뷰가 없습니다😢</NoResult>;
-    }
-  };
-
   const myComments = () => {
     if (commentList?.length) {
       return (
@@ -365,49 +152,93 @@ export const MyPage = () => {
               );
             }
           })}
-          {loading && <Loader />}
+          {loading && (
+            <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 border-4 border-mainsky rounded-full border-t-4 border-t-white animate-spin" />
+          )}
         </Fragment>
       );
     } else {
-      return <NoResult>작성한 댓글이 없습니다😢</NoResult>;
+      return (
+        <div className="w-full h-full flexCenterAlign">
+          작성한 댓글이 없습니다😢
+        </div>
+      );
     }
   };
+
   return (
     <Fragment>
       <MobileMenu />
-      <MainContainer>
-        <WriterInfoContainer>
-          <ItemTitle>{myPageUserInfo?.nickname}</ItemTitle>
-          {Number(loginUserInfo?.id) === Number(userId) && (
-            <div>{myPageUserInfo?.email}</div>
-          )}
-          <div>가입일 : {myPageUserInfo?.created_at.slice(0, -16)}</div>
-          {loginUserInfo?.id === Number(userId) && (
-            <Link to="/changeinfo" state={{ loginUserId: loginUserInfo?.id }}>
-              <ModifyButton>수정하기</ModifyButton>
-            </Link>
-          )}
-        </WriterInfoContainer>
-        <WriterFeedListContainer>
-          <TabMenuContainer>
-            {selectMenu ? (
-              <SelectedMenu onClick={handleClickMenu}>작성한 리뷰</SelectedMenu>
-            ) : (
-              <NoneSelectedMenu onClick={handleClickMenu}>
-                작성한 리뷰
-              </NoneSelectedMenu>
+      <div className="w-4/5 h-full mx-auto my-0 p-4">
+        <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-mainblue">
+          <div>
+            <div className="align-baseline pl-4">
+              <span className="mb-2 text-xl font-bold">
+                {myPageUserInfo?.nickname}
+              </span>
+              {Number(loginUserInfo?.id) === Number(userId) && (
+                <span className="text-sm text-buttongray ml-2">
+                  {myPageUserInfo?.email}
+                </span>
+              )}
+            </div>
+            <span className="pl-4">
+              가입일 : {myPageUserInfo?.created_at.slice(0, -16)}
+            </span>
+            {loginUserInfo?.id === Number(userId) && (
+              <Link to="/changeinfo" state={{ loginUserId: loginUserInfo?.id }}>
+                <button className="px-2 ml-4 border rounded-lg cursor-pointer">
+                  수정하기
+                </button>
+              </Link>
             )}
-            {selectMenu ? (
-              <NoneSelectedMenu onClick={handleClickMenu}>
-                작성한 댓글
-              </NoneSelectedMenu>
+          </div>
+          <div className="font-bold">
+            <span className="text-mainred">{totalFeedCount}</span>
+            <span className="ml-2">리뷰</span>
+          </div>
+        </div>
+        <div className="flex w-full mt-8 flex-col gap-4 min-h-4/5">
+          <div className="w-full flex">
+            {searchParamType === 'review' ? (
+              <>
+                <Link
+                  to={`/channel/${userId}?type=review`}
+                  className="p-2 text-xl font-bold text-mainblue bg-white border border-mainblue rounded-t-lg border-b-0 cursor-pointer"
+                >
+                  작성한 리뷰
+                </Link>
+                <Link
+                  to={`/channel/${userId}?type=comment`}
+                  className="p-2 text-xl font-bold bg-buttongray rounded-t-lg cursor-pointer"
+                >
+                  작성한 댓글
+                </Link>
+              </>
             ) : (
-              <SelectedMenu onClick={handleClickMenu}>작성한 댓글</SelectedMenu>
+              <>
+                <Link
+                  to={`/channel/${userId}?type=review`}
+                  className="p-2 text-xl font-bold bg-buttongray rounded-t-lg cursor-pointer"
+                >
+                  작성한 리뷰
+                </Link>
+                <Link
+                  to={`/channel/${userId}?type=comment`}
+                  className="p-2 text-xl font-bold text-mainblue border border-mainblue border-b-0 rounded-t-lg cursor-pointer"
+                >
+                  작성한 댓글
+                </Link>
+              </>
             )}
-          </TabMenuContainer>
-          {selectMenu ? myReview() : myComments()}
-        </WriterFeedListContainer>
-      </MainContainer>
+          </div>
+          {searchParamType === 'review' ? (
+            <FeedList userId={userId} setTotalFeedCount={setTotalFeedCount} />
+          ) : (
+            myComments()
+          )}
+        </div>
+      </div>
     </Fragment>
   );
 };
