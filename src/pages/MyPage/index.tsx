@@ -170,14 +170,14 @@ export const MyPage = () => {
     <Fragment>
       <MobileMenu />
       <div className="w-4/5 h-full mx-auto my-0 p-4">
-        <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-mainblue">
+        <div className="flex md:flex-row flex-col justify-between items-center bg-white p-4 rounded-lg border border-mainblue">
           <div>
             <div className="align-baseline pl-4">
               <span className="mb-2 text-xl font-bold">
                 {myPageUserInfo?.nickname}
               </span>
               {Number(loginUserInfo?.id) === Number(userId) && (
-                <span className="text-sm text-buttongray ml-2">
+                <span className="text-sm text-buttongray md:ml-2 ml-0">
                   {myPageUserInfo?.email}
                 </span>
               )}

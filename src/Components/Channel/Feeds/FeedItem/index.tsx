@@ -32,27 +32,28 @@ export const FeedItem = ({ userFeeds, index }: UserFeedsType) => {
       <div className="flex w-full justify-start">
         <Link to={'/feed/' + userFeeds.id}>
           <div className="w-full p-4">
-            <div className="flex md:flex-row flex-col items-center mb-2">
+            <div className="flex md:flex-row flex-col md:items-center items-start mb-2">
               <div className=" py-1 px-4 bg-mainsky text-sm rounded-lg mr-4">
                 {userFeeds.category}
               </div>
-              <img
-                className="w-5 h-4 mr-2"
-                src={HeartIconImg}
-                alt="좋아요 수 아이콘"
-              />
-              <span className="text-center mr-2">{userFeeds.likeCnt}</span>
-              <img
-                className="w-6 h-6 mr-2"
-                src={ViewIconImg}
-                alt="조회수 아이콘"
-              />
-              <span className="mr-4">{userFeeds.viewCnt}</span>
-              <span className="text-sm text-textgray">
-                {userFeeds.createdAt.slice(0, -8)}
-              </span>
+              <div className="md:mt-0 mt-2">
+                <img
+                  className="inline w-5 h-4 mr-2"
+                  src={HeartIconImg}
+                  alt="좋아요 수 아이콘"
+                />
+                <span className="text-center mr-2">{userFeeds.likeCnt}</span>
+                <img
+                  className="inline w-6 h-6 mr-2"
+                  src={ViewIconImg}
+                  alt="조회수 아이콘"
+                />
+                <span className="mr-4">{userFeeds.viewCnt}</span>
+                <span className="text-sm text-textgray">
+                  {userFeeds.createdAt.slice(0, -8)}
+                </span>
+              </div>
             </div>
-
             <div className="mb-2 text-xl font-bold">{userFeeds.title}</div>
             <div className="line-clamp-2 whitespace-pre-wrap break-words leading-5 overflow-hidden whitespace-nowrap text-ellipsis">
               {userFeeds.content}
