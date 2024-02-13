@@ -28,7 +28,7 @@ interface UserFeedsType {
 
 export const FeedItem = ({ userFeeds, index }: UserFeedsType) => {
   return (
-    <div className="flex w-full justify-between items-center cursor-pointer bg-white hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray">
+    <div className="flex w-full justify-between items-center md:flex-row flex-col cursor-pointer bg-white hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray">
       <div className="flex w-full justify-start">
         <Link to={'/feed/' + userFeeds.id}>
           <div className="w-full p-4">
@@ -63,7 +63,7 @@ export const FeedItem = ({ userFeeds, index }: UserFeedsType) => {
       </div>
       {userFeeds.imgUrl && (
         <img
-          className="w-64 h-full object-cover rounded-r-lg"
+          className="md:w-52 w-64 h-full object-cover md:rounded-r-lg"
           src={userFeeds.imgUrl}
           alt="첨부이미지"
         />

@@ -94,8 +94,8 @@ const CommentItem = (
   return (
     <Fragment>
       <div
+        className="flex w-full p-2 justify-between items-center cursor-pointer hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray bg-white"
         ref={ref}
-        className="flex w-full p-2 justify-between items-center cursor-pointer hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray"
       >
         <Link to={'/feed/' + userComments.feed.id}>
           <div className="flex">
@@ -130,7 +130,7 @@ const CommentItem = (
         </Link>
         {loginUserId === Number(userId) && userComments.deleted_at === null && (
           <button
-            className="px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg md:mt-0 mt-4"
+            className="min-w-16 px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg md:mt-0 mt-4"
             onClick={() => deleteComment(userComments.id)}
           >
             삭제
