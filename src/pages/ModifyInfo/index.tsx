@@ -1,23 +1,20 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { AlertModal, MobileMenu } from 'Components';
 import axios from 'axios';
-import { Link, redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { alertActions } from 'redux/slice/alert-slice';
 import { useMutation } from '@tanstack/react-query';
 import { modifyUserInfo } from 'util/user-http';
 import { userActions } from 'redux/slice/user-slice';
+import { queryClient } from 'util/feedDetail-http';
 
 export const ModifyInfoPage = () => {
   const loginUserInfo = useAppSelector(state => state.user);
   const [newNickName, setNewNickName] = useState(loginUserInfo?.nickname);
   const [newEmail, setNewEmail] = useState(loginUserInfo?.email);
-  const [changedNickName, setChangedNickName] = useState('');
-  const [changedEmail, setChangedEmail] = useState('');
   const [isEmailPass, setIsEmailPass] = useState(true);
   const [warningMessage, setWarningMessage] = useState('');
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  let token = localStorage.getItem('token');
 
   const dispatch = useAppDispatch();
   const isLogin = useAppSelector(state => state.login.isLogin);
@@ -70,7 +67,10 @@ export const ModifyInfoPage = () => {
         })
       );
       dispatch(alertActions.closeModal());
-      alertModal('변경되었습니다.', '/');
+      queryClient.invalidateQueries({
+        queryKey: ['channelUserInfo', { userId: loginUserInfo.id.toString() }],
+      });
+      alertModal('변경되었습니다.', `/channel/${loginUserInfo.id}?type=review`);
     },
     onError: error => {
       if (axios.isAxiosError(error)) {
@@ -116,9 +116,7 @@ export const ModifyInfoPage = () => {
                 닉네임
                 <input
                   className="flex-1 mr-4 p-2 border-none outline-none rounded-lg"
-                  defaultValue={
-                    changedNickName ? changedNickName : loginUserInfo.nickname
-                  }
+                  defaultValue={loginUserInfo.nickname}
                   onChange={getNickName}
                 />
               </label>
@@ -126,9 +124,7 @@ export const ModifyInfoPage = () => {
                 이메일
                 <input
                   className="flex-1 mr-4 p-2 border-none outline-none rounded-lg"
-                  defaultValue={
-                    changedEmail ? changedEmail : loginUserInfo.email
-                  }
+                  defaultValue={loginUserInfo.email}
                   onChange={getEmail}
                 />
               </label>
@@ -166,7 +162,7 @@ export const ModifyInfoPage = () => {
                 >
                   변경하기
                 </button>
-                <Link to="/">
+                <Link to={`/channel/${loginUserInfo.id}?type=review`}>
                   <button className="p-2 bg-mainred text-white text-sm rounded-lg cursor-pointer">
                     취소
                   </button>
