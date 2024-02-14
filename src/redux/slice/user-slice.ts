@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { PURGE } from 'redux-persist';
 import instance from '../../api';
 
@@ -28,7 +28,12 @@ export const getUserInfo = createAsyncThunk('loginSlice/user', async () => {
 const userSlice = createSlice({
   name: 'user',
   initialState: initialUserState,
-  reducers: {},
+  reducers: {
+    changeInfo: (state, action) => {
+      state.email = action.payload.email;
+      state.nickname = action.payload.nickname;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(getUserInfo.fulfilled, (state, action) => {
       state.created_at = action.payload.created_at;

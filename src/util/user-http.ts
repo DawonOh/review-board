@@ -124,3 +124,34 @@ export const getUserCommentList = async ({
     throw error;
   }
 };
+
+// 사용자 정보 수정
+interface ChangeUserInfoType {
+  message: string;
+  result: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    nickname: string;
+    email: string;
+  };
+}
+interface ModifyUserInfoPropsType {
+  nickname: string;
+  email: string;
+}
+export const modifyUserInfo = async ({
+  nickname,
+  email,
+}: ModifyUserInfoPropsType) => {
+  try {
+    const response = await instance.patch<ChangeUserInfoType>(`/users/signup`, {
+      nickname,
+      email,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
