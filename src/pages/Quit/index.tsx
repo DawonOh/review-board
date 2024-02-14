@@ -128,11 +128,7 @@ export const Quit = () => {
       <TitleDiv>
         <Title>탈퇴하기</Title>
       </TitleDiv>
-      {loading ? (
-        <Loader />
-      ) : (
-        <CheckPassword setIsPass={setIsPass} parentResult={isPass} />
-      )}
+      {loading ? <Loader /> : <CheckPassword />}
     </Fragment>
   );
 };

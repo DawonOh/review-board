@@ -5,6 +5,7 @@ import axios from 'axios';
 
 interface LoginType {
   isLogin: boolean | null;
+  isPass: boolean;
 }
 
 interface LoginResultType {
@@ -16,6 +17,7 @@ interface LoginResultType {
 
 const initialLoginState: LoginType = {
   isLogin: null,
+  isPass: false,
 };
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
@@ -46,7 +48,14 @@ export const login = createAsyncThunk(
 const loginSlice = createSlice({
   name: 'login',
   initialState: initialLoginState,
-  reducers: {},
+  reducers: {
+    pass: state => {
+      state.isPass = true;
+    },
+    nonPass: state => {
+      state.isPass = false;
+    },
+  },
   extraReducers: builder => {
     builder.addCase(login.fulfilled, state => {
       state.isLogin = true;

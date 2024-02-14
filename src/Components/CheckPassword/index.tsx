@@ -1,148 +1,57 @@
-import { AlertModal } from '../Modal/AlertModal';
-import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
-import axios from 'axios';
-import React, { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import React, { Fragment, useState } from 'react';
+import { alertActions } from 'redux/slice/alert-slice';
+import { login, loginActions } from 'redux/slice/login-slice';
 
-const MainContainer = Styled.div`
-  ${flexCenterAlign}
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  height: 60vh;
-`;
-
-const CenterDiv = Styled.div`
-  margin: 0 auto;
-`;
-
-const Input = Styled.input`
-  width: 20em;
-  margin-right: 1em;
-  padding: 0.6em;
-  font-size: 1em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-  z-index: 999;
-  @media (max-width: 767px) {
-    width: 10em;
-  }
-`;
-
-const CheckButton = Styled.button`
-  ${ButtonLayout}
-  width: 4em;
-  padding: 0.6em;
-  cursor: pointer;
-`;
-
-interface UserInfoType {
-  created_at: string;
-  deleted_at: string | null;
-  email: string;
-  id: number;
-  nickname: string;
-  updated_at: string;
-}
-
-interface MessageType {
-  id: number;
-  text: string;
-}
-
-interface PropsType {
-  setIsPass: Function;
-  parentResult?: boolean;
-}
-
-export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
-  const [email, setEmail] = useState('');
+export const CheckPassword = () => {
   const [pw, setPw] = useState('');
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isQuestion, setIsQuestion] = useState(false);
-  const [result, setResult] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const token = localStorage.getItem('token');
-
-  useEffect(() => {
-    axios
-      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-        timeout: 5000,
-        headers: { Accept: 'application/json', Authorization: token },
-      })
-      .then(response => {
-        setEmail(response.data.email);
-      });
-  }, []);
-
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //       />
-  //     );
-  //   }
-  // };
+  const dispatch = useAppDispatch();
+  const email = useAppSelector(state => state.user.email);
 
   const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPw(e.target.value);
   };
 
   const checkPw = () => {
-    setPw('');
-    setIsPass(false);
-    axios
-      .post(
-        `${BACK_URL}/users/signin`,
-        {
+    try {
+      setPw('');
+      dispatch(
+        login({
           email: email,
           password: pw,
-        },
-        {
-          timeout: 5000,
-          headers: { Accept: 'application/json' },
-        }
-      )
-      .then(response => {
-        if (response.status === 200) {
-          setIsPass(true);
-        }
-      })
-      .catch(error => {
-        setMessages([{ id: 1, text: '비밀번호가 일치하지 않습니다.' }]);
-        setIsQuestion(false);
-        setIsAlertModalOpen(true);
-        setIsPass(false);
-      });
+          isLogin: true,
+        })
+      );
+      dispatch(loginActions.pass);
+    } catch (error) {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '비밀번호가 일치하지 않습니다.',
+          isQuestion: false,
+          alertPath: '',
+        })
+      );
+      dispatch(loginActions.nonPass);
+    }
   };
 
-  useEffect(() => {
-    if (result) {
-    }
-  }, [result]);
   return (
     <Fragment>
-      <MainContainer>
-        <CenterDiv>
-          <Input
+      <div className="flexCenterAlign flex-col w-full h-3/5">
+        <div className="mx-auto my-0">
+          <input
+            className="md:w-40 w-80 mr-4 p-2 border-none outline-none z-50"
             type="password"
             placeholder="현재 비밀번호를 입력해주세요."
             value={pw}
             onChange={getPw}
           />
-          <CheckButton onClick={checkPw}>확인</CheckButton>
-        </CenterDiv>
-      </MainContainer>
-      {/* {openAlertModal()} */}
+          <button className="w-16 p-2 cursor-pointer" onClick={checkPw}>
+            확인
+          </button>
+        </div>
+      </div>
     </Fragment>
   );
 };

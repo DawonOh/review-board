@@ -291,7 +291,7 @@ export const ModifyPw = () => {
           </InfoMessage>
         </MainContainer>
       ) : (
-        <CheckPassword setIsPass={setIsPass} parentResult={isPass} />
+        <CheckPassword />
       )}
       {/* {openAlertModal()} */}
     </Fragment>
