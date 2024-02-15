@@ -110,7 +110,7 @@ export const ModifyInfoPage = () => {
           개인 정보 수정
         </h1>
         {isLogin ? (
-          <div className="flexCenterAlign flex-col md:w-132 w-80 h-3/5 mx-auto my-0">
+          <div className="flexCenterAlign flex-col md:w-132 w-80 h-modifyInfoHeight mx-auto my-0">
             <div className="flex justify-start flex-col w-4/5 gap-4">
               <label className="w-full">
                 <p>닉네임</p>
