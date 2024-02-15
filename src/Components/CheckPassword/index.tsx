@@ -1,5 +1,5 @@
+import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'hooks';
-import React, { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { alertActions } from 'redux/slice/alert-slice';
 import { login, loginActions } from 'redux/slice/login-slice';
@@ -22,9 +22,10 @@ export const CheckPassword = () => {
           email: email,
           password: pw,
           isLogin: true,
+          isCheck: true,
         })
       );
-      dispatch(loginActions.pass);
+      dispatch(loginActions.pass());
     } catch (error) {
       dispatch(
         alertActions.setModal({
@@ -34,7 +35,7 @@ export const CheckPassword = () => {
           alertPath: '',
         })
       );
-      dispatch(loginActions.nonPass);
+      dispatch(loginActions.nonPass());
     }
   };
 

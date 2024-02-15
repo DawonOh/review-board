@@ -15,6 +15,7 @@ export const Login = () => {
         email: userInfo.email,
         password: userInfo.password,
         isLogin: true,
+        isCheck: false,
       })
     );
   };

@@ -25,7 +25,12 @@ const BACK_URL = process.env.REACT_APP_BACK_URL;
 export const login = createAsyncThunk(
   'loginSlice/login',
   async (
-    user: { email: string; password: string; isLogin: boolean },
+    user: {
+      email: string;
+      password: string;
+      isLogin: boolean;
+      isCheck: boolean;
+    },
     { dispatch }
   ) => {
     try {
@@ -36,7 +41,7 @@ export const login = createAsyncThunk(
       if (response.status === 200 && response.data.result) {
         sessionStorage.setItem('token', response.data.result?.token);
         await dispatch(getUserInfo());
-        window.location.href = '/';
+        if (user.isCheck !== true) window.location.href = '/';
       }
       return response.data;
     } catch (error) {
