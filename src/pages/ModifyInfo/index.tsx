@@ -110,20 +110,20 @@ export const ModifyInfoPage = () => {
           개인 정보 수정
         </h1>
         {isLogin ? (
-          <div className="flexCenterAlign flex-col w-full h-3/5">
-            <div className="flex flex-col w-132 gap-4">
-              <label className="flex items-center gap-8">
-                닉네임
+          <div className="flexCenterAlign flex-col md:w-132 w-80 h-3/5 mx-auto my-0">
+            <div className="flex justify-start flex-col w-4/5 gap-4">
+              <label className="w-full">
+                <p>닉네임</p>
                 <input
-                  className="flex-1 mr-4 p-2 border-none outline-none rounded-lg"
+                  className="w-full p-2 border-none outline-none rounded-lg"
                   defaultValue={loginUserInfo.nickname}
                   onChange={getNickName}
                 />
               </label>
-              <label className="flex items-center gap-8">
-                이메일
+              <label className="w-full">
+                <p>이메일</p>
                 <input
-                  className="flex-1 mr-4 p-2 border-none outline-none rounded-lg"
+                  className="w-full p-2 border-none outline-none rounded-lg"
                   defaultValue={loginUserInfo.email}
                   onChange={getEmail}
                 />
@@ -138,13 +138,13 @@ export const ModifyInfoPage = () => {
               <div>
                 <span className="mr-4">비밀번호</span>
                 <Link to="/changepw">
-                  <button className="p-2 bg-buttongray text-white text-sm rounded-lg cursor-pointer">
+                  <button className="w-full p-2 bg-buttongray text-white text-sm rounded-lg cursor-pointer">
                     비밀번호 수정
                   </button>
                 </Link>
               </div>
             </div>
-            <div className="flex w-132 justify-between items-center mt-12">
+            <div className="flex w-4/5 justify-between items-center mt-12">
               <Link to="/quit">
                 <div className="text-sm">탈퇴하기</div>
               </Link>
