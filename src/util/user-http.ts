@@ -141,18 +141,26 @@ interface ModifyUserInfoPropsType {
   nickname?: string;
   email?: string;
   password?: string;
+  query?: string;
 }
 export const modifyUserInfo = async ({
   nickname,
   email,
   password,
+  query,
 }: ModifyUserInfoPropsType) => {
   try {
-    const bodyObj = password ? { password } : { nickname, email };
-    const response = await instance.patch<ChangeUserInfoType>(
-      `/users/signup`,
-      bodyObj
-    );
+    const bodyObj = password ? { password: password } : { nickname, email };
+    const response = query
+      ? await axios.patch<ChangeUserInfoType>(
+          `${BACK_URL}/users/signup`,
+          bodyObj,
+          {
+            headers: { Accept: 'application/json', Authorization: query },
+            timeout: 5000,
+          }
+        )
+      : await instance.patch<ChangeUserInfoType>(`/users/signup`, bodyObj);
     return response.data;
   } catch (error) {
     throw error;

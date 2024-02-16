@@ -18,65 +18,43 @@ interface UserInfoType {
 }
 
 export const ModifyPw = () => {
-  const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
   const [newPw, setNewPw] = useState('');
   const [checkNewPw, setCheckNewPw] = useState('');
   const [isRegexPass, setIsRegexPass] = useState(true);
   const [isSamePass, setIsSamePass] = useState(true);
   const BACK_URL = process.env.REACT_APP_BACK_URL;
-  let token = localStorage.getItem('token');
 
   let isPwPass = useAppSelector(state => state.login.isPass);
 
   const dispatch = useAppDispatch();
 
-  // const location = useLocation();
-  // let params = new URLSearchParams(location.search);
-  // let query = params.get('token');
+  const location = useLocation();
+  let params = new URLSearchParams(location.search);
+  let query = params.get('token');
 
-  // let headers = {};
-  // if (token) {
-  //   headers = { Accept: 'application/json', Authorization: token };
-  // }
-  // if (query) {
-  //   headers = { Accept: 'application/json', Authorization: query };
-  // }
-
-  // useEffect(() => {
-  //   if (query) {
-  //     axios
-  //       .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-  //         timeout: 5000,
-  //         headers: { Accept: 'application/json', Authorization: query },
-  //       })
-  //       .then(response => {
-  //         setLoginUserInfo(response.data);
-  //       })
-  //       .catch(error => {
-  //         dispatch(
-  //           alertActions.setModal({
-  //             isModalOpen: true,
-  //             contents: '링크가 만료되었습니다.',
-  //             isQuestion: false,
-  //             alertPath: '/findpw',
-  //           })
-  //         );
-  //       });
-  //   }
-  // }, []);
-  // useEffect(() => {
-  //   if (token) {
-  //     axios
-  //       .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-  //         timeout: 5000,
-  //         headers: { Accept: 'application/json', Authorization: token },
-  //       })
-  //       .then(response => {
-  //         setLoginUserInfo(response.data);
-  //       });
-  //   }
-  //   if (query) setIsPass(true);
-  // }, [token, query]);
+  useEffect(() => {
+    if (query) {
+      dispatch(loginActions.pass());
+      axios
+        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
+          timeout: 5000,
+          headers: { Accept: 'application/json', Authorization: query },
+        })
+        .catch(error => {
+          dispatch(
+            alertActions.setModal({
+              isModalOpen: true,
+              contents: '링크가 만료되었습니다.메일을 다시 전송해주세요.',
+              isQuestion: false,
+              alertPath: '/findpw',
+            })
+          );
+        });
+    }
+    return () => {
+      dispatch(loginActions.nonPass());
+    };
+  }, [BACK_URL, dispatch, query]);
 
   const getNewPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passWordRegex =
@@ -117,7 +95,6 @@ export const ModifyPw = () => {
   const { mutate } = useMutation({
     mutationFn: modifyUserInfo,
     onSuccess: () => {
-      // dispatch(alertActions.closeModal());
       persistor.purge();
       sessionStorage.removeItem('token');
       dispatch(loginActions.nonPass());
@@ -144,7 +121,7 @@ export const ModifyPw = () => {
 
   useEffect(() => {
     if (isClickOk) {
-      mutate({ password: newPw });
+      query ? mutate({ password: newPw, query }) : mutate({ password: newPw });
     }
   }, [isClickOk, dispatch]);
 
