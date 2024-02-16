@@ -1,98 +1,13 @@
-import { AlertModal, CheckPassword, Header, MobileMenu } from 'Components';
-import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
+import { useMutation } from '@tanstack/react-query';
+import { AlertModal, CheckPassword, MobileMenu } from 'Components';
 import axios from 'axios';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { persistor } from 'index';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import Styled from 'styled-components';
-
-const MainContainer = Styled.div`
-  ${flexCenterAlign}
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  height: 60vh;
-`;
-
-const CenterDiv = Styled.div`
-  display: grid;
-  width: 20em;
-  gap:1em;
-  margin: 0 auto;
-  @media (max-width: 767px) {
-    width: 13em;
-  }
-`;
-
-const TitleDiv = Styled.div`
-  display: flex;
-  width: 80%;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 auto;
-  padding: 1em;
-  @media (max-width: 767px) {
-    margin-top: 2em;
-  }
-`;
-
-const Title = Styled.h1`
-  font-size: 1.5em;
-  font-weight: 700;
-  margin-bottom: 2em;
-  @media (max-width: 767px) {
-    font-size: 1.4em;
-  }
-`;
-
-const Input = Styled.input`
-  width: 100%;
-  padding: 0.6em;
-  font-size: 1em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-`;
-
-const Button = Styled.button<{
-  pw: string;
-  checkPw: string;
-  isSamePass: boolean;
-  isRegexPass: boolean;
-}>`
-  ${ButtonLayout}
-  background-color: ${props =>
-    props.pw &&
-    props.checkPw &&
-    props.isSamePass &&
-    props.isRegexPass &&
-    '#676FA3'};
-  color: ${props =>
-    props.pw &&
-    props.checkPw &&
-    props.isSamePass &&
-    props.isRegexPass &&
-    '#fff'};
-  cursor: ${props =>
-    props.pw &&
-    props.checkPw &&
-    props.isSamePass &&
-    props.isRegexPass &&
-    'pointer'};
-  
-`;
-
-const InfoMessage = Styled.p`
-  margin-top: 1em;
-  padding: 1em;
-  font-size: 0.8em;
-`;
-
-const WarningMessage = Styled.p`
-  font-size: 0.8em;
-  color: tomato;
-`;
+import { alertActions } from 'redux/slice/alert-slice';
+import { loginActions } from 'redux/slice/login-slice';
+import { modifyUserInfo } from 'util/user-http';
 interface UserInfoType {
   created_at: string;
   deleted_at: string | null;
@@ -102,86 +17,66 @@ interface UserInfoType {
   updated_at: string;
 }
 
-interface MessageType {
-  id: number;
-  text: string;
-}
-
 export const ModifyPw = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
   const [loginUserInfo, setLoginUserInfo] = useState<UserInfoType>();
-  const [isPass, setIsPass] = useState(false);
   const [newPw, setNewPw] = useState('');
   const [checkNewPw, setCheckNewPw] = useState('');
   const [isRegexPass, setIsRegexPass] = useState(true);
   const [isSamePass, setIsSamePass] = useState(true);
-  // 알림창을 위한 state
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isQuestion, setIsQuestion] = useState(false);
-  const [result, setResult] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const [alertPath, setAlertPath] = useState('');
   const BACK_URL = process.env.REACT_APP_BACK_URL;
   let token = localStorage.getItem('token');
 
-  const location = useLocation();
-  let params = new URLSearchParams(location.search);
-  let query = params.get('token');
+  let isPwPass = useAppSelector(state => state.login.isPass);
 
-  let headers = {};
-  if (token) {
-    headers = { Accept: 'application/json', Authorization: token };
-  }
-  if (query) {
-    headers = { Accept: 'application/json', Authorization: query };
-  }
+  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (query) {
-      axios
-        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: query },
-        })
-        .then(response => {
-          setLoginUserInfo(response.data);
-        })
-        .catch(error => {
-          setMessages([{ id: 1, text: '링크가 만료되었습니다.' }]);
-          setIsQuestion(false);
-          setIsAlertModalOpen(true);
-          setAlertPath('/findpw');
-        });
-    }
-  }, []);
-  useEffect(() => {
-    if (token) {
-      axios
-        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        })
-        .then(response => {
-          setLoginUserInfo(response.data);
-        });
-    }
-    if (query) setIsPass(true);
-  }, [token, query]);
+  // const location = useLocation();
+  // let params = new URLSearchParams(location.search);
+  // let query = params.get('token');
 
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //         alertPath={alertPath}
-  //       />
-  //     );
+  // let headers = {};
+  // if (token) {
+  //   headers = { Accept: 'application/json', Authorization: token };
+  // }
+  // if (query) {
+  //   headers = { Accept: 'application/json', Authorization: query };
+  // }
+
+  // useEffect(() => {
+  //   if (query) {
+  //     axios
+  //       .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
+  //         timeout: 5000,
+  //         headers: { Accept: 'application/json', Authorization: query },
+  //       })
+  //       .then(response => {
+  //         setLoginUserInfo(response.data);
+  //       })
+  //       .catch(error => {
+  //         dispatch(
+  //           alertActions.setModal({
+  //             isModalOpen: true,
+  //             contents: '링크가 만료되었습니다.',
+  //             isQuestion: false,
+  //             alertPath: '/findpw',
+  //           })
+  //         );
+  //       });
   //   }
-  // };
+  // }, []);
+  // useEffect(() => {
+  //   if (token) {
+  //     axios
+  //       .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
+  //         timeout: 5000,
+  //         headers: { Accept: 'application/json', Authorization: token },
+  //       })
+  //       .then(response => {
+  //         setLoginUserInfo(response.data);
+  //       });
+  //   }
+  //   if (query) setIsPass(true);
+  // }, [token, query]);
 
   const getNewPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passWordRegex =
@@ -207,71 +102,94 @@ export const ModifyPw = () => {
   }, [newPw, checkNewPw]);
 
   const changePw = () => {
-    setMessages([{ id: 1, text: '변경하시겠습니까?' }]);
-    setIsQuestion(true);
-    setIsAlertModalOpen(true);
-    setResult(false);
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: '변경하시겠습니까?',
+        isQuestion: true,
+        alertPath: '',
+      })
+    );
   };
 
-  useEffect(() => {
-    if (result) {
-      axios
-        .patch(
-          `${BACK_URL}/users/signup`,
-          { password: newPw },
-          {
-            timeout: 5000,
-            headers: headers,
-          }
-        )
-        .then(response => {
-          setMessages([
-            { id: 1, text: '변경되었습니다.' },
-            { id: 2, text: '새 비밀번호로 로그인해주세요.' },
-          ]);
-          setIsQuestion(false);
-          setIsAlertModalOpen(true);
-          localStorage.clear();
-          setAlertPath('/');
+  let isClickOk = useAppSelector(state => state.alert.isClickOk);
+
+  const { mutate } = useMutation({
+    mutationFn: modifyUserInfo,
+    onSuccess: () => {
+      // dispatch(alertActions.closeModal());
+      persistor.purge();
+      sessionStorage.removeItem('token');
+      dispatch(loginActions.nonPass());
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '변경되었습니다.새 비밀번호로 로그인해주세요.',
+          isQuestion: false,
+          alertPath: '/login',
         })
-        .catch(error => {
-          setMessages([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
-          setIsQuestion(false);
-          setIsAlertModalOpen(true);
-          setAlertPath('/findpw');
-          return;
-        });
+      );
+    },
+    onError: () => {
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '잠시 후 다시 시도해주세요.?',
+          isQuestion: false,
+          alertPath: '/findpw',
+        })
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (isClickOk) {
+      mutate({ password: newPw });
     }
-  }, [result]);
+  }, [isClickOk, dispatch]);
 
   return (
     <Fragment>
       <MobileMenu />
-      <TitleDiv>
-        <Title>비밀번호 변경</Title>
-      </TitleDiv>
-      {isPass ? (
-        <MainContainer>
-          <CenterDiv>
+      <div className="flex w-4/5 justify-between items-center mx-auto my-0 p-4">
+        <h1 className="text-xl font-bold mb-8">비밀번호 변경</h1>
+      </div>
+      {isPwPass ? (
+        <div className="flexCenterAlign flex-col w-full h-3/5">
+          <div className="grid w-80 gap-4 mx-auto my-0">
             <div>새 비밀번호</div>
-            <Input type="password" placeholder="비밀번호" onChange={getNewPw} />
+            <input
+              className="w-full p-2 border-none outline-none rounded-lg"
+              type="password"
+              placeholder="비밀번호"
+              onChange={getNewPw}
+            />
             {isRegexPass === false && (
-              <WarningMessage>비밀번호 조건을 확인해주세요.</WarningMessage>
+              <p className="text-sm text-mainred">
+                비밀번호 조건을 확인해주세요.
+              </p>
             )}
             <div>새 비밀번호 확인</div>
-            <Input
+            <input
+              className="w-full p-2 border-none outline-none rounded-lg"
               type="password"
               placeholder="비밀번호 확인"
               onChange={getCheckNewPw}
             />
             {isSamePass === false && (
-              <WarningMessage>비밀번호가 일치하지 않습니다.</WarningMessage>
+              <p className="text-sm text-mainred">
+                비밀번호가 일치하지 않습니다.
+              </p>
             )}
-            <Button
-              pw={newPw.trim()}
-              checkPw={checkNewPw.trim()}
-              isSamePass={isSamePass}
-              isRegexPass={isRegexPass}
+            <button
+              className={`p-2 rounded-lg ${
+                newPw.trim() !== '' &&
+                checkNewPw.trim() &&
+                isRegexPass &&
+                isSamePass
+                  ? 'bg-mainblue text-white cursor-pointer'
+                  : 'bg-buttongray cursor-default'
+              }`}
               disabled={
                 newPw.trim() !== '' &&
                 checkNewPw.trim() !== '' &&
@@ -283,17 +201,17 @@ export const ModifyPw = () => {
               onClick={changePw}
             >
               변경하기
-            </Button>
-          </CenterDiv>
-          <InfoMessage>
+            </button>
+          </div>
+          <p className="mt-4 p-4 text-sm">
             • 영어 대문자, 소문자, 숫자, 특수문자 포함 8자 ~ 20자로
             설정해주세요.
-          </InfoMessage>
-        </MainContainer>
+          </p>
+        </div>
       ) : (
         <CheckPassword />
       )}
-      {/* {openAlertModal()} */}
+      <AlertModal />
     </Fragment>
   );
 };

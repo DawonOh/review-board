@@ -41,7 +41,7 @@ export const login = createAsyncThunk(
       if (response.status === 200 && response.data.result) {
         sessionStorage.setItem('token', response.data.result?.token);
         await dispatch(getUserInfo());
-        if (user.isCheck !== true) window.location.href = '/';
+        if (!user.isCheck) window.location.href = '/';
       }
       return response.data;
     } catch (error) {

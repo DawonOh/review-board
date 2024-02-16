@@ -138,18 +138,21 @@ interface ChangeUserInfoType {
   };
 }
 interface ModifyUserInfoPropsType {
-  nickname: string;
-  email: string;
+  nickname?: string;
+  email?: string;
+  password?: string;
 }
 export const modifyUserInfo = async ({
   nickname,
   email,
+  password,
 }: ModifyUserInfoPropsType) => {
   try {
-    const response = await instance.patch<ChangeUserInfoType>(`/users/signup`, {
-      nickname,
-      email,
-    });
+    const bodyObj = password ? { password } : { nickname, email };
+    const response = await instance.patch<ChangeUserInfoType>(
+      `/users/signup`,
+      bodyObj
+    );
     return response.data;
   } catch (error) {
     throw error;

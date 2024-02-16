@@ -40,38 +40,36 @@ export const CheckPassword = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="flexCenterAlign md:w-132 w-80 mx-auto my-0">
-        <div className="flex justify-start flex-col w-4/5 gap-4">
-          <label className="w-full">
-            <p>현재 비밀번호를 입력해주세요.</p>
-            <input
-              className="w-full p-2 border-none outline-none rounded-lg"
-              type="password"
-              placeholder="비밀번호"
-              value={pw}
-              onChange={getPw}
-            />
-          </label>
-          <div className="flexCenterAlign gap-4">
-            <button
-              className={`flex-1 p-2 rounded-lg ${
-                pw !== ''
-                  ? 'bg-mainblue text-white cursor-pointer'
-                  : 'bg-buttongray cursor-default'
-              }`}
-              disabled={pw === ''}
-              onClick={checkPw}
-            >
-              확인
-            </button>
-            <Link
-              className="w-16 p-2 text-center bg-buttongray cursor-pointer rounded-lg"
-              to={`/channel/${loginUserId}?type=review`}
-            >
-              <button>취소</button>
-            </Link>
-          </div>
+    <div className="flexCenterAlign md:w-132 w-80 h-modifyInfoHeight mx-auto my-0">
+      <div className="flex justify-start flex-col w-4/5 gap-4">
+        <label className="w-full">
+          <p>현재 비밀번호를 입력해주세요.</p>
+          <input
+            className="w-full p-2 border-none outline-none rounded-lg"
+            type="password"
+            placeholder="비밀번호"
+            value={pw}
+            onChange={getPw}
+          />
+        </label>
+        <div className="flexCenterAlign gap-4">
+          <button
+            className={`flex-1 p-2 rounded-lg ${
+              pw !== ''
+                ? 'bg-mainblue text-white cursor-pointer'
+                : 'bg-buttongray cursor-default'
+            }`}
+            disabled={pw === ''}
+            onClick={checkPw}
+          >
+            확인
+          </button>
+          <Link
+            className="w-16 p-2 text-center bg-buttongray cursor-pointer rounded-lg"
+            to={`/channel/${loginUserId}?type=review`}
+          >
+            <button>취소</button>
+          </Link>
         </div>
       </div>
     </div>
