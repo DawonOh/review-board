@@ -1,134 +1,105 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { AlertModal, CheckPassword, Header } from 'Components';
+import { Fragment, useEffect } from 'react';
+import { AlertModal, CheckPassword } from 'Components';
 import axios from 'axios';
-import Styled from 'styled-components';
-
-const TitleDiv = Styled.div`
-  display: flex;
-  width: 80%;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 auto;
-  padding: 1em;
-  @media (max-width: 767px) {
-    margin-top: 2em;
-  }
-`;
-
-const Title = Styled.h1`
-  font-size: 1.5em;
-  font-weight: 700;
-  margin-bottom: 2em;
-  @media (max-width: 767px) {
-    font-size: 1.4em;
-  }
-`;
-
-const Loader = Styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 2em;
-  height: 2em;
-  border: 5px solid #cddeff;
-  border-radius: 50%;
-  border-top: 5px solid #fff;
-  animation: spin 2s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-interface MessageType {
-  id: number;
-  text: string;
-}
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { alertActions } from 'redux/slice/alert-slice';
+import { loginActions } from 'redux/slice/login-slice';
+import { useMutation } from '@tanstack/react-query';
+import { deleteUser } from 'util/user-http';
+import { persistor } from 'index';
 
 export const Quit = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
-  const [isPass, setIsPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-  // 알림창을 위한 state
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isQuestion, setIsQuestion] = useState(false);
-  const [result, setResult] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  let token = localStorage.getItem('token');
+  const dispatch = useAppDispatch();
+  let isClickOk = useAppSelector(state => state.alert.isClickOk);
+  let isPass = useAppSelector(state => state.login.isPass);
+  let isLogin = useAppSelector(state => state.login.isLogin);
 
-  // const openAlertModal = () => {
-  //   if (isAlertModalOpen) {
-  //     return (
-  //       <AlertModal
-  //         isAlertModalOpen={isAlertModalOpen}
-  //         setIsAlertModalOpen={setIsAlertModalOpen}
-  //         contents=""
-  //         isQuestion={isQuestion}
-  //         setResult={setResult}
-  //       />
-  //     );
-  //   }
-  // };
+  useEffect(() => {
+    return () => {
+      dispatch(loginActions.setIsCheck(false));
+      dispatch(loginActions.setIsPass(null));
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (isPass) {
-      setMessages([
-        { id: 1, text: '정말로 탈퇴하시겠습니까?' },
-        { id: 2, text: '작성한 모든 리뷰 및 댓글이 사라집니다.' },
-      ]);
-      setIsQuestion(true);
-      setIsAlertModalOpen(true);
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents:
+            '정말로 탈퇴하시겠습니까?작성한 모든 리뷰 및 댓글이 사라집니다.',
+          isQuestion: true,
+          alertPath: '',
+        })
+      );
     }
-  }, [isPass]);
+  }, [isPass, dispatch]);
+
+  const alertModal = (content: string) => {
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: content,
+        isQuestion: false,
+        alertPath: '/',
+      })
+    );
+  };
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      persistor.purge();
+      sessionStorage.removeItem('token');
+      dispatch(loginActions.setIsPass(false));
+      dispatch(
+        alertActions.setModal({
+          isModalOpen: true,
+          contents: '탈퇴되었습니다.',
+          isQuestion: false,
+          alertPath: '/',
+        })
+      );
+    },
+    onError: error => {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          alertModal(`존재하지 않는 사용자입니다.`);
+          dispatch(loginActions.setIsPass(false));
+        } else {
+          alertModal('잠시 후 다시 시도해주세요.');
+          dispatch(loginActions.setIsPass(false));
+        }
+      }
+    },
+  });
 
   useEffect(() => {
-    if (result) {
-      setLoading(true);
-      axios
-        .delete<string>(`${BACK_URL}/users/signup`, {
-          headers: { Accept: 'application/json', Authorization: token },
-        })
-        .then(response => {
-          setLoading(false);
-          setMessages([{ id: 1, text: '탈퇴되었습니다.' }]);
-          setIsQuestion(false);
-          setIsAlertModalOpen(true);
-          localStorage.clear();
-          setTimeout(function () {
-            window.location.href = '/';
-          }, 3000);
-        })
-        .catch(error => {
-          setLoading(false);
-          if (error.response.status === 404) {
-            setMessages([{ id: 1, text: '존재하지 않는 사용자입니다.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setIsPass(false);
-            setResult(false);
-          } else {
-            setMessages([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
-            setIsPass(false);
-            setResult(false);
-          }
-        });
+    if (isClickOk) {
+      dispatch(loginActions.setIsCheck(false));
+      mutate();
     }
-  }, [result]);
+  }, [isClickOk, dispatch]);
 
   return (
     <Fragment>
-      <TitleDiv>
-        <Title>탈퇴하기</Title>
-      </TitleDiv>
-      {loading ? <Loader /> : <CheckPassword />}
+      {isLogin ? (
+        <>
+          <div className="flex w-4/5 justiry-between items-center mx-auto my-0 p-4">
+            <h1 className="text-xl font-bold mb-8">탈퇴하기</h1>
+          </div>
+          {isPending ? (
+            <div className="w-8 h-8 border-4 border-mainsky rounded-full border-t-4 border-t-white animate-spin" />
+          ) : (
+            <CheckPassword />
+          )}
+        </>
+      ) : (
+        <div className="flexCenterAlign w-full h-noScroll">
+          <div className="mx-auto my-0">로그인 후 이용해주세요.</div>
+        </div>
+      )}
+      <AlertModal />
     </Fragment>
   );
 };

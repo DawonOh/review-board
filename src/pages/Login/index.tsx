@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from 'hooks';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { login } from 'redux/slice/login-slice';
+import { login, loginActions } from 'redux/slice/login-slice';
 
 export const Login = () => {
   const [userInfo, setUserInfo] = useState({ email: '', password: '' });
@@ -10,11 +10,11 @@ export const Login = () => {
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    dispatch(loginActions.setIsCheck(false));
     dispatch(
       login({
         email: userInfo.email,
         password: userInfo.password,
-        isLogin: true,
         isCheck: false,
       })
     );

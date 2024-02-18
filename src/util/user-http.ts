@@ -166,3 +166,13 @@ export const modifyUserInfo = async ({
     throw error;
   }
 };
+
+// 사용자 탈퇴
+export const deleteUser = async () => {
+  try {
+    const response = await instance.delete('/users/signup');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

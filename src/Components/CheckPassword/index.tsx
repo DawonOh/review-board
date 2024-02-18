@@ -7,8 +7,9 @@ import { login, loginActions } from 'redux/slice/login-slice';
 export const CheckPassword = () => {
   const [pw, setPw] = useState('');
   const dispatch = useAppDispatch();
-  const email = useAppSelector(state => state.user.email);
-  const loginUserId = useAppSelector(state => state.user.id);
+  const userInfo = useAppSelector(state => state.user);
+  const isLoading = useAppSelector(state => state.login.isLoading);
+  const isPass = useAppSelector(state => state.login.isPass);
 
   const getPw = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPw(e.target.value);
@@ -17,15 +18,14 @@ export const CheckPassword = () => {
   const checkPw = () => {
     try {
       setPw('');
+      dispatch(loginActions.setIsCheck(true));
       dispatch(
         login({
-          email: email,
+          email: userInfo.email,
           password: pw,
-          isLogin: true,
           isCheck: true,
         })
       );
-      dispatch(loginActions.pass());
     } catch (error) {
       dispatch(
         alertActions.setModal({
@@ -35,7 +35,7 @@ export const CheckPassword = () => {
           alertPath: '',
         })
       );
-      dispatch(loginActions.nonPass());
+      dispatch(loginActions.setIsPass(false));
     }
   };
 
@@ -52,6 +52,9 @@ export const CheckPassword = () => {
             onChange={getPw}
           />
         </label>
+        {isPass === false && (
+          <p className="text-sm text-mainred">비밀번호가 일치하지 않습니다.</p>
+        )}
         <div className="flexCenterAlign gap-4">
           <button
             className={`flex-1 p-2 rounded-lg ${
@@ -62,11 +65,11 @@ export const CheckPassword = () => {
             disabled={pw === ''}
             onClick={checkPw}
           >
-            확인
+            {isLoading ? '확인중...' : '확인'}
           </button>
           <Link
             className="w-16 p-2 text-center bg-buttongray cursor-pointer rounded-lg"
-            to={`/channel/${loginUserId}?type=review`}
+            to={`/channel/${userInfo.id}?type=review`}
           >
             <button>취소</button>
           </Link>

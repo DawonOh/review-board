@@ -5,7 +5,9 @@ import axios from 'axios';
 
 interface LoginType {
   isLogin: boolean | null;
-  isPass: boolean;
+  isCheck: boolean;
+  isPass: boolean | null;
+  isLoading: boolean;
 }
 
 interface LoginResultType {
@@ -17,7 +19,9 @@ interface LoginResultType {
 
 const initialLoginState: LoginType = {
   isLogin: null,
-  isPass: false,
+  isCheck: false,
+  isPass: null,
+  isLoading: false,
 };
 
 const BACK_URL = process.env.REACT_APP_BACK_URL;
@@ -28,7 +32,6 @@ export const login = createAsyncThunk(
     user: {
       email: string;
       password: string;
-      isLogin: boolean;
       isCheck: boolean;
     },
     { dispatch }
@@ -43,9 +46,9 @@ export const login = createAsyncThunk(
         await dispatch(getUserInfo());
         if (!user.isCheck) window.location.href = '/';
       }
-      return response.data;
+      return { data: response.data, isCheck: user.isCheck };
     } catch (error) {
-      throw new Error('로그인 오류 발생');
+      throw error;
     }
   }
 );
@@ -54,19 +57,26 @@ const loginSlice = createSlice({
   name: 'login',
   initialState: initialLoginState,
   reducers: {
-    pass: state => {
-      state.isPass = true;
+    setIsPass: (state, action) => {
+      state.isPass = action.payload;
     },
-    nonPass: state => {
-      state.isPass = false;
+    setIsCheck: (state, action) => {
+      state.isCheck = action.payload;
     },
   },
   extraReducers: builder => {
-    builder.addCase(login.fulfilled, state => {
+    builder.addCase(login.pending, state => {
+      state.isLoading = true;
+    });
+    builder.addCase(login.fulfilled, (state, action) => {
+      state.isLoading = false;
       state.isLogin = true;
+      state.isPass = action.payload.isCheck ? true : false;
     });
     builder.addCase(login.rejected, state => {
-      state.isLogin = false;
+      state.isLoading = false;
+      state.isLogin = state.isCheck ? true : false;
+      state.isPass = false;
     });
     builder.addCase(PURGE, () => initialLoginState);
   },

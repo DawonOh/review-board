@@ -34,7 +34,7 @@ export const ModifyPw = () => {
 
   useEffect(() => {
     if (query) {
-      dispatch(loginActions.pass());
+      dispatch(loginActions.setIsPass(true));
       axios
         .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
@@ -52,7 +52,7 @@ export const ModifyPw = () => {
         });
     }
     return () => {
-      dispatch(loginActions.nonPass());
+      dispatch(loginActions.setIsPass(null));
     };
   }, [BACK_URL, dispatch, query]);
 
@@ -97,7 +97,7 @@ export const ModifyPw = () => {
     onSuccess: () => {
       persistor.purge();
       sessionStorage.removeItem('token');
-      dispatch(loginActions.nonPass());
+      dispatch(loginActions.setIsPass(false));
       dispatch(
         alertActions.setModal({
           isModalOpen: true,
