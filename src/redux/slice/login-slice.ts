@@ -5,7 +5,7 @@ import axios from 'axios';
 
 interface LoginType {
   isLogin: boolean | null;
-  isCheck: boolean;
+  isCheck: boolean | null;
   isPass: boolean | null;
   isLoading: boolean;
 }
@@ -19,7 +19,7 @@ interface LoginResultType {
 
 const initialLoginState: LoginType = {
   isLogin: null,
-  isCheck: false,
+  isCheck: null,
   isPass: null,
   isLoading: false,
 };
@@ -71,7 +71,7 @@ const loginSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       state.isLoading = false;
       state.isLogin = true;
-      state.isPass = action.payload.isCheck ? true : false;
+      state.isPass = action.payload.isCheck ? true : null;
     });
     builder.addCase(login.rejected, state => {
       state.isLoading = false;

@@ -132,7 +132,7 @@ export const ModifyPw = () => {
         <h1 className="text-xl font-bold mb-8">비밀번호 변경</h1>
       </div>
       {isPwPass ? (
-        <div className="flexCenterAlign flex-col w-full h-3/5">
+        <div className="flexCenterAlign flex-col w-full h-modifyInfoHeight">
           <div className="grid w-80 gap-4 mx-auto my-0">
             <div>새 비밀번호</div>
             <input
