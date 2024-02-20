@@ -22,6 +22,7 @@ export const Header = () => {
   const handleLogout = async () => {
     persistor.purge();
     sessionStorage.removeItem('token');
+    window.location.href = '/';
   };
 
   const handleMouseOver = () => {

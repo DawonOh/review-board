@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { MobileMenu } from 'Components';
+import { AlertModal, MobileMenu } from 'Components';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
@@ -98,6 +98,7 @@ export const MyPage = () => {
           )}
         </div>
       </div>
+      <AlertModal />
     </Fragment>
   );
 };

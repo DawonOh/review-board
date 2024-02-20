@@ -81,6 +81,9 @@ export const CommentTextarea = ({
         queryClient.invalidateQueries({
           queryKey: ['comments'],
         });
+        queryClient.invalidateQueries({
+          queryKey: ['userCommentList'],
+        });
         setMainCommentText('');
         setReplyMainTextLength(0);
         newAlert('작성되었습니다.');
@@ -102,6 +105,9 @@ export const CommentTextarea = ({
       queryClient.invalidateQueries({
         queryKey: ['comments'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['userCommentList'],
+      });
       toggleTextarea && toggleTextarea();
       newAlert('작성되었습니다.');
     },
@@ -119,6 +125,9 @@ export const CommentTextarea = ({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ['comments'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['userCommentList'],
         });
         newAlert('수정되었습니다.');
         modifyReply && modifyReply();
