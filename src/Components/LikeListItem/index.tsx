@@ -1,11 +1,5 @@
 import { Link } from 'react-router-dom';
-import Styled from 'styled-components';
 import { symbolListType } from 'util/feed-http';
-
-const CreatedAtDiv = Styled.div`
-  font-size: 0.9em;
-  color: #BDBDBD;
-`;
 
 export const LikeListItem = ({ feedData }: { feedData: symbolListType }) => {
   return (
@@ -15,7 +9,9 @@ export const LikeListItem = ({ feedData }: { feedData: symbolListType }) => {
         className="w-11/12 md:inline flex flex-col"
       >
         <div className="text-xl font-bold">{feedData.feed.title}</div>
-        <CreatedAtDiv>{feedData.created_at.slice(0, 10)}</CreatedAtDiv>
+        <div className="text-sm text-textgray">
+          {feedData.created_at.slice(0, 10)}
+        </div>
       </Link>
     </div>
   );

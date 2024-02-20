@@ -103,7 +103,7 @@ export const MainPage = () => {
           )}
         </div>
       </div>
-      <CardList categoryId={categoryId} />
+      <CardList categoryId={categoryId} isSearch={false} />
     </div>
   );
 };

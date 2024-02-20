@@ -13,7 +13,10 @@ const mobileMenuSlice = createSlice({
   initialState: initialMobileMenuState,
   reducers: {
     handleMenuOn: state => {
-      state.isMenuOn = !state.isMenuOn;
+      state.isMenuOn = true;
+    },
+    handleMenuOff: state => {
+      state.isMenuOn = false;
     },
   },
 });

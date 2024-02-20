@@ -24,9 +24,10 @@ interface cardListType {
 
 interface PropsType {
   categoryId: any;
+  isSearch: boolean;
 }
 
-export const CardList = ({ categoryId }: PropsType) => {
+export const CardList = ({ categoryId, isSearch }: PropsType) => {
   const {
     data,
     fetchNextPage,
@@ -53,9 +54,15 @@ export const CardList = ({ categoryId }: PropsType) => {
     },
     [isFetchingNextPage, hasNextPage, status]
   );
+
   const cardListReturnJsx = () => {
-    if (cardLists?.length === 0) {
-      return (
+    if (cardLists && cardLists[0].length === 0) {
+      return isSearch ? (
+        <div className="flex flex-col items-center absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+          <div className='w-20 h-20 mb-4 bg-[url("./assets/images/searchFail.png")] bg-no-repeat bg-cover animate-move' />
+          <div>검색 결과가 없습니다.</div>
+        </div>
+      ) : (
         <div className="w-full h-[calc(100vh-6rem-58px)] flex flex-col items-center justify-center z-50">
           <div className="w-20 h-20 mb-4 bg-[url('./assets/images/first.png')] bg-no-repeat bg-cover animate-move" />
           <div>리뷰가 없습니다! 첫 리뷰를 작성해주세요😎</div>
