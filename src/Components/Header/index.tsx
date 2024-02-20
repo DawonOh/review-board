@@ -22,6 +22,7 @@ export const Header = () => {
   const handleLogout = async () => {
     persistor.purge();
     sessionStorage.removeItem('token');
+    window.location.href = '/';
   };
 
   const handleMouseOver = () => {
@@ -74,7 +75,7 @@ export const Header = () => {
                         isHover ? 'flex' : 'hidden'
                       } absolute w-36 flex-col p-4 gap-4 bg-white border border-buttongray rounded-md`}
                     >
-                      <Link to={'/channel/' + loginUserId}>
+                      <Link to={`/channel/${loginUserId}?type=review`}>
                         <span className="cursor-pointer hover:text-mainblue">
                           내 채널
                         </span>

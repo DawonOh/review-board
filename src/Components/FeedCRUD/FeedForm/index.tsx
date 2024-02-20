@@ -18,6 +18,7 @@ import Estimation from '../Estimation';
 import TitleInput from '../TitleInput';
 import ContentTextarea from '../ContentTextarea';
 import { useMutation } from '@tanstack/react-query';
+import { useAppSelector } from 'hooks';
 
 interface FormPropsType {
   estimationList: EstimationType[] | undefined;
@@ -270,6 +271,8 @@ const FeedForm = ({
     }
   };
 
+  const userId = useAppSelector(state => state.user.id);
+
   const sendFeed = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -280,6 +283,7 @@ const FeedForm = ({
       category: categoryId,
       fileLinks: fileLink,
       mode: mode,
+      userId: userId,
     };
     const data: { [key: string]: FormDataEntryValue } = {};
     for (const [key, value] of formData.entries()) {
@@ -416,10 +420,15 @@ export const feedFormAction = async ({ request }: { request: Request }) => {
   };
   mode !== 'modify' ? await sendFeed(bodyObj) : await editFeed(bodyObj);
 
+  let userId = formData.get('userId');
+
   queryClient.invalidateQueries({
     queryKey: ['feed', { feedId: feedId.toString() }],
   });
   queryClient.invalidateQueries({ queryKey: ['mainList'] });
+  queryClient.invalidateQueries({
+    queryKey: ['channelUserFeedList', { userId }],
+  });
 
   return mode !== 'modify' ? redirect(`/`) : redirect(`/feed/${feedId}`);
 };

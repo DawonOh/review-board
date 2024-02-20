@@ -208,7 +208,7 @@ export const FeedDetail = ({
     <div className="w-full p-8">
       <div className="w-4/5 my-0 mx-auto bg-white rounded-md md:px-20 px-8 pt-12 pb-8">
         <div className="flex items-center gap-4 mb-4">
-          <div className="inline-block px-4 rounded-md">
+          <div className="inline-block px-4 bg-buttongray rounded-md">
             {feedDetailData?.category.category}
           </div>
           <div className="flexCenterAlign mr-2">
@@ -229,7 +229,7 @@ export const FeedDetail = ({
                 {createDate} 작성 | {updateDate} 편집
               </div>
               <div className="flex align-center gap-8">
-                <Link to={`/channel/${feedDetailData?.user.id}`}>
+                <Link to={`/channel/${feedDetailData?.user.id}?type=review`}>
                   <span className="font-bold">
                     {feedDetailData?.user.nickname}
                   </span>

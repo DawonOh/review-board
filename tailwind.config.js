@@ -12,6 +12,7 @@ module.exports = {
         '25rem': '25rem',
         noScroll: 'calc(100vh - 3rem)',
         tempListHeight: 'calc(100vh - 12rem)',
+        modifyInfoHeight: 'calc(100vh - 24rem)',
       },
       screens: {
         md: '768px',
@@ -24,6 +25,7 @@ module.exports = {
         mainsky: '#CCDEFF',
         white: '#fff',
         black: '#000',
+        textgray: '#BDBDBD',
       },
       keyframes: {
         'fade-in': {

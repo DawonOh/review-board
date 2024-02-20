@@ -1,20 +1,22 @@
 import { useAppDispatch, useAppSelector } from 'hooks';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { login } from 'redux/slice/login-slice';
+import { login, loginActions } from 'redux/slice/login-slice';
 
 export const Login = () => {
   const [userInfo, setUserInfo] = useState({ email: '', password: '' });
   const dispatch = useAppDispatch();
   const isLogin = useAppSelector((state: any) => state.login.isLogin);
+  const isLoading = useAppSelector(state => state.login.isLoading);
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    dispatch(loginActions.setIsCheck(false));
     dispatch(
       login({
         email: userInfo.email,
         password: userInfo.password,
-        isLogin: true,
+        isCheck: false,
       })
     );
   };
@@ -42,7 +44,7 @@ export const Login = () => {
         </div>
       </div>
 
-      <div className="md:w-1/2 w-full h-screen flexCenterAlign flex-col">
+      <div className="md:w-1/2 w-full h-screen flexCenterAlign flex-col bg-white">
         <Link to="/">
           <div className="w-6 h-6 absolute top-8 left-8 bg-[url('./assets/images/back.png')] bg-no-repeat bg-cover cursor-pointer" />
         </Link>
@@ -91,7 +93,7 @@ export const Login = () => {
                   : false
               }
             >
-              SIGN IN
+              {isLoading ? '로그인 중...' : 'SIGN IN'}
             </button>
           </div>
         </form>
