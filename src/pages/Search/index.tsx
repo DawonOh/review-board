@@ -33,17 +33,20 @@ export const SearchPage = () => {
   return (
     <div className="w-full h-full reletive">
       <MobileMenu />
-      <div className="flex items-center w-4/5 h-full p-4 mx-auto my-0 mt-4 gap-2">
+      <div className="flex items-center w-4/5 h-full p-4 mx-auto my-0 gap-2">
         <div className="md:block hidden w-5 h-5 bg-[url('./assets/images/search.png')] bg-no-repeat bg-cover" />
         <input
-          className="w-80 p-2 border-none rounded-lg outline-none"
+          className="md:w-80 w-68 p-2 border-none rounded-lg outline-none"
           type="search"
           placeholder="검색어를 입력해주세요."
           defaultValue={queryValue ? queryValue : ''}
           onKeyUp={search}
           onChange={e => setSearchValue(e.target.value)}
         />
-        <button className="p-2 cursor-pointer" onClick={() => searchClick()}>
+        <button
+          className="py-2 px-4 bg-buttongray rounded-lg cursor-pointer"
+          onClick={() => searchClick()}
+        >
           검색
         </button>
       </div>

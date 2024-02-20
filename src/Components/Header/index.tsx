@@ -15,13 +15,17 @@ export const Header = () => {
   const loginUserId = useAppSelector(state => state.user.id);
   const isFetching = useIsFetching();
   const dispatch = useAppDispatch();
+  const isMobileMenuOn = useAppSelector(state => state.mobileMenu.isMenuOn);
   const handleMobileMenu = () => {
-    dispatch(mobileMenuActions.handleMenuOn());
+    isMobileMenuOn
+      ? dispatch(mobileMenuActions.handleMenuOff())
+      : dispatch(mobileMenuActions.handleMenuOn());
   };
 
   const handleLogout = async () => {
     persistor.purge();
     sessionStorage.removeItem('token');
+    dispatch(mobileMenuActions.handleMenuOff());
     window.location.href = '/';
   };
 
@@ -40,7 +44,10 @@ export const Header = () => {
       <header className="flexCenterAlign flex-col sticky h-12 top-0 bg-white z-50 relative">
         <div className="flex justify-between items-center w-4/5 h-full px-8">
           <Link to="/">
-            <h1 className="font-sans text-mainblue text-2xl font-bold">
+            <h1
+              className="font-sans text-mainblue text-2xl font-bold"
+              onClick={() => dispatch(mobileMenuActions.handleMenuOff())}
+            >
               ALLREVIEW
             </h1>
           </Link>

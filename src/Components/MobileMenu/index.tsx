@@ -34,16 +34,18 @@ export const MobileMenu = () => {
   }, [isLogin]);
 
   const closeMenu = () => {
-    dispatch(mobileMenuActions.handleMenuOn());
+    dispatch(mobileMenuActions.handleMenuOff());
   };
 
   const handleLogout = async () => {
     persistor.purge();
     sessionStorage.removeItem('token');
+    window.location.href = '/';
+    dispatch(mobileMenuActions.handleMenuOff());
   };
   return (
     <div
-      className={`w-full h-full fixed p-12 ${
+      className={`w-full h-full fixed top-12 p-12 ${
         isMenuOn ? 'translate-x-0' : '-translate-x-full'
       } duration-500 bg-white border border-buttongray z-50 md:hidden`}
     >
@@ -70,8 +72,11 @@ export const MobileMenu = () => {
         })}
         {isLogin ? (
           <>
-            <Link to={`/channel/${loginUserId}`}>
-              <li className="flexCenterAlign gap-4 text-xl cursor-pointer">
+            <Link to={`/channel/${loginUserId}?type=review`}>
+              <li
+                className="flexCenterAlign gap-4 text-xl cursor-pointer"
+                onClick={closeMenu}
+              >
                 <img
                   className="w-4 h-4"
                   src={PersonIcon}
