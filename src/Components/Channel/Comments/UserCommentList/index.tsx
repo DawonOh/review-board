@@ -13,7 +13,7 @@ export const UserCommentList = ({ userId }: UserCommentListPropsType) => {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
-      queryKey: ['userCommentList'],
+      queryKey: ['userCommentList', { userCommentListId: userId }],
       queryFn: ({ pageParam = 1, signal }) =>
         getUserCommentList({ isLogin, pageParam, userId, signal }),
       initialPageParam: 0,

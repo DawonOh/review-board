@@ -84,7 +84,11 @@ const CommentItem = (
       setContent('삭제된 댓글입니다.');
       return;
     }
-    if (userComments.is_private) {
+    if (
+      userComments.is_private &&
+      userId &&
+      loginUserId !== parseInt(userId, 10)
+    ) {
       setContent('비밀댓글입니다.');
       return;
     }

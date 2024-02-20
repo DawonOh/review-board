@@ -42,7 +42,7 @@ export const MyPage = () => {
               )}
             </div>
             <span className="pl-4">
-              가입일 : {myPageUserInfo?.created_at.slice(0, -16)}
+              가입일 : {myPageUserInfo?.created_at.slice(0, -14)}
             </span>
             {loginUserInfo?.id === Number(userId) && (
               <Link to="/changeinfo" state={{ loginUserId: loginUserInfo?.id }}>
