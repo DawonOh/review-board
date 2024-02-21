@@ -1,144 +1,16 @@
-import axios from 'axios';
+import instance from 'api';
 import { AlertModal } from 'Components';
+import { useAppDispatch } from 'hooks';
 import React, { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Styled from 'styled-components';
-import { ButtonLayout, flexCenterAlign } from 'Styles/CommonStyle';
+import { alertActions } from 'redux/slice/alert-slice';
 
-const MainContainer = Styled.div`
-  ${flexCenterAlign}
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
-`;
-
-const CenterContainer = Styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-direction: column;
-  gap: 1em;
-`;
-
-const TitleDiv = Styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 auto;
-  @media (max-width: 767px) {
-    margin-top: 2em;
-  }
-`;
-
-const Title = Styled.h1`
-  font-size: 1.5em;
-  font-weight: 700;
-  @media (max-width: 767px) {
-    font-size: 1.4em;
-  }
-`;
-
-const Input = Styled.input`
-  width: 20em;
-  padding: 0.6em;
-  font-size: 1em;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.3em;
-  &:focus {
-    outline: none;
-  }
-  @media (max-width: 767px) {
-    width: 10em;
-  }
-`;
-
-const SmallMessage = Styled.p`
-  font-size: 0.8em;
-`;
-
-const WarningMessage = Styled.p`
-  color: #FF5959;
-  font-size: 0.8em;
-`;
-
-const Button = Styled.button<{
-  color?: string;
-  email?: string;
-  isEmailPass?: boolean;
-}>`
-  ${ButtonLayout}
-  padding: 0.3em;
-  background-color: ${props =>
-    props.email !== '' && props.isEmailPass ? '#676FA3' : '#BDBDBD'};
-  color: #fff;
-  cursor: ${props =>
-    (props.email !== '' && props.isEmailPass) || props.color === 'gray'
-      ? 'pointer'
-      : 'default'};
-`;
-
-const Flex = Styled.div`
-  display: flex;
-  gap: 1em;
-`;
-
-const Loader = Styled.div`
-  width: 2em;
-  height: 2em;
-  border: 5px solid #cddeff;
-  border-radius: 50%;
-  border-top: 5px solid #fff;
-  animation: spin 2s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const FlexCenter = Styled.div`
-  ${flexCenterAlign}
-  flex-direction: column;
-  gap: 1em;
-`;
-
-interface MessageType {
-  id: number;
-  text: string;
-}
 export const FindPw = () => {
   const [email, setEmail] = useState('');
-  const [isEmailPass, setIsEmailPass] = useState(true);
+  const [isEmailPass, setIsEmailPass] = useState<boolean | null>(null);
   const [warningMessage, setWarningMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  // 알림창을 위한 state
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isQuestion, setIsQuestion] = useState(false);
-  const [result, setResult] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-  const FRONT_URL = process.env.REACT_APP_BASE_URL;
-
-  const openAlertModal = () => {
-    if (isAlertModalOpen) {
-      return (
-        <AlertModal
-          isAlertModalOpen={isAlertModalOpen}
-          setIsAlertModalOpen={setIsAlertModalOpen}
-          contents={messages}
-          isQuestion={isQuestion}
-          setResult={setResult}
-        />
-      );
-    }
-  };
+  const dispatch = useAppDispatch();
 
   //이메일 유효성 검사
   const checkEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,84 +25,93 @@ export const FindPw = () => {
     setEmail(e.target.value);
   };
 
+  const alert = (content: string) => {
+    dispatch(
+      alertActions.setModal({
+        isModalOpen: true,
+        contents: content,
+        alertPath: '',
+        isQuestion: false,
+      })
+    );
+  };
+
   // 비밀번호 찾기 버튼 클릭 시 메일 전송 API 호출
   const sendEmail = () => {
     setLoading(true);
     if (email !== '' && isEmailPass) {
-      axios
-        .post(
-          `${BACK_URL}:${BACK_PORT}/users/signup/password`,
-          {
-            email: email,
-            resetPasswordUrl: `http://${FRONT_URL}:3000/changepw`,
-          },
-          {
-            timeout: 5000,
-            headers: { Accept: 'application/json' },
-          }
-        )
+      instance
+        .post(`/users/signup/password`, {
+          email: email,
+          resetPasswordUrl: `http://localhost:3000/changepw`,
+        })
         .then(response => {
           if (response.status === 200) {
             setLoading(false);
-            setMessages([{ id: 1, text: '메일을 전송했습니다.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
+            setIsEmailPass(false);
+            alert('메일을 전송했습니다.');
           }
         })
         .catch(error => {
           if (error.response.status === 404) {
             setLoading(false);
             setWarningMessage('존재하지 않는 사용자입니다.');
+            setIsEmailPass(false);
             return;
           }
           if (error.response.status === 500) {
             setLoading(false);
-            setMessages([{ id: 1, text: '잠시 후 다시 시도해주세요.' }]);
-            setIsQuestion(false);
-            setIsAlertModalOpen(true);
+            setIsEmailPass(false);
+            alert('잠시 후 다시 시도해주세요.');
           }
         });
     }
   };
-  // 3. loading state로 true일 때 jsx 주석 해놓은 부분으로 레이아웃 변경 (로딩 완료되면 다시 이메일 입력칸 나오게 하고, 이메일 칸은 비우기)
-  // 4. 응답 status 200 -> alertModal 표시
-  // + 응답 status 404 -> 존재하지 않는 사용자입니다. 표시
   return (
-    <MainContainer>
-      <CenterContainer>
+    <div className="flexCenterAlign flex-col w-full h-screen">
+      <div className="flex justify-center items-start flex-col gap-4">
         {loading ? (
-          <FlexCenter>
-            <Loader />
+          <div className="flexCenterAlign flex-col gap-4">
+            <div className="w-8 h-8 border-4 border-mainsky rounded-full border-t-4 border-t-white animate-spin" />
             메일을 전송하고 있습니다.
-          </FlexCenter>
+          </div>
         ) : (
           <Fragment>
-            <TitleDiv>
-              <Title>비밀번호 찾기</Title>
-            </TitleDiv>
+            <div className="flex w-full justify-between items-center mx-auto my-0">
+              <h1 className="text-xl font-bold">비밀번호 찾기</h1>
+            </div>
             <p>가입한 이메일을 입력해주세요.</p>
-            <SmallMessage>
+            <p className="text-sm">
               • 비밀번호를 변경할 수 있는 메일을 보내드립니다.
-            </SmallMessage>
-            <Input placeholder="example@email.com" onChange={checkEmail} />
-            <WarningMessage>{warningMessage}</WarningMessage>
-            <Flex>
+            </p>
+            <input
+              className="w-80 p-2 border-[#eo0e0e0] rounded-lg focus:outline-none"
+              placeholder="example@email.com"
+              onChange={checkEmail}
+            />
+            <p className="text-mainred text-sm">{warningMessage}</p>
+            <div className="flex gap-4">
               <Link to="/">
-                <Button color="gray">메인으로 돌아가기</Button>
+                <button className="p-2 bg-buttongray rounded-lg">
+                  메인으로 돌아가기
+                </button>
               </Link>
-              <Button
+              <button
+                className={`p-2 rounded-lg ${
+                  isEmailPass === true
+                    ? 'bg-mainblue text-white cursor-pointer'
+                    : 'bg-buttongray text-black'
+                }`}
                 disabled={email !== '' && isEmailPass ? false : true}
-                email={email}
-                isEmailPass={isEmailPass}
                 onClick={sendEmail}
               >
                 비밀번호 찾기
-              </Button>
-            </Flex>
+              </button>
+            </div>
           </Fragment>
         )}
-      </CenterContainer>
-      {openAlertModal()}
-    </MainContainer>
+      </div>
+      <AlertModal />
+    </div>
   );
 };

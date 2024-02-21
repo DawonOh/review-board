@@ -1,48 +1,82 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import Styled from 'styled-components';
-import { Header, MobileMenu, FeedDetail, CommentContainer } from 'Components';
-import axios from 'axios';
+import { Fragment } from 'react';
+import {
+  MobileMenu,
+  FeedDetail,
+  CommentContainer,
+  File,
+  AlertModal,
+} from 'Components';
+import {
+  feedComments,
+  feedDetailData,
+  getFeedLike,
+  queryClient,
+} from 'util/feedDetail-http';
+import { useQueries } from '@tanstack/react-query';
+import { LoaderFunctionArgs, json, useParams } from 'react-router-dom';
 
-const MainContainer = Styled.div`
-  width: 80%;
-  height: 100%;
-  position: relate;
-  margin: 0 auto;
-  padding: 2em;
-`;
+const feedDetailQuery = (feedId: string | undefined) => ({
+  queryKey: ['feed', { feedId }],
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    feedDetailData({ feedId, signal }),
+  staleTime: 1000 * 60 * 2,
+});
+
+let token = sessionStorage.getItem('token');
+const feedCommentsQuery = (feedId: string | undefined) => ({
+  queryKey: ['comments', { commentsFeedId: feedId }],
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    feedComments({ feedId, signal, token }),
+  staleTime: 1000 * 60 * 2,
+});
+
+const feedLikeQuery = (feedId: string | undefined) => ({
+  queryKey: ['like', { likeFeedId: feedId }],
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    getFeedLike({ feedId, signal }),
+  staleTime: 1000 * 60 * 2,
+});
 
 export const Feed = () => {
-  const [isMenuOn, setIsMenuOn] = useState(false);
-  //로그인 한 유저 Id
-  const [loginUserId, setLoginUserId] = useState(0);
-  const BACK_URL = process.env.REACT_APP_BACK_URL;
-  const BACK_PORT = process.env.REACT_APP_BACK_DEFAULT_PORT;
-  let token = localStorage.getItem('token');
+  const params = useParams();
+  const feedId = params.id;
 
-  useEffect(() => {
-    if (token) {
-      axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
-          timeout: 5000,
-          headers: { Accept: 'application/json', Authorization: token },
-        })
-        .then(response => {
-          setLoginUserId(response.data.id);
-        });
-    }
-  }, []);
+  const feedData = useQueries({
+    queries: [
+      feedDetailQuery(feedId),
+      feedCommentsQuery(feedId),
+      feedLikeQuery(feedId),
+    ],
+  });
+
   return (
     <Fragment>
-      <Header isMenuOn={isMenuOn} setIsMenuOn={setIsMenuOn} />
-      <MobileMenu
-        isMenuOn={isMenuOn}
-        setIsMenuOn={setIsMenuOn}
-        loginUserId={loginUserId}
-      />
-      <MainContainer>
-        <FeedDetail loginUserId={loginUserId} />
-        <CommentContainer loginUserId={loginUserId} />
-      </MainContainer>
+      <MobileMenu />
+      <div className="w-full h-full relate my-0 mx-auto pt-8">
+        <FeedDetail
+          feedDetailData={feedData[0].data}
+          feedLikeData={feedData[2].data}
+        />
+        <File fileData={feedData[0].data?.uploadFiles} />
+        <CommentContainer mainCommentList={feedData[1].data} />
+      </div>
+      <AlertModal />
     </Fragment>
   );
+};
+
+export const feedLoader = async ({ params }: LoaderFunctionArgs) => {
+  let feedId = params.id;
+  const [feedDetailData, feedCommentsData, feedLikeData] = await Promise.all([
+    queryClient.fetchQuery(feedDetailQuery(feedId)),
+    queryClient.fetchQuery(feedCommentsQuery(feedId)),
+    queryClient.fetchQuery(feedLikeQuery(feedId)),
+  ]);
+  queryClient.setQueryData(['feed', { feedId }], feedDetailData);
+  queryClient.setQueryData(
+    ['comments', { commentsFeedId: feedId }],
+    feedCommentsData
+  );
+  queryClient.setQueryData(['like'], { likeFeedId: feedId });
+  return json({ feedDetailData, feedCommentsData, feedLikeData });
 };
