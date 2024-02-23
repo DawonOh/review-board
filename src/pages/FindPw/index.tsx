@@ -43,7 +43,7 @@ export const FindPw = () => {
       instance
         .post(`/users/signup/password`, {
           email: email,
-          resetPasswordUrl: `http://localhost:3000/changepw`,
+          resetPasswordUrl: `https://all-review.site/changepw`,
         })
         .then(response => {
           if (response.status === 200) {
