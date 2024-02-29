@@ -119,6 +119,7 @@ export const MainComment = ({
     if (alertModal.isClickOk && clickedCommentId !== null) {
       deleteCommentMutate({ commentId: clickedCommentId });
       dispatch(alertActions.setIsClickOk());
+      setClickedCommentId(null);
     }
   }, [alertModal.isClickOk, deleteCommentMutate, clickedCommentId, dispatch]);
 
