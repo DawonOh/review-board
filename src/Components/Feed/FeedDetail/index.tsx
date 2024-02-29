@@ -33,6 +33,7 @@ export const FeedDetail = ({
   feedLikeData: LikeType[] | undefined;
 }) => {
   const [isLike, setIsLike] = useState(false);
+  const [deleteFeedId, setDeleteFeedId] = useState<string | null>(null);
 
   let isLogin = useAppSelector(state => state.login.isLogin);
   let loginUserId = useAppSelector(state => state.user.id);
@@ -146,6 +147,7 @@ export const FeedDetail = ({
 
   // 게시물 삭제
   const deleteFeedAlert = () => {
+    feedId && setDeleteFeedId(feedId);
     dispatch(
       alertActions.setModal({
         isModalOpen: true,
@@ -167,11 +169,12 @@ export const FeedDetail = ({
   });
 
   useEffect(() => {
-    if (isDelete) {
+    if (isDelete && deleteFeedId !== null) {
       deleteMutate(feedId);
       dispatch(alertActions.setIsClickOk());
+      setDeleteFeedId(null);
     }
-  }, [isDelete, feedId, dispatch, deleteMutate]);
+  }, [isDelete, deleteFeedId, dispatch, deleteMutate]);
 
   useEffect(() => {
     if (isError) {

@@ -119,8 +119,12 @@ export const MainComment = ({
     if (alertModal.isClickOk && clickedCommentId !== null) {
       deleteCommentMutate({ commentId: clickedCommentId });
       dispatch(alertActions.setIsClickOk());
+      setClickedCommentId(null);
     }
   }, [alertModal.isClickOk, deleteCommentMutate, clickedCommentId, dispatch]);
+
+  console.log(clickedCommentId);
+  console.log(alertModal.isClickOk);
 
   return (
     <div className="flex flex-col justify-end items-end w-full">
