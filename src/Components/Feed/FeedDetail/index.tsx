@@ -223,10 +223,12 @@ export const FeedDetail = ({
           <h1 className="text-xl font-bold">{feedDetailData?.title}</h1>
         </div>
         <div className="flex justify-center items-center flex-col w-full mt-4 gap-4">
-          <div className="flex justify-between items-center w-full md:mt-8">
-            <div className="flex justify-between items-center w-full">
-              <div className="text-sm text-buttongray">
-                {createDate} 작성 | {updateDate} 편집
+          <div className="flex flex-col justify-between items-center w-full md:mt-8">
+            <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full">
+              <div className="flex flex-col text-sm text-buttongray">
+                <span>{createDate} 작성 </span>
+                <span className="md:inline hidden">|</span>
+                <span>{updateDate} 편집</span>
               </div>
               <div className="flex align-center gap-8">
                 <Link to={`/channel/${feedDetailData?.user.id}?type=review`}>
