@@ -123,9 +123,6 @@ export const MainComment = ({
     }
   }, [alertModal.isClickOk, deleteCommentMutate, clickedCommentId, dispatch]);
 
-  console.log(clickedCommentId);
-  console.log(alertModal.isClickOk);
-
   return (
     <div className="flex flex-col justify-end items-end w-full">
       <div className={`${isChildren ? 'w-11/12' : 'w-full'} font-bold`}>

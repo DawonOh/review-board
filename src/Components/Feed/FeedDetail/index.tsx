@@ -227,10 +227,10 @@ export const FeedDetail = ({
         </div>
         <div className="flex justify-center items-center flex-col w-full mt-4 gap-4">
           <div className="flex flex-col justify-between items-center w-full md:mt-8">
-            <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full">
-              <div className="flex flex-col text-sm text-buttongray">
+            <div className="flex md:flex-row flex-col md:justify-between justify-center items-start w-full">
+              <div className="flex md:flex-row flex-col text-sm text-buttongray">
                 <span>{createDate} 작성 </span>
-                <span className="md:inline hidden">|</span>
+                <span className="md:inline hidden mx-4">|</span>
                 <span>{updateDate} 편집</span>
               </div>
               <div className="flex align-center gap-8">
