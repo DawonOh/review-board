@@ -90,6 +90,7 @@ interface UserCommentInfoType {
     user: {
       id: number;
     };
+    title: string;
   };
   id: number;
   is_private: boolean;
