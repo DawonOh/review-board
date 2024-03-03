@@ -107,6 +107,9 @@ const CommentItem = (
           <div className="flex">
             <div className="flex items-center">
               <div className="p-4">
+                <div className="text-mainblue text-sm">
+                  {userComments.feed.title}
+                </div>
                 <div className="flex items-center">
                   {userComments.parent && userComments.deleted_at === null && (
                     <img className="w-5 h-5" src={ReplyIconImg} alt="대댓글" />
