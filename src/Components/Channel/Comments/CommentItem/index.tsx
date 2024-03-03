@@ -1,5 +1,5 @@
 import { ForwardedRef, Fragment, forwardRef, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ReplyIconImg from '../../../../assets/images/reply.png';
 import LockIconImg from '../../../../assets/images/lock.png';
 import { useAppDispatch, useAppSelector } from 'hooks';
@@ -7,8 +7,9 @@ import { alertActions } from 'redux/slice/alert-slice';
 import { useMutation } from '@tanstack/react-query';
 import { deleteChannelComment } from 'util/user-http';
 import { queryClient } from 'util/feedDetail-http';
+import { Link } from 'react-router-dom';
 
-interface UserCommentInfoType {
+export interface UserCommentInfoType {
   userComments: {
     comment: string;
     created_at: string;
@@ -18,6 +19,7 @@ interface UserCommentInfoType {
       user: {
         id: number;
       };
+      title: string;
     };
     id: number;
     is_private: boolean;
@@ -97,11 +99,11 @@ const CommentItem = (
 
   return (
     <Fragment>
-      <div
-        className="flex w-full p-2 justify-between items-center cursor-pointer hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray bg-white"
-        ref={ref}
-      >
-        <Link to={'/feed/' + userComments.feed.id}>
+      <Link to={`/feed/${userComments.feed.id}`}>
+        <div
+          className="flex w-full p-2 justify-between items-center cursor-pointer hover:duration-300 [&:not(:hover)]:translate-y-0.5 [&:not(:hover)]:duration-300 rounded-md shadow-md shadow-buttongray bg-white"
+          ref={ref}
+        >
           <div className="flex">
             <div className="flex items-center">
               <div className="p-4">
@@ -131,16 +133,17 @@ const CommentItem = (
               </div>
             </div>
           </div>
-        </Link>
-        {loginUserId === Number(userId) && userComments.deleted_at === null && (
-          <button
-            className="min-w-16 px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg md:mt-0 mt-4"
-            onClick={() => deleteComment(userComments.id)}
-          >
-            삭제
-          </button>
-        )}
-      </div>
+          {loginUserId === Number(userId) &&
+            userComments.deleted_at === null && (
+              <button
+                className="min-w-16 px-4 bg-[#F8C7C7] border border-mainred text-mainred rounded-lg md:mt-0 mt-4"
+                onClick={() => deleteComment(userComments.id)}
+              >
+                삭제
+              </button>
+            )}
+        </div>
+      </Link>
     </Fragment>
   );
 };
