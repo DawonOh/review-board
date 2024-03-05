@@ -209,7 +209,7 @@ export const FeedDetail = ({
 
   return (
     <div className="w-full p-8">
-      <div className="w-4/5 my-0 mx-auto bg-white rounded-md md:px-20 px-8 pt-12 pb-8">
+      <div className="xl:w-1/2 w-4/5 my-0 mx-auto bg-white rounded-md md:px-20 px-8 pt-12 pb-8">
         <div className="flex items-center gap-4 mb-4">
           <div className="inline-block px-4 bg-buttongray rounded-md">
             {feedDetailData?.category.category}
