@@ -193,7 +193,7 @@ export const ModifyInfoPage = () => {
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -228,7 +228,7 @@ export const ModifyInfoPage = () => {
     if (result) {
       axios
         .patch<ChangeUserInfoType>(
-          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          `${BACK_URL}/users/signup`,
           { nickname: newNickName, email: newEmail },
           {
             timeout: 5000,

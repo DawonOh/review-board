@@ -205,7 +205,7 @@ export const MyPage = () => {
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo/${userId}`, {
         timeout: 5000,
         headers: { Accept: 'application/json' },
       })
@@ -214,7 +214,7 @@ export const MyPage = () => {
       });
 
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -234,7 +234,7 @@ export const MyPage = () => {
     const controller = new AbortController();
     axios
       .get<UserCommentType>(
-        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/comments?index=${pageNum}&limit=10`,
+        `${BACK_URL}/users/userinfo/${userId}/comments?index=${pageNum}&limit=10`,
         {
           timeout: 5000,
           signal: controller.signal,
@@ -287,7 +287,7 @@ export const MyPage = () => {
   useEffect(() => {
     axios
       .get<UserFeedInfoType>(
-        `${BACK_URL}:${BACK_PORT}/users/userinfo/${userId}/feeds?page=${currPage}&limit=4`,
+        `${BACK_URL}/users/userinfo/${userId}/feeds?page=${currPage}&limit=4`,
         {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },

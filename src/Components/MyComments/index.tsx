@@ -155,7 +155,7 @@ const MyComments = (
   useEffect(() => {
     if (result) {
       axios
-        .delete(`${BACK_URL}:${BACK_PORT}/comments/${userComments.id}`, {
+        .delete(`${BACK_URL}/comments/${userComments.id}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })

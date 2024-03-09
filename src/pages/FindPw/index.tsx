@@ -159,7 +159,7 @@ export const FindPw = () => {
     if (email !== '' && isEmailPass) {
       axios
         .post(
-          `${BACK_URL}:${BACK_PORT}/users/signup/password`,
+          `${BACK_URL}/users/signup/password`,
           {
             email: email,
             resetPasswordUrl: `http://localhost:3000/changepw`,

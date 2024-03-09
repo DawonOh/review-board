@@ -154,7 +154,7 @@ export const MainComment = ({
   };
   useEffect(() => {
     if (result) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments/${commentId}`, {
+      fetch(`${BACK_URL}/comments/${commentId}`, {
         method: 'DELETE',
         headers: requestHeaders,
       })

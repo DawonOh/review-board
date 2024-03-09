@@ -46,7 +46,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
     if (query) {
       axios({
         method: 'GET',
-        url: `${BACK_URL}:${BACK_PORT}/search/list`,
+        url: `${BACK_URL}/search/list`,
         params: { query: query, index: pageNumber },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;
@@ -71,7 +71,7 @@ export const useCardList = (pageNumber: number, categoryId: any) => {
     if (!query || categoryId === 0 || categoryId) {
       axios({
         method: 'GET',
-        url: `${BACK_URL}:${BACK_PORT}/feeds/post`,
+        url: `${BACK_URL}/feeds/post`,
         params: { index: pageNumber, categoryId: categoryId, limit: 10 },
         cancelToken: new axios.CancelToken(c => {
           cancel = c;

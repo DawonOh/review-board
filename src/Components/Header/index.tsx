@@ -227,7 +227,7 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
@@ -281,10 +281,9 @@ export const Header = ({ isMenuOn, setIsMenuOn }: Props) => {
     if (searchValue.trim() !== '') {
       const timer = setTimeout(() => {
         axios
-          .get<SearchListType[]>(
-            `${BACK_URL}:${BACK_PORT}/search?query=${searchValue}`,
-            { timeout: 5000 }
-          )
+          .get<SearchListType[]>(`${BACK_URL}/search?query=${searchValue}`, {
+            timeout: 5000,
+          })
           .then(response => {
             setSearchList(response.data);
             setLoading(false);

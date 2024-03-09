@@ -146,7 +146,7 @@ export const Join = () => {
 
   //이메일 중복 검사
   const checkAlreadyUsedEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    fetch(`${BACK_URL}:${BACK_PORT}/users/checkemail?email=${email}`, {
+    fetch(`${BACK_URL}/users/checkemail?email=${email}`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -188,7 +188,7 @@ export const Join = () => {
     setNickNameValue(e.target.value);
   };
   const checkNickName = () =>
-    fetch(`${BACK_URL}:${BACK_PORT}/users/checknickname?nickname=${nickName}`, {
+    fetch(`${BACK_URL}/users/checknickname?nickname=${nickName}`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -237,7 +237,7 @@ export const Join = () => {
     ) {
       alert('입력한 정보를 다시 확인해주세요.');
     } else {
-      fetch(`${BACK_URL}:${BACK_PORT}/users/signup`, {
+      fetch(`${BACK_URL}/users/signup`, {
         method: 'POST',
         headers: requestHeaders,
         body: JSON.stringify({

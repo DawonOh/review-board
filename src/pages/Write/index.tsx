@@ -20,7 +20,7 @@ export const WriteFeed = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })

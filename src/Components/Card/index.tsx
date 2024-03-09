@@ -173,7 +173,7 @@ const Card = (
   useEffect(() => {
     if (token) {
       axios
-        .get<LoginLikeType>(`${BACK_URL}:${BACK_PORT}/symbols/check/${id}`, {
+        .get<LoginLikeType>(`${BACK_URL}/symbols/check/${id}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })

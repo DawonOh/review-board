@@ -170,7 +170,7 @@ export const CommentTextarea = ({
       isNestedComment === false &&
       Boolean(mainCommentText.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
+      fetch(`${BACK_URL}/comments`, {
         method: 'POST',
         headers: requestHeaders,
         body: JSON.stringify({
@@ -223,7 +223,7 @@ export const CommentTextarea = ({
       isNestedComment &&
       Boolean(mainCommentText.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
+      fetch(`${BACK_URL}/comments`, {
         method: 'POST',
         headers: requestHeaders,
         body: JSON.stringify({
@@ -271,7 +271,7 @@ export const CommentTextarea = ({
       isModify &&
       Boolean(mainCommentText.replace(/ /g, '') === '') === false
     ) {
-      fetch(`${BACK_URL}:${BACK_PORT}/comments`, {
+      fetch(`${BACK_URL}/comments`, {
         method: 'PATCH',
         headers: requestHeaders,
         body: JSON.stringify({

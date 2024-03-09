@@ -124,7 +124,7 @@ export const Login = ({ isModalOpen, setIsModalOpen }: Props) => {
   const emailInput = useRef<HTMLInputElement>(null);
 
   const login = () => {
-    fetch(`${BACK_URL}:${BACK_PORT}/users/signin`, {
+    fetch(`${BACK_URL}/users/signin`, {
       method: 'POST',
       headers: requestHeaders,
       body: JSON.stringify({

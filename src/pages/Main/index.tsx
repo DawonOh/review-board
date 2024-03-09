@@ -179,7 +179,7 @@ export const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`${BACK_URL}:${BACK_PORT}/categories`, {
+    fetch(`${BACK_URL}/categories`, {
       headers: requestHeaders,
     })
       .then(res => res.json())
@@ -191,7 +191,7 @@ export const MainPage = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })

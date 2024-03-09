@@ -140,7 +140,7 @@ export const ModifyPw = () => {
   useEffect(() => {
     if (query) {
       axios
-        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: query },
         })
@@ -158,7 +158,7 @@ export const ModifyPw = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
@@ -218,7 +218,7 @@ export const ModifyPw = () => {
     if (result) {
       axios
         .patch(
-          `${BACK_URL}:${BACK_PORT}/users/signup`,
+          `${BACK_URL}/users/signup`,
           { password: newPw },
           {
             timeout: 5000,

@@ -92,7 +92,7 @@ export const Quit = () => {
     if (result) {
       setLoading(true);
       axios
-        .delete<string>(`${BACK_URL}:${BACK_PORT}/users/signup`, {
+        .delete<string>(`${BACK_URL}/users/signup`, {
           headers: { Accept: 'application/json', Authorization: token },
         })
         .then(response => {

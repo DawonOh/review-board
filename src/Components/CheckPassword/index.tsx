@@ -71,7 +71,7 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
 
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -103,7 +103,7 @@ export const CheckPassword = ({ setIsPass, parentResult }: PropsType) => {
     setIsPass(false);
     axios
       .post(
-        `${BACK_URL}:${BACK_PORT}/users/signin`,
+        `${BACK_URL}/users/signin`,
         {
           email: email,
           password: pw,

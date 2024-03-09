@@ -102,7 +102,7 @@ export const LikeList = () => {
   let token = localStorage.getItem('token');
   useEffect(() => {
     axios
-      .get<UserInfoType>(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+      .get<UserInfoType>(`${BACK_URL}/users/userinfo`, {
         timeout: 5000,
         headers: { Accept: 'application/json', Authorization: token },
       })
@@ -118,7 +118,7 @@ export const LikeList = () => {
     if (loginUserId !== 0) {
       axios
         .get<UserLikeFeedsType>(
-          `${BACK_URL}:${BACK_PORT}/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
+          `${BACK_URL}/users/userinfo/${loginUserId}/symbols?page=${currPage}&limit=8`,
           {
             timeout: 5000,
             headers: { Accept: 'application/json', Authorization: token },

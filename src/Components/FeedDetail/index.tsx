@@ -257,7 +257,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
     ) {
       axios
         .post<SymbolType>(
-          `${BACK_URL}:${BACK_PORT}/symbols/${feedId}`,
+          `${BACK_URL}/symbols/${feedId}`,
           {
             symbolId: 1,
           },
@@ -285,7 +285,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
     }
     if (isLike) {
       axios
-        .delete<SymbolType>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
+        .delete<SymbolType>(`${BACK_URL}/symbols/${feedId}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
@@ -311,7 +311,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
 
   useEffect(() => {
     axios
-      .get<DataType>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+      .get<DataType>(`${BACK_URL}/feeds/${feedId}`, {
         timeout: 5000,
       })
       .then(response => {
@@ -328,7 +328,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
       });
 
     axios
-      .get<LikeType[]>(`${BACK_URL}:${BACK_PORT}/symbols/${feedId}`, {
+      .get<LikeType[]>(`${BACK_URL}/symbols/${feedId}`, {
         timeout: 5000,
       })
       .then(response => {
@@ -344,13 +344,10 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
 
     if (token) {
       axios
-        .get<LoginLikeType>(
-          `${BACK_URL}:${BACK_PORT}/symbols/check/${feedId}`,
-          {
-            timeout: 5000,
-            headers: { Accept: `application/json`, Authorization: token },
-          }
-        )
+        .get<LoginLikeType>(`${BACK_URL}/symbols/check/${feedId}`, {
+          timeout: 5000,
+          headers: { Accept: `application/json`, Authorization: token },
+        })
         .then(response => {
           setIsLike(response.data.checkValue);
         })
@@ -371,7 +368,7 @@ export const FeedDetail = ({ loginUserId }: loginUserIdType) => {
   useEffect(() => {
     if (result) {
       axios
-        .delete<string>(`${BACK_URL}:${BACK_PORT}/feeds/${feedId}`, {
+        .delete<string>(`${BACK_URL}/feeds/${feedId}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })

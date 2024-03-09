@@ -152,7 +152,7 @@ export const TempList = () => {
 
   useEffect(() => {
     axios
-      .get<TempListType>(`${BACK_URL}:${BACK_PORT}/feeds/temp`, {
+      .get<TempListType>(`${BACK_URL}/feeds/temp`, {
         timeout: 5000,
         headers: { Accept: `application/json`, Authorization: token },
       })
@@ -173,7 +173,7 @@ export const TempList = () => {
   useEffect(() => {
     if (result) {
       axios
-        .delete(`${BACK_URL}:${BACK_PORT}/feeds/${tempFeedId}`, {
+        .delete(`${BACK_URL}/feeds/${tempFeedId}`, {
           timeout: 5000,
           headers: { Accept: `application/json`, Authorization: token },
         })
@@ -190,7 +190,7 @@ export const TempList = () => {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${BACK_URL}:${BACK_PORT}/users/userinfo`, {
+        .get(`${BACK_URL}/users/userinfo`, {
           timeout: 5000,
           headers: { Accept: 'application/json', Authorization: token },
         })
