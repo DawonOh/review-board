@@ -4,6 +4,8 @@
 **DEMO**
 https://all-review.site/
 
+- styled-components 사용한 코드는 <a href='https://github.com/DawonOh/review-board/tree/ver.styled-components'>ver.styled-components</a> 브랜치에서 확인할 수 있습니다.<br />(프론트엔드, 백엔드 리팩토링 전 코드입니다.)
+
 [1.프로젝트 소개](#프로젝트-소개)<br />
 [2.페이지 구성](#페이지-구성)<br />
 [3.기능 소개](#기능-소개)
