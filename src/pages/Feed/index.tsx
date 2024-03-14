@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import {
   MobileMenu,
   FeedDetail,
@@ -40,6 +40,10 @@ const feedLikeQuery = (feedId: string | undefined) => ({
 export const Feed = () => {
   const params = useParams();
   const feedId = params.id;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const feedData = useQueries({
     queries: [
