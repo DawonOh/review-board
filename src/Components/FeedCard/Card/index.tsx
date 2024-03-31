@@ -1,7 +1,7 @@
 import { useEffect, useState, forwardRef, ForwardedRef } from 'react';
 
-import LikeIconImg from '../../../assets/images/likeCountBlack.png';
-import LikeClickIconImg from '../../../assets/images/likeCountClick.png';
+import LikeIconImg from '../../../assets/images/heart-red.png';
+import LikeClickIconImg from '../../../assets/images/heart-fill.png';
 import CommentIconImg from '../../../assets/images/comment.png';
 import Clip from '../../../assets/images/clip.png';
 import ViewIconImg from '../../../assets/images/view.png';
