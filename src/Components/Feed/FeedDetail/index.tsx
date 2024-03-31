@@ -209,58 +209,59 @@ export const FeedDetail = ({
 
   return (
     <div className="flex justify-center w-full">
-      <div className="flex justify-center fixed w-full mb-4 p-4 bg-white border-t">
-        <div className="flex items-center justify-between xl:w-1/2 w-4/5">
-          <div className="flexCenterAlign gap-4">
-            {/* 카테고리 */}
-            <div className="inline-block px-4 bg-buttongray rounded-md">
-              {feedDetailData?.category.category}
-            </div>
-            {/* 제목 */}
-            <div className="flex gap-2">
-              <div
-                className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
-              />
-              <h1 className="text-xl font-bold">{feedDetailData?.title}</h1>
-            </div>
-            {/* 작성자 */}
-            <Link to={`/channel/${feedDetailData?.user.id}?type=review`}>
-              <span className="font-bold text-textgray hover:text-mainblue">
-                {feedDetailData?.user.nickname}
-              </span>
-            </Link>
+      <div className="flex justify-center fixed w-full p-4 bg-white border-t">
+        <div className="flex xl:flex-row flex-col xl:items-center items-start 2xl:w-1/2 w-3/4 relative">
+          {/* 카테고리 */}
+          <div className="text-center mr-4 px-4 bg-buttongray rounded-md">
+            {feedDetailData?.category.category}
+          </div>
+          {/* 제목 */}
+          <div className="flex gap-2 xl:mt-0 mt-4">
+            <div
+              className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
+            />
+            <h1 className="text-xl font-bold">
+              {feedDetailData?.title}
+              {/* 작성자 */}
+              <Link
+                to={`/channel/${feedDetailData?.user.id}?type=review`}
+                className="text-sm ml-4 mt-auto"
+              >
+                <span className="font-bold text-textgray hover:text-mainblue">
+                  {feedDetailData?.user.nickname}
+                </span>
+              </Link>
+            </h1>
           </div>
           {/* 조회수 + 좋아요 */}
-          <div>
-            <div className="flexCenterAlign gap-4">
-              <div className="flexCenterAlign mr-2">
-                <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/view.png')] bg-no-repeat bg-cover" />
-                <span>{feedDetailData?.viewCnt}</span>
-              </div>
-              <div
-                className="flex top-20 right-20 gap-2 cursor-pointer"
-                onClick={handleClickLike}
-              >
-                <div
-                  className={`w-7 h-6 min-w-6 min-h-6 ${
-                    isLike
-                      ? "bg-[url('./assets/images/likeCountClick.png')]"
-                      : "bg-[url('./assets/images/likeCount.png')]"
-                  } bg-no-repeat bg-cover`}
-                />
-                <span>{feedLikeData && feedLikeData[0].count}</span>
-              </div>
+          <div className="flex gap-4 ml-auto xl:static absolute right-0">
+            <div className="flex items-center">
+              <div className="w-4 h-4 min-w-4 min-h-4 mr-1 bg-[url('./assets/images/view.png')] bg-no-repeat bg-cover" />
+              <span>{feedDetailData?.viewCnt}</span>
             </div>
+            <button
+              className="flexCenterAlign gap-2 py-1 px-2 buttonLayout bg-buttongray cursor-pointer"
+              onClick={handleClickLike}
+            >
+              <div
+                className={`w-4 h-4 min-w-4 min-h-4 ${
+                  isLike
+                    ? "bg-[url('./assets/images/heart-fill.png')]"
+                    : "bg-[url('./assets/images/heart-red.png')]"
+                } bg-no-repeat bg-cover`}
+              />
+              좋아요 {feedLikeData && feedLikeData[0].count}
+            </button>
           </div>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md mt-16 px-8 py-8">
-        <div className="flex md:flex-row flex-col w-1/2 my-0 mx-auto text-sm text-textgray">
+      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md xl:mt-16 md:mt-20 mt-24 px-8 py-8">
+        <div className="flex md:flex-row flex-col 2xl:w-1/2 w-3/4 my-0 mx-auto text-sm text-textgray">
           <span>{createDate} 작성 </span>
           <span className="md:inline hidden mx-4">|</span>
           <span>{updateDate} 편집</span>
         </div>
-        <div className="xl:w-1/2 w-4/5 gap-4">
+        <div className="2xl:w-1/2 w-3/4 gap-4">
           {feedDetailData?.uploadFiles.map((file, index) => {
             return (
               file.is_img && (
@@ -280,7 +281,7 @@ export const FeedDetail = ({
               )
             );
           })}
-          <div className="w-full whitespace-pre-wrap break-words leading-5 pt-4">
+          <div className="w-full whitespace-pre-wrap leading-5 pt-4">
             {feedDetailData?.content}
           </div>
           <div className="flex flex-col justify-between items-center w-full md:mt-8">
