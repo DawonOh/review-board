@@ -255,7 +255,7 @@ export const FeedDetail = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md xl:mt-12 md:mt-16 sm:mt-[7.5rem] mt-[8.2rem] sm:px-8 py-8">
+      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md xl:mt-12 md:mt-24 sm:mt-24 mt-28 sm:px-8 py-8">
         <div className="flex md:flex-row flex-col 2xl:w-1/2 w-3/4 my-0 mx-auto text-sm text-textgray">
           <span>{createDate} 작성 </span>
           <span className="md:inline hidden mx-4">|</span>

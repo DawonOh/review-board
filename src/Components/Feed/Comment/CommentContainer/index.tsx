@@ -54,7 +54,7 @@ export const CommentContainer = ({
   mainCommentList: CommentJsonType[];
 }) => {
   return (
-    <div className="2xl:w-1/2 w-3/4 my-0 mx-auto sm:px-8 pt-4 pb-4">
+    <div className="2xl:w-1/2 w-3/4 my-0 mx-auto sm:px-4 pt-4 pb-4">
       <h2 className="mt-4 text-xl font-bold mb-4">댓글</h2>
       <CommentTextarea isNestedComment={false} />
       {mainCommentList &&
