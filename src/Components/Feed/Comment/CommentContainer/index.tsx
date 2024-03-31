@@ -54,19 +54,17 @@ export const CommentContainer = ({
   mainCommentList: CommentJsonType[];
 }) => {
   return (
-    <div className="w-full p-8">
-      <div className="xl:w-1/2 w-4/5 my-0 mx-auto pb-8">
-        <h2 className="mt-4 text-xl font-bold mb-4">댓글</h2>
-        <CommentTextarea isNestedComment={false} />
-        {mainCommentList &&
-          mainCommentList.map((mainComment: CommentJsonType) => {
-            return (
-              <Fragment key={mainComment.id}>
-                <CommentList mainComment={mainComment} />
-              </Fragment>
-            );
-          })}
-      </div>
+    <div className="2xl:w-1/2 w-3/4 my-0 mx-auto sm:px-8 pt-4 pb-4">
+      <h2 className="mt-4 text-xl font-bold mb-4">댓글</h2>
+      <CommentTextarea isNestedComment={false} />
+      {mainCommentList &&
+        mainCommentList.map((mainComment: CommentJsonType) => {
+          return (
+            <Fragment key={mainComment.id}>
+              <CommentList mainComment={mainComment} />
+            </Fragment>
+          );
+        })}
     </div>
   );
 };

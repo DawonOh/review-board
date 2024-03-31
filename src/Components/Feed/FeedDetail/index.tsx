@@ -209,29 +209,29 @@ export const FeedDetail = ({
 
   return (
     <div className="flex justify-center w-full">
-      <div className="flex justify-center fixed w-full p-4 bg-white border-t">
+      <div className="flex justify-center fixed w-full sm:p-4 py-2 bg-white border-t">
         <div className="flex xl:flex-row flex-col xl:items-center items-start 2xl:w-1/2 w-3/4 relative">
           {/* 카테고리 */}
           <div className="text-center mr-4 px-4 bg-buttongray rounded-md">
             {feedDetailData?.category.category}
           </div>
           {/* 제목 */}
-          <div className="flex gap-2 xl:mt-0 mt-4">
-            <div
-              className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
-            />
-            <h1 className="text-xl font-bold">
-              {feedDetailData?.title}
-              {/* 작성자 */}
-              <Link
-                to={`/channel/${feedDetailData?.user.id}?type=review`}
-                className="text-sm ml-4 mt-auto"
-              >
-                <span className="font-bold text-textgray hover:text-mainblue">
-                  {feedDetailData?.user.nickname}
-                </span>
-              </Link>
-            </h1>
+          <div className="flex md:flex-row flex-col gap-2 xl:mt-0 mt-4">
+            <div className="flex">
+              <div
+                className={`w-6 h-6 min-w-6 min-h-6 ${estimateIcon()} bg-no-repeat bg-cover`}
+              />
+              <h1 className="text-xl font-bold">{feedDetailData?.title}</h1>
+            </div>
+            {/* 작성자 */}
+            <Link
+              to={`/channel/${feedDetailData?.user.id}?type=review`}
+              className="text-sm sm:ml-4 mt-auto"
+            >
+              <span className="font-bold text-textgray hover:text-mainblue">
+                {feedDetailData?.user.nickname}
+              </span>
+            </Link>
           </div>
           {/* 조회수 + 좋아요 */}
           <div className="flex gap-4 ml-auto xl:static absolute right-0">
@@ -255,7 +255,7 @@ export const FeedDetail = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md xl:mt-16 md:mt-20 mt-24 px-8 py-8">
+      <div className="flex flex-col justify-center items-center w-full my-0 mx-auto bg-white rounded-md xl:mt-12 md:mt-16 sm:mt-[7.5rem] mt-[8.2rem] sm:px-8 py-8">
         <div className="flex md:flex-row flex-col 2xl:w-1/2 w-3/4 my-0 mx-auto text-sm text-textgray">
           <span>{createDate} 작성 </span>
           <span className="md:inline hidden mx-4">|</span>

@@ -129,7 +129,7 @@ export const MainComment = ({
         {specificNickName}
       </div>
       <div className="flex justify-between w-full">
-        {isChildren && <div className="w-1 h-auto rounded-md bg-mainsky" />}
+        {isChildren && <div />}
         <div
           className={`${
             isChildren ? 'w-11/12' : 'w-full'

@@ -42,7 +42,7 @@ export const Header = () => {
   return (
     <>
       <header className="flexCenterAlign flex-col sticky h-12 top-0 bg-white z-50 relative">
-        <div className="flex justify-between items-center w-4/5 h-full px-8">
+        <div className="flex justify-between items-center w-4/5 h-full sm:px-8">
           <Link to="/">
             <h1
               className="font-sans text-mainblue text-2xl font-bold"
