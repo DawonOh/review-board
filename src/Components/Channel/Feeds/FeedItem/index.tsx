@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import HeartIconImg from '../../../../assets/images/likeCountBlack.png';
+import HeartIconImg from '../../../../assets/images/heart-red.png';
 import ViewIconImg from '../../../../assets/images/view.png';
 
 interface UserFeedsType {
