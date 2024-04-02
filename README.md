@@ -15,7 +15,7 @@ https://all-review.site/
 ### 프로젝트 기간
 - 1차 : 2023.01.09 ~ 2023.04.13 (실 개발 약 2개월 2주)
 - 2차 추가 기능 개발 : ~ 2023.6.16
-- **리팩토링 : 2023.11 ~ 2021.02**
+- **리팩토링 : 2023.11 ~ 2024.02**
 
 ### 개발 인원
 |<img src="https://github.com/DawonOh/review-board/assets/89020079/a388da55-4bbd-4b29-8fbe-976864363b31" width="80">|<img src="https://github.com/DawonOh/review-board/assets/89020079/54e900e9-7b8c-4493-be21-66ea5d58ff6c" width="80">|
