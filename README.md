@@ -41,7 +41,8 @@ https://all-review.site/
 
 |상세페이지|게시글 작성 페이지|
 |:---:|:---:|
-|<img src="https://github.com/DawonOh/review-board/assets/89020079/de8a4f2b-a0f4-4efe-b096-87741d6752d5" width="600">|<img src="https://github.com/DawonOh/review-board/assets/89020079/7a64291e-c153-48e9-bd8b-b6183ce9c3d2" width="600">|
+|<img src="https://github.com/DawonOh/review-board/assets/89020079/3883029e-6057-4f22-95f3-694baaf89f95" width="600">|<img src="https://github.com/DawonOh/review-board/assets/89020079/7a64291e-c153-48e9-bd8b-b6183ce9c3d2" width="600">|
+
 
 |임시저장 리스트|좋아요 목록|
 |:---:|:---:|
